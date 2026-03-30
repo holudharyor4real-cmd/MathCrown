@@ -1133,10 +1133,10 @@ body{
       <button class="btn btn-mint" onclick="openModal('parent')">👨‍👩‍👧 Parent Account</button>
       <button class="btn btn-ghost" id="preview-btn">👁️ Take a Peek Inside</button>
     </div>
-    <div style="margin-top:14px;font-size:14px;color:var(--text2)">
-      Already have an account? 
-      <button onclick="openLoginModal()" style="background:none;border:none;color:var(--sky);font-weight:800;cursor:pointer;font-size:14px;text-decoration:underline;padding:0">
-        Log In Here
+    <div style="margin-top:20px;padding:14px 24px;background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);border-radius:100px;display:inline-flex;align-items:center;gap:8px">
+      <span style="font-size:14px;color:var(--text2)">Already have an account?</span>
+      <button onclick="openLoginModal()" style="background:linear-gradient(135deg,var(--sky),var(--blue));border:none;color:#fff;font-weight:800;cursor:pointer;font-size:13px;padding:7px 18px;border-radius:100px;font-family:Nunito,sans-serif">
+        🔑 Log In Here
       </button>
     </div>
     <div class="stats-grid">
@@ -2488,6 +2488,7 @@ function goPage(id,el,mob){
   if(id==="profile")renderProfile();
   if(id==="tutor")renderTutor();
   if(id==="practice")renderPractice();
+  if(id==="parentdash")renderParentDash();
 }
 
 // MODAL
@@ -2884,16 +2885,24 @@ function renderOppList(){
     var tierColor = o.tier==="Legend"?"var(--sun)":o.tier==="Diamond"?"var(--sky)":o.tier==="Platinum"?"#c0c0c0":o.tier==="Gold"?"var(--sun2)":"var(--text2)";
     var realBadge = o.isReal ? "<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>" : "";
     var gradeLabel = o.gradeN ? "Grade "+o.gradeN : "";
-    return "<div class='opp-card' onclick='challengeOpp(""+o.n+"",""+o.e+"",""+o.bg+"",""+o.winRate+"")'>"
-      +"<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;"
-      +"display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0'>"+o.e+"</div>"
+    var card = document.createElement("div");
+    card.className = "opp-card";
+    card.style.cursor = "pointer";
+    card.setAttribute("data-name", o.n);
+    card.setAttribute("data-emoji", o.e);
+    card.setAttribute("data-bg", o.bg);
+    card.setAttribute("data-wr", o.winRate||0.72);
+    card.addEventListener("click", function(){
+      challengeOpp(this.getAttribute("data-name"), this.getAttribute("data-emoji"), this.getAttribute("data-bg"), this.getAttribute("data-wr"));
+    });
+    card.innerHTML = "<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0'>"+o.e+"</div>"
       +"<div class='opp-info'>"
       +"<div class='opp-name'>"+o.n+realBadge+"</div>"
-      +"<div class='opp-meta'>"+gradeLabel+" &bull; <span style='color:"+tierColor+"'>"+o.tier+"</span> &bull; "+o.meta.split(" - ").slice(-1)[0]+"</div>"
+      +"<div class='opp-meta'>"+gradeLabel+" - <span style='color:"+tierColor+"'>"+o.tier+"</span> - "+o.meta.split(" - ").slice(-1)[0]+"</div>"
       +"<div class='opp-wr' style='color:var(--mint)'>"+o.wr+"</div>"
       +"</div>"
-      +"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>Battle</button>"
-      +"</div>";
+      +"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>Battle</button>";
+    return card.outerHTML;
   }).join("");
 }
 
@@ -3588,8 +3597,6 @@ function searchPlayers(query){
     return;
   }
   query=query.toLowerCase();
-  // Search through demo players + session players
-  // Real signed-up players appear FIRST, then demo players
   var allPlayers=SESSION_PLAYERS.concat([
     {name:"Jordan K.",grade:"7th",wins:89,level:7,online:true},
     {name:"Sam P.",grade:"7th",wins:74,level:6,online:true},
@@ -3597,26 +3604,30 @@ function searchPlayers(query){
     {name:"Dana R.",grade:"9th",wins:145,level:10,online:true},
     {name:"Riley M.",grade:"7th",wins:52,level:5,online:false},
     {name:"Morgan L.",grade:"7th",wins:43,level:4,online:true},
-    {name:"Taylor B.",grade:"6th",wins:31,level:3,online:false},
+    {name:"Taylor B.",grade:"6th",wins:31,level:3,online:false}
   ]);
   var matches=allPlayers.filter(function(p){
     return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name;
   });
   if(matches.length===0){
-    resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:8px;text-align:center'>No players found matching ""+query+""</div>";
+    resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:8px;text-align:center'>No players found for: "+query+"</div>";
     return;
   }
-  resultsEl.innerHTML=matches.slice(0,5).map(function(p){
-    var onlineDot=p.online
-      ?"<span style='display:inline-block;width:8px;height:8px;background:var(--mint);border-radius:50%;margin-right:4px'></span>"
-      :"<span style='display:inline-block;width:8px;height:8px;background:var(--text2);border-radius:50%;margin-right:4px'></span>";
-    return "<div style='display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;cursor:pointer' onclick='selectPlayerChallenge(""+p.name+"")'>"
-      +"<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--sky));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
+  resultsEl.innerHTML="";
+  matches.slice(0,5).forEach(function(p){
+    var row=document.createElement("div");
+    row.style.cssText="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;cursor:pointer";
+    row.setAttribute("data-pname",p.name);
+    row.addEventListener("click",function(){
+      selectPlayerChallenge(this.getAttribute("data-pname"));
+    });
+    var dot="<span style='display:inline-block;width:8px;height:8px;background:"+(p.online?"var(--mint)":"var(--text2)")+";border-radius:50%;margin-right:4px'></span>";
+    row.innerHTML="<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--sky));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
       +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.name+"</div>"
-      +"<div style='font-size:12px;color:var(--text2)'>"+onlineDot+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
-      +"<button class='btn btn-coral btn-xs'>Challenge</button>"
-      +"</div>";
-  }).join("");
+      +"<div style='font-size:12px;color:var(--text2)'>"+dot+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
+      +"<button class='btn btn-coral btn-xs'>Challenge</button>";
+    resultsEl.appendChild(row);
+  });
 }
 
 function selectPlayerChallenge(name){
@@ -3767,8 +3778,8 @@ function renderChildCard(child, isDemo){
   var demoTag = isDemo ? "<span class='badge b-purple' style='font-size:10px;margin-left:6px'>PREVIEW</span>" : "";
 
   var prizeBtn = child.age >= 16
-    ? "<button class='btn btn-purple btn-xs' onclick='showTeenPrizeRequest(""+child.name+"")'>Teen Wallet</button>"
-    : "<button class='btn btn-sun btn-xs' onclick='approveParentPrize(""+child.name+"")'>Manage Prizes</button>";
+    ? "<button class='btn btn-purple btn-xs' onclick='showTeenPrizeRequest(child.name)'>Teen Wallet</button>"
+    : "<button class='btn btn-sun btn-xs' onclick='approveParentPrize(child.name)'>Manage Prizes</button>";
 
   return "<div class='child-card'>"
     // Header
@@ -3910,12 +3921,7 @@ function linkChildAccount(){
   showToast(fn+" has been linked to your parent dashboard!");
 }
 
-// Show parent dashboard in goPage
-var _origGoPage = goPage;
-goPage = function(id, el, mob){
-  _origGoPage(id, el, mob);
-  if(id==="parentdash") renderParentDash();
-};
+// Parent dashboard renders via goPage's existing if(id==='parentdash') check below
 
 
 // ═══════════════════════════════════════════
@@ -4210,7 +4216,7 @@ document.addEventListener("DOMContentLoaded",function(){
 </script>
 <!-- ═══════════════ MUSIC PLAYER ═══════════════ -->
 <!-- All tracks from Pixabay.com (royalty-free, no attribution required) -->
-<div class="music-btn muted" id="music-btn" onclick="toggleMusicPanel()" title="Click to control music">
+<div class="music-btn muted" id="music-btn" onclick="toggleMusicPanel()" title="Click to control music" style="display:none">
   <span id="music-btn-icon" style="font-size:20px">🎵</span>
   <div class="music-eq" id="music-eq" style="display:none">
     <div class="music-bar" style="height:8px"></div>

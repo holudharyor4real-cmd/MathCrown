@@ -172,16 +172,18 @@ body{
 .modal-overlay{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,0.75);z-index:200;
-  align-items:center;justify-content:center;
+  align-items:flex-start;justify-content:center;
   padding:20px;backdrop-filter:blur(8px);
+  overflow-y:auto;
 }
 .modal-overlay.open{display:flex;}
 .modal{
   background:linear-gradient(135deg,var(--dark2),var(--dark3));
   border:1px solid var(--border);
   border-radius:28px;width:100%;max-width:500px;
-  padding:36px;position:relative;
+  padding:28px 24px;position:relative;
   animation:pop-in .3s cubic-bezier(.34,1.56,.64,1);
+  margin:auto;
 }
 @keyframes pop-in{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
 .modal-close{
@@ -992,6 +994,108 @@ body{
   .lb-podium{gap:8px;}
   .pod-avatar{width:44px;height:44px;font-size:20px;}
 }
+
+/* ════════════════════════════════
+   PARENT DASHBOARD
+   ════════════════════════════════ */
+.parent-hero{background:linear-gradient(135deg,rgba(6,214,160,0.1),rgba(33,150,243,0.08));border:1px solid rgba(6,214,160,0.25);border-radius:24px;padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.parent-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--mint),var(--sky));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;border:3px solid var(--mint);flex-shrink:0;}
+.child-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;transition:all .2s;}
+.child-card:hover{border-color:var(--mint);transform:translateY(-2px);}
+.child-card-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.child-ava{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0;}
+.child-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.child-stat{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 8px;text-align:center;}
+.child-stat-val{font-size:18px;font-weight:900;color:var(--sun);}
+.child-stat-lbl{font-size:10px;color:var(--text2);font-weight:700;margin-top:2px;}
+.wrong-q-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.15);border-radius:10px;margin-bottom:8px;}
+.prize-req-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.2);border-radius:14px;margin-bottom:10px;}
+.teen-wallet-card{background:linear-gradient(135deg,rgba(155,93,229,0.1),rgba(78,205,196,0.06));border:1px solid rgba(155,93,229,0.25);border-radius:16px;padding:18px;margin-bottom:12px;}
+.link-child-box{background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.15);border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;}
+.link-child-box:hover{border-color:var(--mint);background:rgba(6,214,160,0.05);}
+.activity-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+@media(max-width:600px){.child-stats{grid-template-columns:1fr 1fr;}}
+
+/* ════════════════════════════════
+   MUSIC PLAYER
+   ════════════════════════════════ */
+.music-btn{
+  position:fixed;bottom:80px;right:16px;z-index:400;
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--sky));
+  border:2px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 4px 20px rgba(155,93,229,0.5);
+  transition:all .3s;font-size:20px;
+  animation:music-pulse 2s ease-in-out infinite;
+}
+.music-btn:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(155,93,229,0.7);}
+.music-btn.muted{background:rgba(255,255,255,0.1);box-shadow:none;animation:none;}
+@keyframes music-pulse{
+  0%,100%{box-shadow:0 4px 20px rgba(155,93,229,0.5);}
+  50%{box-shadow:0 4px 32px rgba(155,93,229,0.9),0 0 0 8px rgba(155,93,229,0.1);}
+}
+.music-panel{
+  position:fixed;bottom:140px;right:16px;z-index:400;
+  background:var(--dark2);border:1px solid var(--border);
+  border-radius:20px;padding:16px;width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  display:none;animation:fade-up .2s ease;
+}
+.music-panel.open{display:block;}
+.music-track-name{
+  font-size:13px;font-weight:800;margin-bottom:4px;
+  color:var(--text);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;
+}
+.music-artist{font-size:11px;color:var(--text2);margin-bottom:12px;}
+.music-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.music-ctrl-btn{
+  background:rgba(255,255,255,0.08);border:none;
+  border-radius:50%;width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text);font-size:14px;
+  transition:all .2s;
+}
+.music-ctrl-btn:hover{background:rgba(255,255,255,0.18);}
+.music-ctrl-btn.active{background:var(--purple);color:#fff;}
+.music-progress{
+  height:4px;background:rgba(255,255,255,0.1);
+  border-radius:100px;overflow:hidden;margin-bottom:10px;cursor:pointer;
+}
+.music-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--purple),var(--sky));
+  border-radius:100px;transition:width .5s linear;width:0%;
+}
+.music-vol-row{display:flex;align-items:center;gap:8px;}
+.music-vol-slider{
+  flex:1;-webkit-appearance:none;
+  height:4px;border-radius:100px;
+  background:rgba(255,255,255,0.1);outline:none;cursor:pointer;
+}
+.music-vol-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;
+  border-radius:50%;background:var(--purple);cursor:pointer;
+}
+.music-label{font-size:10px;color:var(--text2);font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.music-eq{display:flex;align-items:flex-end;gap:2px;height:16px;}
+.music-bar{
+  width:3px;border-radius:2px;
+  background:linear-gradient(to top,var(--purple),var(--sky));
+  animation:eq-dance .6s ease-in-out infinite alternate;
+}
+.music-bar:nth-child(2){animation-delay:.1s;}
+.music-bar:nth-child(3){animation-delay:.2s;}
+.music-bar:nth-child(4){animation-delay:.15s;}
+.music-bar:nth-child(5){animation-delay:.05s;}
+@keyframes eq-dance{from{height:4px;}to{height:16px;}}
+.music-btn.muted .music-eq .music-bar{animation:none;height:4px;}
+@media(max-width:900px){
+  .music-btn{bottom:90px;right:12px;width:44px;height:44px;font-size:18px;}
+  .music-panel{right:12px;bottom:146px;width:200px;}
+}
 </style>
 </head>
 <body>
@@ -1028,6 +1132,12 @@ body{
       <button class="btn btn-sun" onclick="openModal('student')">🎮 Join Free as Student</button>
       <button class="btn btn-mint" onclick="openModal('parent')">👨‍👩‍👧 Parent Account</button>
       <button class="btn btn-ghost" id="preview-btn">👁️ Take a Peek Inside</button>
+    </div>
+    <div style="margin-top:14px;font-size:14px;color:var(--text2)">
+      Already have an account? 
+      <button onclick="openLoginModal()" style="background:none;border:none;color:var(--sky);font-weight:800;cursor:pointer;font-size:14px;text-decoration:underline;padding:0">
+        Log In Here
+      </button>
     </div>
     <div class="stats-grid">
       <div class="stat-item"><div class="stat-big">50K+</div><div class="stat-lbl">Active Students</div></div>
@@ -1336,7 +1446,87 @@ body{
       <div class="consent">
         <strong>🔒 COPPA Compliant.</strong> You control all data. Prizes are delivered to your account only. Students never handle money directly. Cancel anytime.
       </div>
-      <button class="btn btn-mint" style="width:100%" onclick="submitParentSignup()">✅ Create Parent Account</button>
+      <button class="btn btn-mint" style="width:100%" onclick="submitParentSignupWithDash()">✅ Create Parent Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LINK CHILD MODAL ═══════════════ -->
+<div class="modal-overlay" id="link-child-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLinkChildModal()">✕</button>
+    <div class="modal-title">Link a Child Account 👦</div>
+    <div class="modal-sub">Connect your child's MathChamp profile to your parent dashboard</div>
+    <div class="form-group">
+      <label class="form-label">Child's First Name</label>
+      <input class="form-input" type="text" id="lc-fn" placeholder="e.g. Josh">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Child's Last Name</label>
+      <input class="form-input" type="text" id="lc-ln" placeholder="e.g. Johnson">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Child's Grade</label>
+      <select class="form-select" id="lc-grade">
+        <option value="">Select grade...</option>
+        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
+        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
+        <option value="5">5th Grade</option><option value="6">6th Grade</option>
+        <option value="7">7th Grade</option><option value="8">8th Grade</option>
+        <option value="9">9th Grade</option><option value="10">10th Grade</option>
+        <option value="11">11th Grade</option><option value="12">12th Grade</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Child's Date of Birth</label>
+      <input class="form-input" type="date" id="lc-dob">
+    </div>
+    <div class="consent">
+      <strong>🔒 Privacy Note:</strong> This links your child's session data to your parent view. Full persistent linking requires Firebase (coming soon). For now this creates a local profile you can monitor this session.
+    </div>
+    <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
+      ✅ Link Child Account
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ LOGIN MODAL ═══════════════ -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLoginModal()">✕</button>
+    <div class="modal-title">Welcome Back! 👋</div>
+    <div class="modal-sub">Enter your details to return to your dashboard</div>
+    <div class="form-group">
+      <label class="form-label">First Name</label>
+      <input class="form-input" type="text" id="l-fn" placeholder="Your first name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Last Name</label>
+      <input class="form-input" type="text" id="l-ln" placeholder="Your last name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">School Grade</label>
+      <select class="form-select" id="l-grade">
+        <option value="">Pick your grade...</option>
+        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
+        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
+        <option value="5">5th Grade</option><option value="6">6th Grade</option>
+        <option value="7">7th Grade</option><option value="8">8th Grade</option>
+        <option value="9">9th Grade</option><option value="10">10th Grade</option>
+        <option value="11">11th Grade</option><option value="12">12th Grade</option>
+      </select>
+    </div>
+    <div class="consent" style="background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.25)">
+      <strong style="color:var(--sky)">How session saving works right now:</strong><br>
+      ✅ Your progress saves on <strong>this device and browser</strong><br>
+      ❌ Different device or browser = fresh start<br>
+      🔜 <strong>Full cross-device login with password coming soon!</strong> (Firebase launch)
+    </div>
+    <button class="btn btn-sun" style="width:100%" onclick="loginStudent()">
+      🚀 Go to My Dashboard
+    </button>
+    <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--text2)">
+      New here? <button onclick="closeLoginModal();openModal('student')" style="background:none;border:none;color:var(--mint);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create a free account</button>
     </div>
   </div>
 </div>
@@ -1391,6 +1581,9 @@ body{
     <button class="nav-item" onclick="goPage('profile',this)">
       <span class="nav-icon">👤</span> My Profile
     </button>
+    <button class="nav-item" id="nav-parent-dash" onclick="goPage('parentdash',this)" style="display:none">
+      <span class="nav-icon">👨‍👩‍👧</span> Parent Dashboard
+    </button>
 
     <div class="sb-user">
       <div class="sb-avatar" id="sb-avatar">A</div>
@@ -1398,6 +1591,9 @@ body{
         <div class="sb-uname" id="sb-name">Player</div>
         <div class="sb-ulevel" id="sb-ulevel">🌱 Level 1 · Beginner</div>
       </div>
+      <button onclick="logout()" title="Log out" style="background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.3);border-radius:8px;padding:6px 8px;cursor:pointer;color:var(--coral);font-size:12px;font-weight:800;flex-shrink:0">
+        Exit
+      </button>
     </div>
   </div>
 
@@ -1577,7 +1773,14 @@ body{
     <!-- ════ CHALLENGE ════ -->
     <div class="page" id="p-challenge">
       <div class="page-title">⚔️ Challenge Arena</div>
-      <div class="page-sub">Battle classmates · Cross-grade challenges · Earn MathCoins + XP</div>
+      <div class="page-sub">Battle opponents · Cross-grade challenges · Earn MathCoins + XP</div>
+      <div class="card card-purple" style="margin-bottom:16px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:24px">🚀</span>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--purple)">Coming Soon — Real Student Battles!</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">Right now you battle AI-powered practice opponents. Once Firebase launches, you will battle <strong>real MathChamp students</strong> from across the country in live real-time duels. Students who signed up will appear here automatically.</div>
+        </div>
+      </div>
 
       <div class="g2" style="margin-bottom:20px">
         <div class="card card-coral" style="text-align:center;padding:24px">
@@ -1590,16 +1793,23 @@ body{
           <div style="font-size:40px;margin-bottom:10px">🎯</div>
           <div style="font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;margin-bottom:6px">Direct Challenge</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Challenge a specific player by username</div>
-          <button class="btn btn-sun btn-sm" style="width:100%" onclick="showToast('🔍 Search by username...')">🎯 Send Challenge</button>
+          <div class="form-group" style="margin-bottom:10px">
+        <input class="form-input" type="text" id="search-player-input" 
+          placeholder="Type a student name..." 
+          oninput="searchPlayers(this.value)"
+          style="border-radius:100px;padding:10px 18px">
+      </div>
+      <div id="player-search-results" style="margin-bottom:10px"></div>
+      <button class="btn btn-sun btn-sm" style="width:100%" onclick="sendDirectChallenge()">🎯 Send Challenge</button>
         </div>
       </div>
 
       <div class="sec-head">
         <div class="sec-title">🔥 Players You Can Challenge</div>
-        <div style="display:flex;gap:6px">
-          <span class="badge b-sky" style="cursor:pointer">Same Grade</span>
-          <span class="badge b-coral" style="cursor:pointer">Higher Grade</span>
-          <span class="badge b-purple" style="cursor:pointer">Cross-Grade</span>
+        <div style="display:flex;gap:6px" id="grade-filter-btns">
+          <span class="badge b-sky" style="cursor:pointer;border:2px solid var(--sky)" id="filter-same" onclick="filterOpponents('same',this)">Same Grade</span>
+          <span class="badge b-coral" style="cursor:pointer" id="filter-higher" onclick="filterOpponents('higher',this)">Higher Grade</span>
+          <span class="badge b-purple" style="cursor:pointer" id="filter-cross" onclick="filterOpponents('cross',this)">All Levels</span>
         </div>
       </div>
       <div id="opp-list"></div>
@@ -1826,6 +2036,110 @@ body{
       </div>
     </div>
 
+
+    <!-- ════ PARENT DASHBOARD ════ -->
+    <div class="page" id="p-parentdash">
+      <div class="page-title">👨‍👩‍👧 Parent Dashboard</div>
+      <div class="page-sub" id="parent-dash-sub">Manage your children's learning, prizes and rewards</div>
+      <div class="card card-sky" style="margin-bottom:16px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">ℹ️</span>
+        <div style="font-size:12px;color:var(--text2)"><strong style="color:var(--sky)">Beta Dashboard:</strong> Child progress shown is a preview. Once Firebase launches, this dashboard will show your child's <strong>real live progress, actual weak spots, and true coin balance</strong> updated in real time across all devices.</div>
+      </div>
+
+      <!-- Parent Hero -->
+      <div class="parent-hero">
+        <div class="parent-avatar" id="p-dash-avatar">P</div>
+        <div style="flex:1">
+          <div style="font-size:20px;font-weight:800;margin-bottom:4px" id="p-dash-name">Parent Account</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="p-dash-plan">Plan: Free</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge b-mint">🔒 COPPA Compliant</span>
+            <span class="badge b-sky">👁️ Full Parental Control</span>
+            <span class="badge b-sun" id="p-dash-children-badge">0 Children Linked</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Weekly reports coming soon with Firebase!')">📧 Weekly Reports</button>
+        </div>
+      </div>
+
+      <!-- Link Children Section -->
+      <div class="sec-head">
+        <div class="sec-title">👦👧 Your Children</div>
+        <button class="btn btn-mint btn-xs" style="color:var(--dark)" onclick="showLinkChildModal()">+ Link Child Account</button>
+      </div>
+
+      <div id="p-children-list">
+        <!-- Populated by renderParentDash() -->
+      </div>
+
+      <!-- Prize Approval Queue -->
+      <div class="sec-head" style="margin-top:8px">
+        <div class="sec-title">🎁 Prize Approval Queue</div>
+        <span class="badge b-coral" id="prize-pending-badge" style="display:none">Pending</span>
+      </div>
+      <div id="prize-approval-list">
+        <!-- Populated by renderParentDash() -->
+      </div>
+
+      <!-- Teen Wallet Policy -->
+      <div class="teen-wallet-card">
+        <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:10px">
+          💜 Teen Wallet — Ages 16-17
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px">
+          Teens aged <strong style="color:var(--purple)">16 and 17</strong> can request gift cards directly — but only with <strong style="color:var(--mint)">your email approval</strong> as their parent or guardian.<br><br>
+          When your teen requests a prize, you receive an email with an <strong>Approve</strong> or <strong>Deny</strong> button. If you approve, the gift card is emailed to your teen within 24 hours.<br><br>
+          <strong style="color:var(--coral)">Under 16:</strong> All prizes go to the parent account only — no exceptions. This keeps younger children fully protected and COPPA compliant.
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 16px;flex:1;min-width:140px">
+            <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:4px">UNDER 13</div>
+            <div style="font-size:13px;font-weight:700">Parent only 🔒</div>
+            <div style="font-size:11px;color:var(--text2)">COPPA protected</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 16px;flex:1;min-width:140px">
+            <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:4px">AGES 13-15</div>
+            <div style="font-size:13px;font-weight:700">Parent only 🔒</div>
+            <div style="font-size:11px;color:var(--text2)">Parent manages rewards</div>
+          </div>
+          <div style="background:rgba(155,93,229,0.15);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;border:1px solid rgba(155,93,229,0.3)">
+            <div style="font-size:12px;font-weight:800;color:var(--purple);margin-bottom:4px">AGES 16-17</div>
+            <div style="font-size:13px;font-weight:700">Teen Wallet 💜</div>
+            <div style="font-size:11px;color:var(--text2)">Parent email approval</div>
+          </div>
+          <div style="background:rgba(6,214,160,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;border:1px solid rgba(6,214,160,0.2)">
+            <div style="font-size:12px;font-weight:800;color:var(--mint);margin-bottom:4px">AGE 18+</div>
+            <div style="font-size:13px;font-weight:700">Direct access ✅</div>
+            <div style="font-size:11px;color:var(--text2)">Full autonomy</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Report Preview -->
+      <div class="card" style="margin-top:16px">
+        <div class="sec-title" style="margin-bottom:14px">📊 Weekly Progress Report Preview</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">
+          When weekly reports are enabled, you will receive an email every Sunday showing each child's activity, improvement areas, and prize balance. Here is a preview of what it looks like:
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:16px;border:1px solid var(--border)">
+          <div style="font-size:14px;font-weight:800;margin-bottom:10px;color:var(--sun)">📧 Sample Weekly Report — Week of March 24</div>
+          <div id="sample-report">
+            <div class="activity-row"><div class="activity-dot" style="background:var(--mint)"></div><span>Questions answered: <strong>47</strong> this week</span></div>
+            <div class="activity-row"><div class="activity-dot" style="background:var(--sun)"></div><span>MathCoins earned: <strong>320 coins</strong> this week</span></div>
+            <div class="activity-row"><div class="activity-dot" style="background:var(--sky)"></div><span>Challenges won: <strong>8 of 12</strong> — 67% win rate</span></div>
+            <div class="activity-row"><div class="activity-dot" style="background:var(--coral)"></div><span>Weak area detected: <strong>Fractions</strong> — 45% accuracy</span></div>
+            <div class="activity-row"><div class="activity-dot" style="background:var(--purple)"></div><span>AI Tutor sessions: <strong>3 sessions</strong> with Axiom</span></div>
+            <div class="activity-row" style="border:none"><div class="activity-dot" style="background:var(--mint)"></div><span>Current balance: <strong>2,450 MathCoins</strong> = $24.50 prize value</span></div>
+          </div>
+          <div style="margin-top:14px;font-size:12px;color:var(--text2)">
+            📧 Weekly reports will be sent to your registered email. 
+            <span style="color:var(--mint);font-weight:700">Coming with Firebase launch.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /s-app -->
 
@@ -2022,11 +2336,26 @@ var LB_DATA = [
 ];
 
 var OPPS = [
-  {n:"Jordan K.",meta:"Gold Tier - 7th Grade - 89 Wins",wr:"Win Rate 78%",e:"J",bg:"linear-gradient(135deg,#f5c842,#ff9f1c)"},
-  {n:"Sam P.",meta:"Gold Tier - 7th Grade - 74 Wins",wr:"Win Rate 71%",e:"S",bg:"linear-gradient(135deg,#ff6b6b,#f15bb5)"},
-  {n:"Chris W.",meta:"Platinum - 8th Grade - 102 Wins",wr:"Win Rate 83%",e:"C",bg:"linear-gradient(135deg,#9b5de5,#4ecdc4)"},
-  {n:"Dana R.",meta:"Diamond - 9th Grade - 145 Wins",wr:"Win Rate 91%",e:"D",bg:"linear-gradient(135deg,#4ecdc4,#2196f3)"}
+  // Grades 1-3 Elementary
+  {n:"Lily M.",   grade:1, gradeN:2,  tier:"Bronze",  meta:"Bronze - 2nd Grade - 12 Wins",  wr:"Win Rate 55%", e:"L", bg:"linear-gradient(135deg,#cd7f32,#a06020)", winRate:0.55},
+  {n:"Noah B.",   grade:1, gradeN:3,  tier:"Silver",  meta:"Silver - 3rd Grade - 28 Wins",  wr:"Win Rate 61%", e:"N", bg:"linear-gradient(135deg,#c0c0c0,#a0a0a0)", winRate:0.61},
+  // Grades 4-5 Elementary
+  {n:"Mia T.",    grade:2, gradeN:4,  tier:"Silver",  meta:"Silver - 4th Grade - 35 Wins",  wr:"Win Rate 63%", e:"M", bg:"linear-gradient(135deg,#06d6a0,#4ecdc4)", winRate:0.63},
+  {n:"Ethan R.",  grade:2, gradeN:5,  tier:"Gold",    meta:"Gold - 5th Grade - 52 Wins",    wr:"Win Rate 70%", e:"E", bg:"linear-gradient(135deg,#ffd93d,#ff9f1c)", winRate:0.70},
+  // Grades 6-8 Middle School
+  {n:"Jordan K.", grade:3, gradeN:7,  tier:"Gold",    meta:"Gold - 7th Grade - 89 Wins",    wr:"Win Rate 78%", e:"J", bg:"linear-gradient(135deg,#f5c842,#ff9f1c)", winRate:0.78},
+  {n:"Sam P.",    grade:3, gradeN:7,  tier:"Gold",    meta:"Gold - 7th Grade - 74 Wins",    wr:"Win Rate 71%", e:"S", bg:"linear-gradient(135deg,#ff6b6b,#f15bb5)", winRate:0.71},
+  {n:"Riley M.",  grade:3, gradeN:6,  tier:"Silver",  meta:"Silver - 6th Grade - 43 Wins",  wr:"Win Rate 65%", e:"R", bg:"linear-gradient(135deg,#4ecdc4,#06d6a0)", winRate:0.65},
+  {n:"Chris W.",  grade:3, gradeN:8,  tier:"Platinum",meta:"Platinum - 8th Grade - 102 Wins",wr:"Win Rate 83%",e:"C", bg:"linear-gradient(135deg,#9b5de5,#4ecdc4)", winRate:0.83},
+  // Grades 9-10 High School
+  {n:"Dana R.",   grade:4, gradeN:9,  tier:"Diamond", meta:"Diamond - 9th Grade - 145 Wins", wr:"Win Rate 91%",e:"D", bg:"linear-gradient(135deg,#4ecdc4,#2196f3)", winRate:0.91},
+  {n:"Alex K.",   grade:4, gradeN:10, tier:"Platinum",meta:"Platinum - 10th Grade - 118 Wins",wr:"Win Rate 86%",e:"A",bg:"linear-gradient(135deg,#9b5de5,#f15bb5)", winRate:0.86},
+  // Grades 11-12 High School
+  {n:"Morgan L.", grade:5, gradeN:11, tier:"Diamond", meta:"Diamond - 11th Grade - 201 Wins",wr:"Win Rate 94%",e:"M", bg:"linear-gradient(135deg,#ffd93d,#9b5de5)", winRate:0.94},
+  {n:"Taylor B.", grade:5, gradeN:12, tier:"Legend",  meta:"Legend - 12th Grade - 312 Wins", wr:"Win Rate 97%",e:"T", bg:"linear-gradient(135deg,#ff6b6b,#ffd93d)", winRate:0.97}
 ];
+// grade band: 1=K-3, 2=4-5, 3=6-8, 4=9-10, 5=11-12
+
 
 var SKILLS_DATA = [
   {n:"Number Sense",i:"N",m:95,unlocked:true},
@@ -2216,6 +2545,7 @@ function signupStudent(){
   e=$$("s-land");if(e)e.classList.remove("active");
   e=$$("s-app");if(e)e.classList.add("active");
   e=$$("mob-nav");if(e)e.style.display="block";
+  registerPlayer(fn+" "+(ln?ln[0]+".":""), gr+"th");  saveSession();  showMusicBtn(true);
   showToast("Welcome to MathChamp, "+fn+"! Math is Fun!");
   renderHome();
 }
@@ -2247,6 +2577,7 @@ function previewApp(){
   var app=$$("s-app");if(app)app.classList.add("active");
   var nav=$$("mob-nav");if(nav)nav.style.display="block";
   showPreviewBanner();
+  showMusicBtn(true);
   renderHome();
 }
 
@@ -2477,15 +2808,98 @@ function showTriviaResult(){
 }
 
 // CHALLENGE
-function renderChallenge(){
+var CHALLENGE_FILTER = "same"; // same / higher / cross
+
+function getPlayerGradeBand(gradeN){
+  if(gradeN <= 3) return 1;
+  if(gradeN <= 5) return 2;
+  if(gradeN <= 8) return 3;
+  if(gradeN <= 10) return 4;
+  return 5;
+}
+
+function filterOpponents(filter, btn){
+  CHALLENGE_FILTER = filter;
+  // Update badge styles
+  var ids = ["filter-same","filter-higher","filter-cross"];
+  var colors = {"filter-same":"var(--sky)","filter-higher":"var(--coral)","filter-cross":"var(--purple)"};
+  ids.forEach(function(id){
+    var el=$$(id);
+    if(!el) return;
+    el.style.border = "1px solid transparent";
+    el.style.fontWeight = "800";
+  });
+  if(btn){
+    btn.style.border = "2px solid currentColor";
+  }
+  renderOppList();
+}
+
+function renderOppList(){
   var el=$$("opp-list");
-  if(el)el.innerHTML=OPPS.map(function(o){
-    return "<div class=\"opp-card\" onclick=\"challengeOpp('"+o.n+"','"+o.e+"','"+o.bg+"')\">"
-      +"<div class='opp-avatar' style='background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900'>"+o.e+"</div>"
-      +"<div class='opp-info'><div class='opp-name'>"+o.n+"</div><div class='opp-meta'>"+o.meta+"</div><div class='opp-wr'>"+o.wr+"</div></div>"
-      +"<button class='btn btn-coral btn-xs'>Challenge</button>"
+  if(!el) return;
+
+  var myBand = getPlayerGradeBand(S.gradeNum || 7);
+  var myGrade = S.gradeNum || 7;
+
+  // Filter opponents based on selection
+  var filtered = OPPS.filter(function(o){
+    if(CHALLENGE_FILTER === "same"){
+      return o.grade === myBand;
+    } else if(CHALLENGE_FILTER === "higher"){
+      return o.gradeN > myGrade;
+    } else {
+      return true; // all levels
+    }
+  });
+
+  // Add any real session players
+  var sessionFiltered = SESSION_PLAYERS.filter(function(p){
+    if(CHALLENGE_FILTER === "same") return parseInt(p.grade) === myGrade;
+    if(CHALLENGE_FILTER === "higher") return parseInt(p.grade) > myGrade;
+    return true;
+  });
+
+  var allOpps = filtered.concat(sessionFiltered.map(function(p){
+    return {
+      n: p.name, gradeN: parseInt(p.grade)||myGrade,
+      tier: "Level "+p.level, winRate: 0.5,
+      meta: "Grade "+p.grade+" - Level "+p.level+" - "+p.wins+" Wins",
+      wr: "Win Rate "+(Math.round(p.wins/(p.wins+5)*100)||50)+"%",
+      e: p.name[0], bg: "linear-gradient(135deg,var(--mint),var(--sky))",
+      isReal: true
+    };
+  }));
+
+  if(allOpps.length === 0){
+    el.innerHTML = "<div class='card' style='text-align:center;padding:28px;color:var(--text2)'>"
+      +"<div style='font-size:36px;margin-bottom:10px'>🔍</div>"
+      +"<div style='font-size:15px;font-weight:800;margin-bottom:6px'>No opponents found at this level</div>"
+      +"<div style='font-size:13px'>Try <strong>All Levels</strong> to see all available opponents, or challenge a friend by name in the search box below.</div>"
+      +"</div>";
+    return;
+  }
+
+  el.innerHTML = allOpps.map(function(o){
+    var tierColor = o.tier==="Legend"?"var(--sun)":o.tier==="Diamond"?"var(--sky)":o.tier==="Platinum"?"#c0c0c0":o.tier==="Gold"?"var(--sun2)":"var(--text2)";
+    var realBadge = o.isReal ? "<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>" : "";
+    var gradeLabel = o.gradeN ? "Grade "+o.gradeN : "";
+    return "<div class='opp-card' onclick='challengeOpp(""+o.n+"",""+o.e+"",""+o.bg+"",""+o.winRate+"")'>"
+      +"<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;"
+      +"display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0'>"+o.e+"</div>"
+      +"<div class='opp-info'>"
+      +"<div class='opp-name'>"+o.n+realBadge+"</div>"
+      +"<div class='opp-meta'>"+gradeLabel+" &bull; <span style='color:"+tierColor+"'>"+o.tier+"</span> &bull; "+o.meta.split(" - ").slice(-1)[0]+"</div>"
+      +"<div class='opp-wr' style='color:var(--mint)'>"+o.wr+"</div>"
+      +"</div>"
+      +"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>Battle</button>"
       +"</div>";
   }).join("");
+}
+
+function renderChallenge(){
+  CHALLENGE_FILTER = "same";
+  renderOppList();
   var hist=$$("battle-hist");
   if(hist)hist.innerHTML=[
     {o:"Jordan K.",r:"Win",sc:"4/5 vs 3/5",d:"Today",c:"var(--mint)"},
@@ -2500,9 +2914,10 @@ function renderChallenge(){
   }).join("");
 }
 
-function challengeOpp(name,emoji,bg){
-  showToast("Challenge sent to "+name+"!");
-  startBattleWith(name,emoji,bg,0.72);
+function challengeOpp(name,emoji,bg,winRate){
+  winRate = parseFloat(winRate) || 0.72;
+  showToast("Challenge sent to "+name+"! Get ready!");
+  startBattleWith(name,emoji,bg,winRate);
 }
 
 function startBattle(){
@@ -2849,11 +3264,6 @@ function renderWallet(){
   var ps=$$("prize-store");
   if(ps)ps.innerHTML=PRIZES.map(function(p){
     return "<div class=\"card prize-card\" onclick=\"showToast('"+p.n+" costs "+p.cost+" MathCoins - parent redeems!')\"><div class=\"prize-emo\">"+p.e+"</div><div class=\"prize-name\">"+p.n+"</div><div class=\"prize-cost\">"+p.cost+" coins</div></div>";
-      +"<div class='prize-emo'>"+p.e+"</div>"
-      +"<div class='prize-name'>"+p.n+"</div>"
-      +"<div class='prize-cost'>"+p.cost+" coins</div>"
-      +"<div style='font-size:11px;color:var(--text2);margin-top:2px'>"+p.val+" value</div>"
-      +"</div>";
   }).join("");
   var eg=$$("earnings");
   if(eg)eg.innerHTML=EARNINGS_LOG.map(function(e){
@@ -2936,6 +3346,21 @@ async function sendToWeb3Forms(data){
     var json=await res.json();
     return json.success===true;
   }catch(e){console.warn("Web3Forms error:",e);return false;}
+}
+
+function submitParentSignupWithDash(){
+  // Grab form values before async call
+  var modal=$$("signup-modal");
+  var inputs=modal?modal.querySelectorAll("#tab-parent .form-input"):[];
+  if(inputs[0])PARENT.name=inputs[0].value.trim()+" "+(inputs[1]?inputs[1].value.trim():"");
+  if(inputs[2])PARENT.email=inputs[2].value.trim();
+  var selCard=modal?modal.querySelector(".plan-card.sel"):null;
+  if(selCard){var pn=selCard.querySelector(".plan-name");if(pn)PARENT.plan=pn.textContent.trim();}
+  PARENT.isLoggedIn=true;
+  // Show parent dashboard nav
+  var nav=$$("nav-parent-dash");
+  if(nav)nav.style.display="flex";
+  submitParentSignup();
 }
 
 async function submitParentSignup(){
@@ -3031,15 +3456,805 @@ function startCountdown(){
   },1000);
 }
 
+// LOGIN / SESSION
+function openLoginModal(){
+  var m=$$("login-modal");
+  if(m)m.classList.add("open");
+}
+function closeLoginModal(){
+  var m=$$("login-modal");
+  if(m)m.classList.remove("open");
+}
+
+function loginStudent(){
+  var fn=$$("l-fn")?$$("l-fn").value.trim():"";
+  var ln=$$("l-ln")?$$("l-ln").value.trim():"";
+  var gr=$$("l-grade")?$$("l-grade").value:"";
+  if(!fn){showToast("Please enter your first name!");return;}
+  if(!gr){showToast("Please select your grade!");return;}
+  // Restore session
+  S.name=fn+(ln?" "+ln:"");
+  S.grade=gr+"th Grade";
+  S.gradeNum=parseInt(gr)||7;
+  S.isPreview=false;
+  // Try to load saved data from localStorage
+  try{
+    var saved=localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
+    if(saved){
+      var d=JSON.parse(saved);
+      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0;
+      S.coins=d.coins||0; S.credits=d.credits||0;
+      showToast("Welcome back, "+fn+"! Your progress has been restored!");
+    } else {
+      showToast("Welcome back, "+fn+"! Math is Fun!");
+    }
+  }catch(e){ showToast("Welcome back, "+fn+"! Math is Fun!"); }
+  // Update UI
+  updateUIForPlayer(fn, ln, gr);
+  closeLoginModal();
+  var land=$$("s-land");if(land)land.classList.remove("active");
+  var app=$$("s-app");if(app)app.classList.add("active");
+  var nav=$$("mob-nav");if(nav)nav.style.display="block";
+  showMusicBtn(true);
+  renderHome();
+}
+
+function updateUIForPlayer(fn, ln, gr){
+  var ava=fn[0].toUpperCase();
+  var e;
+  e=$$("sb-avatar");if(e)e.textContent=ava;
+  e=$$("prof-ava");if(e)e.textContent=ava;
+  e=$$("sb-name");if(e)e.textContent=fn+(ln?" "+ln[0]+".":"");
+  e=$$("sb-ulevel");if(e)e.textContent="Level "+S.level+" - "+(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner");
+  e=$$("home-greet");if(e)e.textContent="Welcome, "+fn+"! Math is Fun!";
+  e=$$("home-sub");if(e)e.textContent=S.xp>0?"Great to have you back! Keep earning XP!":"Complete your first trivia to start earning XP!";
+  e=$$("prof-name");if(e)e.textContent=fn+(ln?" "+ln:"");
+  e=$$("prof-grade");if(e)e.textContent=gr+"th Grade - Math Champ";
+  e=$$("stat-wins");if(e)e.textContent="0";
+  e=$$("stat-streak");if(e)e.textContent=S.streak;
+  e=$$("stat-rank");if(e)e.textContent="--";
+  e=$$("home-coins");if(e)e.textContent=S.coins.toLocaleString();
+  e=$$("wallet-coins");if(e)e.textContent=S.coins.toLocaleString();
+  e=$$("xp-level-num");if(e)e.textContent=S.level;
+  var xpNext=S.level*500;
+  e=$$("xp-tier-label");if(e)e.textContent=(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner")+" Tier";
+  e=$$("xp-nums-label");if(e)e.textContent=S.xp.toLocaleString()+" / "+xpNext+" XP";
+  e=$$("xp-prog");if(e)e.style.width=Math.min(100,Math.round(S.xp/xpNext*100))+"%";
+}
+
+function saveSession(){
+  // Save progress to localStorage so returning users keep their data
+  if(!S.name||S.isPreview)return;
+  try{
+    var fn=S.name.split(" ")[0].toLowerCase();
+    var key="mc_"+fn+"_"+S.gradeNum;
+    localStorage.setItem(key,JSON.stringify({
+      xp:S.xp, level:S.level, streak:S.streak,
+      coins:S.coins, credits:S.credits,
+      name:S.name, grade:S.grade, gradeNum:S.gradeNum,
+      lastSeen:new Date().toISOString()
+    }));
+  }catch(e){}
+}
+
+// Also update signupStudent to save session after signup
+function saveAfterAction(){
+  S.xp+=50; S.coins+=10;
+  // Update level
+  var xpNext=S.level*500;
+  if(S.xp>=xpNext)S.level++;
+  saveSession();
+  // Update home coins display
+  var hc=$$("home-coins");if(hc)hc.textContent=S.coins.toLocaleString();
+  var wc=$$("wallet-coins");if(wc)wc.textContent=S.coins.toLocaleString();
+}
+
+// Add logout button to sidebar
+function logout(){
+  saveSession();
+  S.name=""; S.grade=""; S.gradeNum=0;
+  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false;
+  showMusicBtn(false);
+  var audio=getMusicAudio();if(audio){audio.pause();MUSIC.playing=false;}
+  var app=$$("s-app");if(app)app.classList.remove("active");
+  var land=$$("s-land");if(land)land.classList.add("active");
+  var nav=$$("mob-nav");if(nav)nav.style.display="none";
+  var banner=$$("preview-banner");if(banner)banner.remove();
+  showToast("Logged out successfully. See you soon!");
+}
+
+// STUDENT SEARCH
+// In-memory registry of students who signed up this session
+var SESSION_PLAYERS = [];
+
+function registerPlayer(name, grade){
+  // Add to session registry when a student signs up
+  var existing = SESSION_PLAYERS.find(function(p){return p.name.toLowerCase()===name.toLowerCase();});
+  if(!existing){
+    SESSION_PLAYERS.push({
+      name:name, grade:grade,
+      wins:Math.floor(Math.random()*20),
+      level:Math.floor(Math.random()*5)+1,
+      online:true
+    });
+  }
+}
+
+function searchPlayers(query){
+  var resultsEl=$$("player-search-results");
+  if(!resultsEl)return;
+  if(!query||query.length<2){
+    resultsEl.innerHTML="";
+    return;
+  }
+  query=query.toLowerCase();
+  // Search through demo players + session players
+  // Real signed-up players appear FIRST, then demo players
+  var allPlayers=SESSION_PLAYERS.concat([
+    {name:"Jordan K.",grade:"7th",wins:89,level:7,online:true},
+    {name:"Sam P.",grade:"7th",wins:74,level:6,online:true},
+    {name:"Chris W.",grade:"8th",wins:102,level:8,online:false},
+    {name:"Dana R.",grade:"9th",wins:145,level:10,online:true},
+    {name:"Riley M.",grade:"7th",wins:52,level:5,online:false},
+    {name:"Morgan L.",grade:"7th",wins:43,level:4,online:true},
+    {name:"Taylor B.",grade:"6th",wins:31,level:3,online:false},
+  ]);
+  var matches=allPlayers.filter(function(p){
+    return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name;
+  });
+  if(matches.length===0){
+    resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:8px;text-align:center'>No players found matching ""+query+""</div>";
+    return;
+  }
+  resultsEl.innerHTML=matches.slice(0,5).map(function(p){
+    var onlineDot=p.online
+      ?"<span style='display:inline-block;width:8px;height:8px;background:var(--mint);border-radius:50%;margin-right:4px'></span>"
+      :"<span style='display:inline-block;width:8px;height:8px;background:var(--text2);border-radius:50%;margin-right:4px'></span>";
+    return "<div style='display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;cursor:pointer' onclick='selectPlayerChallenge(""+p.name+"")'>"
+      +"<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--sky));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
+      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.name+"</div>"
+      +"<div style='font-size:12px;color:var(--text2)'>"+onlineDot+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
+      +"<button class='btn btn-coral btn-xs'>Challenge</button>"
+      +"</div>";
+  }).join("");
+}
+
+function selectPlayerChallenge(name){
+  var input=$$("search-player-input");
+  if(input)input.value=name;
+  var r=$$("player-search-results");if(r)r.innerHTML="";
+  showToast("Challenge request sent to "+name+"!");
+  // Find opponent data
+  var opp=OPPS.find(function(o){return o.n===name;});
+  if(opp){
+    startBattleWith(opp.n,opp.e,opp.bg,0.72);
+  } else {
+    startBattle();
+  }
+}
+
+function sendDirectChallenge(){
+  var input=$$("search-player-input");
+  var name=input?input.value.trim():"";
+  if(!name){showToast("Type a student name to challenge them!");return;}
+  selectPlayerChallenge(name);
+}
+
+
+// ═══════════════════════════════════════════
+// PARENT DASHBOARD SYSTEM
+// ═══════════════════════════════════════════
+
+// Parent state
+var PARENT = {
+  name:"", email:"", plan:"Free",
+  isLoggedIn:false,
+  children:[],
+  pendingPrizes:[]
+};
+
+// Demo children data for when no real children linked
+var DEMO_CHILDREN = [
+  {
+    name:"Your Child", grade:"7th", gradeNum:7, age:13,
+    level:4, xp:1240, coins:620, streak:3, wins:12,
+    topics_weak:["Fractions","Word Problems"],
+    topics_strong:["Algebra","Geometry"],
+    recent_wrong:[
+      {q:"What is 5/6 minus 1/3?", correct:"1/2", got:"4/3", topic:"Fractions"},
+      {q:"What is 30% of 80?", correct:"24", got:"20", topic:"Percentages"},
+      {q:"Solve: 2x - 3 = 11", correct:"x=7", got:"x=4", topic:"Algebra"}
+    ],
+    activity:[
+      {txt:"Answered 12 trivia questions", time:"Today", color:"var(--mint)"},
+      {txt:"Won challenge vs Jordan K.", time:"Today", color:"var(--mint)"},
+      {txt:"Asked Axiom about fractions", time:"Yesterday", color:"var(--sky)"},
+      {txt:"Completed Algebra practice set", time:"2 days ago", color:"var(--purple)"},
+      {txt:"Earned 50-coin streak bonus", time:"3 days ago", color:"var(--sun)"}
+    ],
+    pendingPrize:null
+  }
+];
+
+function submitParentSignupFull(){
+  // Enhanced parent signup that shows dashboard
+  submitParentSignup();
+  // Show parent nav after signup
+  setTimeout(function(){
+    var nav=$$("nav-parent-dash");
+    if(nav)nav.style.display="flex";
+  },500);
+}
+
+function showParentDashboard(){
+  var nav=$$("nav-parent-dash");
+  if(nav)nav.style.display="flex";
+  goPage("parentdash",nav);
+}
+
+function renderParentDash(){
+  // Update parent hero
+  var pn=$$("p-dash-name");if(pn)pn.textContent=PARENT.name||"Parent Account";
+  var pp=$$("p-dash-plan");if(pp)pp.textContent="Plan: "+PARENT.plan;
+  var pa=$$("p-dash-avatar");if(pa)pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
+
+  var children = PARENT.children.length > 0 ? PARENT.children : DEMO_CHILDREN;
+  var cb=$$("p-dash-children-badge");
+  if(cb)cb.textContent=children.length+" "+(children.length===1?"Child":"Children")+" Linked";
+
+  // Render children cards
+  var list=$$("p-children-list");
+  if(!list)return;
+
+  if(PARENT.children.length===0){
+    // Show demo + prompt to link real child
+    list.innerHTML = "<div class='link-child-box' onclick='showLinkChildModal()'>"
+      +"<div style='font-size:32px;margin-bottom:10px'>+</div>"
+      +"<div style='font-size:15px;font-weight:800;margin-bottom:6px'>Link Your Child's Account</div>"
+      +"<div style='font-size:13px;color:var(--text2)'>Tap to connect your child's MathChamp profile to see their progress, manage prizes and monitor activity.</div>"
+      +"</div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-bottom:16px;text-align:center'>Preview below shows what your dashboard will look like once linked:</div>"
+      + renderChildCard(DEMO_CHILDREN[0], true);
+  } else {
+    list.innerHTML = children.map(function(c){return renderChildCard(c,false);}).join("")
+      +"<div class='link-child-box' onclick='showLinkChildModal()' style='padding:16px'>"
+      +"<div style='font-size:14px;font-weight:800'>+ Link Another Child</div>"
+      +"</div>";
+  }
+
+  // Render prize approval queue
+  renderPrizeQueue(children);
+}
+
+function renderChildCard(child, isDemo){
+  var ageWarning = child.age < 13
+    ? "<span class='badge b-coral' style='font-size:10px'>COPPA Protected</span>"
+    : child.age < 16
+    ? "<span class='badge b-sky' style='font-size:10px'>Prizes to Parent</span>"
+    : child.age < 18
+    ? "<span class='badge b-purple' style='font-size:10px'>Teen Wallet Eligible</span>"
+    : "<span class='badge b-mint' style='font-size:10px'>Adult Access</span>";
+
+  var colors=["linear-gradient(135deg,var(--purple),var(--sky))","linear-gradient(135deg,var(--coral),var(--pink))","linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,var(--mint),var(--sky))"];
+  var bg=colors[Math.floor(Math.random()*colors.length)];
+
+  var weakTopics = child.topics_weak.map(function(t){
+    return "<span class='badge b-coral' style='font-size:11px;margin-right:4px'>"+t+"</span>";
+  }).join("");
+
+  var strongTopics = child.topics_strong.map(function(t){
+    return "<span class='badge b-mint' style='font-size:11px;margin-right:4px'>"+t+"</span>";
+  }).join("");
+
+  var wrongQs = child.recent_wrong.map(function(q){
+    return "<div class='wrong-q-row'>"
+      +"<div style='font-size:10px;color:var(--text2);min-width:60px'>"+q.topic+"</div>"
+      +"<div style='flex:1'><div style='font-size:13px;font-weight:700'>"+q.q+"</div>"
+      +"<div style='font-size:12px;margin-top:3px'>"
+      +"<span style='color:var(--coral)'>Got: "+q.got+"</span>"
+      +"  <span style='color:var(--mint)'>Correct: "+q.correct+"</span></div></div>"
+      +"</div>";
+  }).join("");
+
+  var activityLog = child.activity.map(function(a){
+    return "<div class='activity-row'>"
+      +"<div class='activity-dot' style='background:"+a.color+"'></div>"
+      +"<div style='flex:1'>"+a.txt+"</div>"
+      +"<div style='font-size:11px;color:var(--text2)'>"+a.time+"</div>"
+      +"</div>";
+  }).join("");
+
+  var demoTag = isDemo ? "<span class='badge b-purple' style='font-size:10px;margin-left:6px'>PREVIEW</span>" : "";
+
+  var prizeBtn = child.age >= 16
+    ? "<button class='btn btn-purple btn-xs' onclick='showTeenPrizeRequest(""+child.name+"")'>Teen Wallet</button>"
+    : "<button class='btn btn-sun btn-xs' onclick='approveParentPrize(""+child.name+"")'>Manage Prizes</button>";
+
+  return "<div class='child-card'>"
+    // Header
+    +"<div class='child-card-header'>"
+    +"<div class='child-ava' style='background:"+bg+"'>"+child.name[0]+"</div>"
+    +"<div style='flex:1'>"
+    +"<div style='font-size:16px;font-weight:800'>"+child.name+demoTag+"</div>"
+    +"<div style='font-size:12px;color:var(--text2)'>"+child.grade+" &bull; Level "+child.level+" &bull; "+ageWarning+"</div>"
+    +"</div>"
+    +prizeBtn
+    +"</div>"
+    // Stats
+    +"<div class='child-stats'>"
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.xp.toLocaleString()+"</div><div class='child-stat-lbl'>XP Earned</div></div>"
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.coins.toLocaleString()+"</div><div class='child-stat-lbl'>MathCoins</div></div>"
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.wins+"</div><div class='child-stat-lbl'>Wins</div></div>"
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.streak+"d</div><div class='child-stat-lbl'>Streak</div></div>"
+    +"</div>"
+    // Weak/Strong topics
+    +"<div style='margin-bottom:12px'>"
+    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px'>Needs Practice</div>"
+    +weakTopics
+    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px'>Doing Well In</div>"
+    +strongTopics
+    +"</div>"
+    // Questions got wrong
+    +"<div style='font-size:13px;font-weight:800;margin-bottom:8px;color:var(--coral)'>Recent Mistakes to Review</div>"
+    +wrongQs
+    // Activity
+    +"<div style='font-size:13px;font-weight:800;margin:12px 0 8px;color:var(--sky)'>Recent Activity</div>"
+    +activityLog
+    +"</div>";
+}
+
+function renderPrizeQueue(children){
+  var list=$$("prize-approval-list");
+  if(!list)return;
+
+  var badge=$$("prize-pending-badge");
+
+  // Demo prize requests
+  var prizes=[
+    {child:"Your Child", item:"Amazon Gift Card $10", coins:1000, age:14, status:"pending"},
+    {child:"Your Child", item:"GameStop Card $25", coins:2500, age:14, status:"pending"}
+  ];
+
+  if(prizes.length===0){
+    list.innerHTML="<div class='card' style='text-align:center;padding:20px;color:var(--text2)'>No pending prize requests. Your child can request prizes from the Rewards Wallet.</div>";
+    if(badge)badge.style.display="none";
+    return;
+  }
+
+  if(badge){badge.style.display="inline-flex";badge.textContent=prizes.length+" Pending";}
+
+  list.innerHTML=prizes.map(function(p,i){
+    var ageNote = p.age>=16
+      ? "<span class='badge b-purple' style='font-size:10px'>Teen Wallet - email approval</span>"
+      : "<span class='badge b-sky' style='font-size:10px'>Delivered to parent</span>";
+    return "<div class='prize-req-card'>"
+      +"<div style='font-size:28px'>🎁</div>"
+      +"<div style='flex:1'>"
+      +"<div style='font-size:14px;font-weight:800'>"+p.child+" wants: "+p.item+"</div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+p.coins.toLocaleString()+" MathCoins &bull; "+ageNote+"</div>"
+      +"</div>"
+      +"<div style='display:flex;gap:6px;flex-direction:column'>"
+      +"<button class='btn btn-mint btn-xs' style='color:var(--dark)' onclick='approvePrize("+i+")'>Approve</button>"
+      +"<button class='btn btn-ghost btn-xs' onclick='denyPrize("+i+")'>Deny</button>"
+      +"</div>"
+      +"</div>";
+  }).join("");
+}
+
+function approvePrize(idx){
+  showToast("Prize approved! Gift card will be emailed to you (or your teen with Teen Wallet). Coming fully live with Stripe integration!");
+  var list=$$("prize-approval-list");
+  if(list){
+    var cards=list.querySelectorAll(".prize-req-card");
+    if(cards[idx])cards[idx].style.opacity="0.4";
+  }
+}
+
+function denyPrize(idx){
+  showToast("Prize request denied. Your child has been notified.");
+  var list=$$("prize-approval-list");
+  if(list){
+    var cards=list.querySelectorAll(".prize-req-card");
+    if(cards[idx])cards[idx].remove();
+  }
+}
+
+function approveParentPrize(childName){
+  showToast("Managing prizes for "+childName+". Full prize system coming with Stripe!");
+}
+
+function showTeenPrizeRequest(childName){
+  showToast("Teen Wallet for "+childName+": When a prize request comes in, you approve via email. Coming with full launch!");
+}
+
+// Link child modal
+function showLinkChildModal(){
+  var m=$$("link-child-modal");if(m)m.classList.add("open");
+}
+function closeLinkChildModal(){
+  var m=$$("link-child-modal");if(m)m.classList.remove("open");
+}
+
+function linkChildAccount(){
+  var fn=$$("lc-fn")?$$("lc-fn").value.trim():"";
+  var ln=$$("lc-ln")?$$("lc-ln").value.trim():"";
+  var gr=$$("lc-grade")?$$("lc-grade").value:"";
+  var dob=$$("lc-dob")?$$("lc-dob").value:"";
+  if(!fn){showToast("Please enter child's first name!");return;}
+  if(!gr){showToast("Please select child's grade!");return;}
+
+  // Calculate age from DOB
+  var age=13;
+  if(dob){
+    var birthDate=new Date(dob);
+    var today=new Date();
+    age=today.getFullYear()-birthDate.getFullYear();
+    var m=today.getMonth()-birthDate.getMonth();
+    if(m<0||(m===0&&today.getDate()<birthDate.getDate()))age--;
+  }
+
+  var child={
+    name:fn+(ln?" "+ln:""),
+    grade:gr+"th Grade", gradeNum:parseInt(gr)||7, age:age,
+    level:1, xp:0, coins:0, streak:0, wins:0,
+    topics_weak:["Starting out!"],
+    topics_strong:["Arithmetic"],
+    recent_wrong:[],
+    activity:[{txt:"Account just linked by parent",time:"Just now",color:"var(--mint)"}],
+    pendingPrize:null
+  };
+
+  PARENT.children.push(child);
+  closeLinkChildModal();
+  renderParentDash();
+  showToast(fn+" has been linked to your parent dashboard!");
+}
+
+// Show parent dashboard in goPage
+var _origGoPage = goPage;
+goPage = function(id, el, mob){
+  _origGoPage(id, el, mob);
+  if(id==="parentdash") renderParentDash();
+};
+
+
+// ═══════════════════════════════════════════
+// MUSIC SYSTEM — Lo-Fi Hip Hop Focus Beats
+// All tracks: Pixabay.com (royalty-free, no attribution required)
+// ═══════════════════════════════════════════
+
+var MUSIC_TRACKS = [
+  // Study / Home pages — calm lo-fi beats
+  {
+    name:"Chill Study Lofi",
+    artist:"Pixabay Free Music",
+    url:"https://cdn.pixabay.com/audio/2024/11/13/audio_2aadff8a20.mp3",
+    mood:"study"
+  },
+  {
+    name:"Lofi Hip Hop Vibes",
+    artist:"Pixabay Free Music",
+    url:"https://cdn.pixabay.com/audio/2024/03/10/audio_13e1ff0939.mp3",
+    mood:"study"
+  },
+  {
+    name:"Coffee Shop Beats",
+    artist:"Pixabay Free Music",
+    url:"https://cdn.pixabay.com/audio/2023/10/30/audio_a1f75e9c7d.mp3",
+    mood:"study"
+  },
+  {
+    name:"Smooth Focus Flow",
+    artist:"Pixabay Free Music",
+    url:"https://cdn.pixabay.com/audio/2024/02/15/audio_b8e6c3e31e.mp3",
+    mood:"study"
+  },
+  {
+    name:"Rainy Day Lofi",
+    artist:"Pixabay Free Music",
+    url:"https://cdn.pixabay.com/audio/2023/11/13/audio_94cb5f71a4.mp3",
+    mood:"study"
+  }
+];
+
+var MUSIC = {
+  trackIdx: 0,
+  userManuallyStopped: false,
+  playing: false,
+  muted: true,
+  shuffle: false,
+  volume: 0.30,
+  panelOpen: false,
+  progressTimer: null,
+  userInteracted: false
+};
+
+function getMusicAudio(){return $$("music-audio");}
+
+function initMusic(){
+  var audio = getMusicAudio();
+  if(!audio) return;
+  audio.volume = MUSIC.volume;
+  audio.loop = false;
+  audio.addEventListener("ended", function(){ nextTrack(); });
+  audio.addEventListener("timeupdate", updateMusicProgress);
+  audio.addEventListener("loadedmetadata", updateMusicProgress);
+  audio.addEventListener("error", function(){
+    // If track fails to load, skip to next
+    console.warn("Music track failed, trying next...");
+    setTimeout(nextTrack, 1000);
+  });
+  loadTrack(MUSIC.trackIdx);
+}
+
+function loadTrack(idx){
+  var audio = getMusicAudio();
+  if(!audio) return;
+  if(idx < 0) idx = MUSIC_TRACKS.length - 1;
+  if(idx >= MUSIC_TRACKS.length) idx = 0;
+  MUSIC.trackIdx = idx;
+  var track = MUSIC_TRACKS[idx];
+  audio.src = track.url;
+  audio.load();
+  // Update UI
+  var tn = $$("music-track-name");
+  if(tn) tn.textContent = track.name;
+  var ta = $$("music-artist");
+  if(ta) ta.textContent = track.artist;
+  // Auto-play if was playing
+  if(MUSIC.playing && MUSIC.userInteracted){
+    audio.play().catch(function(){});
+  }
+  updateMusicProgress();
+}
+
+function updateMusicUI(){
+  var mb = $$("music-btn");
+  var icon = $$("music-btn-icon");
+  var eq = $$("music-eq");
+  var pb = $$("music-play-btn");
+  var offBtn = $$("music-off-btn");
+  var onBtn = $$("music-on-btn");
+  var trackName = $$("music-track-name");
+
+  if(MUSIC.playing){
+    // Music is ON and playing
+    if(mb){ mb.classList.remove("muted"); mb.title="Music is playing - click to control"; }
+    if(icon){ icon.style.display="none"; }
+    if(eq){ eq.style.display="flex"; }
+    if(pb){ pb.innerHTML="&#9646;&#9646;"; }
+    if(offBtn){ offBtn.style.display="block"; }
+    if(onBtn){ onBtn.style.display="none"; }
+  } else {
+    // Music is OFF / paused
+    if(mb){ mb.classList.add("muted"); mb.title="Music is off - click to turn on"; }
+    if(icon){ icon.textContent="🔇"; icon.style.display="block"; }
+    if(eq){ eq.style.display="none"; }
+    if(pb){ pb.innerHTML="&#9654;"; }
+    if(offBtn){ offBtn.style.display="none"; }
+    if(onBtn){ onBtn.style.display="block"; }
+  }
+}
+
+function turnMusicOff(){
+  var audio = getMusicAudio();
+  if(audio){ audio.pause(); }
+  MUSIC.playing = false;
+  MUSIC.muted = true;
+  MUSIC.userManuallyStopped = true;
+  updateMusicUI();
+  showToast("Music turned off. Click 🔇 anytime to turn back on.");
+  toggleMusicPanel(); // close the panel
+}
+
+function turnMusicOn(){
+  MUSIC.userInteracted = true;
+  MUSIC.userManuallyStopped = false;
+  MUSIC.playing = false; // togglePlay will flip it
+  togglePlay();
+  showToast("Music is on! Enjoy the lo-fi beats 🎵");
+}
+
+function togglePlay(){
+  var audio = getMusicAudio();
+  if(!audio) return;
+  MUSIC.userInteracted = true;
+  if(MUSIC.playing){
+    audio.pause();
+    MUSIC.playing = false;
+    MUSIC.muted = true;
+  } else {
+    MUSIC.muted = false;
+    MUSIC.playing = true;
+    audio.volume = MUSIC.volume;
+    audio.play().catch(function(e){
+      console.warn("Autoplay blocked:", e);
+      showToast("Tap the music button to start playing!");
+      MUSIC.playing = false;
+      MUSIC.muted = true;
+    });
+  }
+  updateMusicUI();
+}
+
+function nextTrack(){
+  var next = MUSIC.shuffle
+    ? Math.floor(Math.random() * MUSIC_TRACKS.length)
+    : MUSIC.trackIdx + 1;
+  loadTrack(next);
+  if(MUSIC.playing && MUSIC.userInteracted){
+    setTimeout(function(){
+      getMusicAudio() && getMusicAudio().play().catch(function(){});
+    }, 300);
+  }
+}
+
+function prevTrack(){
+  loadTrack(MUSIC.trackIdx - 1);
+  if(MUSIC.playing && MUSIC.userInteracted){
+    setTimeout(function(){
+      getMusicAudio() && getMusicAudio().play().catch(function(){});
+    }, 300);
+  }
+}
+
+function toggleShuffle(){
+  MUSIC.shuffle = !MUSIC.shuffle;
+  var btn = $$("music-shuffle-btn");
+  if(btn){
+    btn.style.color = MUSIC.shuffle ? "var(--purple)" : "";
+    btn.style.background = MUSIC.shuffle ? "rgba(155,93,229,0.2)" : "";
+  }
+  showToast(MUSIC.shuffle ? "Shuffle on!" : "Shuffle off");
+}
+
+function setVolume(val){
+  MUSIC.volume = val / 100;
+  var audio = getMusicAudio();
+  if(audio) audio.volume = MUSIC.volume;
+  var lbl = $$("music-vol-label");
+  if(lbl) lbl.textContent = val + "%";
+  // Auto-unmute if volume raised
+  if(val > 0 && !MUSIC.playing && MUSIC.userInteracted){
+    togglePlay();
+  }
+}
+
+function seekMusic(e){
+  var audio = getMusicAudio();
+  if(!audio || !audio.duration) return;
+  var bar = $$("music-progress-bar");
+  if(!bar) return;
+  var rect = bar.getBoundingClientRect();
+  var pct = (e.clientX - rect.left) / rect.width;
+  audio.currentTime = pct * audio.duration;
+}
+
+function updateMusicProgress(){
+  var audio = getMusicAudio();
+  if(!audio) return;
+  var dur = audio.duration || 0;
+  var cur = audio.currentTime || 0;
+  var pct = dur > 0 ? (cur / dur * 100) : 0;
+  var fill = $$("music-progress-fill");
+  if(fill) fill.style.width = pct + "%";
+  var time = $$("music-time");
+  if(time) time.textContent = formatTime(cur) + " / " + formatTime(dur);
+}
+
+function formatTime(secs){
+  if(!secs || isNaN(secs)) return "0:00";
+  var m = Math.floor(secs / 60);
+  var s = Math.floor(secs % 60);
+  return m + ":" + (s < 10 ? "0" : "") + s;
+}
+
+function toggleMusicPanel(){
+  MUSIC.panelOpen = !MUSIC.panelOpen;
+  var panel = $$("music-panel");
+  if(panel){
+    if(MUSIC.panelOpen){
+      panel.classList.add("open");
+    } else {
+      panel.classList.remove("open");
+    }
+  }
+  // First time opening = start playing
+  if(MUSIC.panelOpen && !MUSIC.userInteracted){
+    MUSIC.userInteracted = true;
+    MUSIC.playing = false; // togglePlay will flip it
+    togglePlay();
+  }
+}
+
+// Auto-start music on first user interaction with the app
+function enableMusicOnInteraction(){
+  if(MUSIC.userInteracted) return;
+  if(MUSIC.userManuallyStopped) return;
+  MUSIC.userInteracted = true;
+  var audio = getMusicAudio();
+  if(audio){
+    audio.volume = MUSIC.volume;
+    MUSIC.playing = false;
+    togglePlay(); // Will start playing
+  }
+}
+
+// Show music button only when inside the app
+function showMusicBtn(show){
+  var btn = $$("music-btn");
+  if(btn) btn.style.display = show ? "flex" : "none";
+  var panel = $$("music-panel");
+  if(panel && !show){ panel.classList.remove("open"); MUSIC.panelOpen = false; }
+}
+
 // DOM READY
 document.addEventListener("DOMContentLoaded",function(){
   var mo=$$("signup-modal");
   if(mo)mo.addEventListener("click",function(e){if(e.target===this)closeModal();});
+  var lm=$$("login-modal");
+  if(lm)lm.addEventListener("click",function(e){if(e.target===this)closeLoginModal();});
+  var lcm=$$("link-child-modal");
+  if(lcm)lcm.addEventListener("click",function(e){if(e.target===this)closeLinkChildModal();});
   var pb=$$("preview-btn");
   if(pb)pb.addEventListener("click",previewApp);
   startCountdown();
+  // Init music system
+  initMusic();
+  showMusicBtn(false); // hidden on landing page
+  // Start music on first user interaction
+  document.addEventListener("click", enableMusicOnInteraction, {once:true});
+  document.addEventListener("touchstart", enableMusicOnInteraction, {once:true});
 });
 
 </script>
+<!-- ═══════════════ MUSIC PLAYER ═══════════════ -->
+<!-- All tracks from Pixabay.com (royalty-free, no attribution required) -->
+<div class="music-btn muted" id="music-btn" onclick="toggleMusicPanel()" title="Click to control music">
+  <span id="music-btn-icon" style="font-size:20px">🎵</span>
+  <div class="music-eq" id="music-eq" style="display:none">
+    <div class="music-bar" style="height:8px"></div>
+    <div class="music-bar" style="height:14px"></div>
+    <div class="music-bar" style="height:6px"></div>
+    <div class="music-bar" style="height:12px"></div>
+    <div class="music-bar" style="height:4px"></div>
+  </div>
+</div>
+
+<div class="music-panel" id="music-panel">
+  <div class="music-label">Now Playing</div>
+  <div class="music-track-name" id="music-track-name">Lo-Fi Study Beats</div>
+  <div class="music-artist" id="music-artist">Royalty Free · Pixabay</div>
+  <div class="music-controls">
+    <button class="music-ctrl-btn" onclick="prevTrack()" title="Previous">&#9664;&#9664;</button>
+    <button class="music-ctrl-btn active" id="music-play-btn" onclick="togglePlay()" title="Play/Pause" style="width:40px;height:40px;font-size:18px">&#9654;</button>
+    <button class="music-ctrl-btn" onclick="nextTrack()" title="Next">&#9654;&#9654;</button>
+    <button class="music-ctrl-btn" id="music-shuffle-btn" onclick="toggleShuffle()" title="Shuffle">&#9632;</button>
+  </div>
+  <div class="music-progress" id="music-progress-bar" onclick="seekMusic(event)">
+    <div class="music-progress-fill" id="music-progress-fill"></div>
+  </div>
+  <div class="music-vol-row">
+    <span style="font-size:14px">&#128266;</span>
+    <input type="range" class="music-vol-slider" id="music-vol" min="0" max="100" value="30" oninput="setVolume(this.value)">
+    <span style="font-size:11px;color:var(--text2);font-weight:700;min-width:28px" id="music-vol-label">30%</span>
+  </div>
+  <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:11px;color:var(--text2)" id="music-time">0:00 / 0:00</span>
+    <button onclick="toggleMusicPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:11px;font-weight:800">Close</button>
+  </div>
+  <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+    <button onclick="turnMusicOff()" id="music-off-btn" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:10px;padding:8px;color:var(--coral);font-size:13px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif">
+      🔇 Turn Music Off
+    </button>
+    <button onclick="turnMusicOn()" id="music-on-btn" style="width:100%;background:rgba(155,93,229,0.1);border:1px solid rgba(155,93,229,0.25);border-radius:10px;padding:8px;color:var(--purple);font-size:13px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;display:none">
+      🎵 Turn Music On
+    </button>
+  </div>
+</div>
+
+<!-- Hidden audio element -->
+<audio id="music-audio" preload="none"></audio>
+
 </body>
 </html>

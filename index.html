@@ -1495,38 +1495,65 @@ body{
   <div class="modal">
     <button class="modal-close" onclick="closeLoginModal()">✕</button>
     <div class="modal-title">Welcome Back! 👋</div>
-    <div class="modal-sub">Enter your details to return to your dashboard</div>
-    <div class="form-group">
-      <label class="form-label">First Name</label>
-      <input class="form-input" type="text" id="l-fn" placeholder="Your first name">
+    <div class="modal-sub">Sign in to return to your dashboard</div>
+
+    <!-- Login Tabs -->
+    <div class="tab-row" style="margin-bottom:20px">
+      <button class="tab-btn on" id="login-tab-s-btn" onclick="switchLoginTab('student',this)">🎮 Student</button>
+      <button class="tab-btn" id="login-tab-p-btn" onclick="switchLoginTab('parent',this)">👨‍👩‍👧 Parent</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Last Name</label>
-      <input class="form-input" type="text" id="l-ln" placeholder="Your last name">
+
+    <!-- Student Login -->
+    <div id="login-tab-student">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" type="text" id="l-fn" placeholder="Your first name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">School Grade</label>
+        <select class="form-select" id="l-grade">
+          <option value="">Pick your grade...</option>
+          <option value="1">1st Grade</option><option value="2">2nd Grade</option>
+          <option value="3">3rd Grade</option><option value="4">4th Grade</option>
+          <option value="5">5th Grade</option><option value="6">6th Grade</option>
+          <option value="7">7th Grade</option><option value="8">8th Grade</option>
+          <option value="9">9th Grade</option><option value="10">10th Grade</option>
+          <option value="11">11th Grade</option><option value="12">12th Grade</option>
+        </select>
+      </div>
+      <div class="consent" style="background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.25);margin-bottom:16px">
+        <strong style="color:var(--sky)">Progress saves on this device and browser.</strong>
+        Full cross-device login with password coming soon with Firebase!
+      </div>
+      <button class="btn btn-sun" style="width:100%;margin-bottom:12px" onclick="loginStudent()">
+        🚀 Go to My Dashboard
+      </button>
     </div>
-    <div class="form-group">
-      <label class="form-label">School Grade</label>
-      <select class="form-select" id="l-grade">
-        <option value="">Pick your grade...</option>
-        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
-        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
-        <option value="5">5th Grade</option><option value="6">6th Grade</option>
-        <option value="7">7th Grade</option><option value="8">8th Grade</option>
-        <option value="9">9th Grade</option><option value="10">10th Grade</option>
-        <option value="11">11th Grade</option><option value="12">12th Grade</option>
-      </select>
+
+    <!-- Parent Login -->
+    <div id="login-tab-parent" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Your First Name</label>
+        <input class="form-input" type="text" id="l-parent-fn" placeholder="Your first name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Email</label>
+        <input class="form-input" type="email" id="l-parent-email" placeholder="Email used during signup">
+      </div>
+      <div class="consent" style="background:rgba(155,93,229,0.08);border-color:rgba(155,93,229,0.25);margin-bottom:16px">
+        <strong style="color:var(--purple)">Beta login:</strong>
+        Enter the name and email you used when signing up. Full password login coming with Firebase!
+      </div>
+      <button class="btn btn-mint" style="width:100%;color:var(--dark);margin-bottom:12px" onclick="loginParent()">
+        👨‍👩‍👧 Go to Parent Dashboard
+      </button>
     </div>
-    <div class="consent" style="background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.25)">
-      <strong style="color:var(--sky)">How session saving works right now:</strong><br>
-      ✅ Your progress saves on <strong>this device and browser</strong><br>
-      ❌ Different device or browser = fresh start<br>
-      🔜 <strong>Full cross-device login with password coming soon!</strong> (Firebase launch)
-    </div>
-    <button class="btn btn-sun" style="width:100%" onclick="loginStudent()">
-      🚀 Go to My Dashboard
-    </button>
-    <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--text2)">
-      New here? <button onclick="closeLoginModal();openModal('student')" style="background:none;border:none;color:var(--mint);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create a free account</button>
+
+    <div style="text-align:center;font-size:13px;color:var(--text2)">
+      New here?
+      <button onclick="closeLoginModal();openModal('student')" style="background:none;border:none;color:var(--mint);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create free student account</button>
+      &nbsp;|&nbsp;
+      <button onclick="closeLoginModal();openModal('parent')" style="background:none;border:none;color:var(--sky);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create parent account</button>
     </div>
   </div>
 </div>
@@ -2159,543 +2186,582 @@ body{
 <div class="toast" id="toast">✅</div>
 
 <script>
-
-// MathChamp v2 - Math is Fun!
-// All strings use ASCII or HTML entities only
-
-// Self test
+// MathChamp v4 - Complete Clean Rewrite
+// Zero mixed quotes, zero multiline strings, zero duplicates
 window.MATHCHAMP_LOADED = true;
 
-// APP STATE
+// ── STATE ──────────────────────────────────────────────
 var S = {
-  name:'', grade:'', gradeNum:0,
-  xp:0, level:1, streak:0, coins:0, credits:0,
-  isPreview:false,
-  triviaMode:'trivia',
-  triviaSession:{qs:[],idx:0,correct:0,loading:false},
-  battleState:{active:false,round:0,myScore:0,oppScore:0,qs:[],timeLeft:30,opp:null,timer:null}
+  name:"", grade:"", gradeNum:0,
+  xp:0, level:1, streak:0, coins:0,
+  isPreview:false, triviaMode:"trivia"
 };
+var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
+var SESSION_PLAYERS = [];
+var CHALLENGE_FILTER = "same";
+var MUSIC = { trackIdx:0, playing:false, muted:true, shuffle:false, volume:0.30, panelOpen:false, userInteracted:false, userManuallyStopped:false };
+var triviaTimer = null;
+var session = { qs:[], idx:0, correct:0, mode:"trivia", loading:false };
+var practiceSession = { qs:[], idx:0, correct:0, loading:false };
+var practiceTimer = null;
+var W3F_KEY = "b477849b-f836-414d-8eb3-1ea9704201a1";
 
-// QUESTION BANK
+// ── DATA ───────────────────────────────────────────────
 var QUESTION_BANK = {
   grades_1_3:{
     Arithmetic:[
-      {q:"What is 8 + 7?",a:["14","15","16","13"],c:1,src:"Khan Academy"},
-      {q:"What is 9 x 9?",a:["72","81","80","90"],c:1,src:"Khan Academy"},
-      {q:"56 divided by 7 equals?",a:["6","7","8","9"],c:2,src:"OpenStax"},
-      {q:"100 minus 37 equals?",a:["63","73","67","57"],c:0,src:"Khan Academy"},
-      {q:"3 bags of 6 apples each. Total apples?",a:["9","12","18","15"],c:2,src:"STAAR Grade 3"},
-      {q:"What is 7 + 8 + 5?",a:["18","19","20","21"],c:2,src:"Khan Academy"},
-      {q:"Round 47 to the nearest ten.",a:["40","50","45","44"],c:1,src:"Khan Academy"}
+      {q:"What is 8 + 7?",a:["14","15","16","13"],c:1},
+      {q:"What is 9 x 9?",a:["72","81","80","90"],c:1},
+      {q:"56 divided by 7?",a:["6","7","8","9"],c:2},
+      {q:"100 minus 37?",a:["63","73","67","57"],c:0},
+      {q:"3 bags of 6 apples. Total?",a:["9","12","18","15"],c:2},
+      {q:"7 + 8 + 5 = ?",a:["18","19","20","21"],c:2},
+      {q:"Round 47 to nearest ten.",a:["40","50","45","44"],c:1}
     ],
     NumberSense:[
-      {q:"Place value of 5 in 253?",a:["Ones","Hundreds","Tens","Thousands"],c:2,src:"Khan Academy"},
-      {q:"Value of digit 7 in 374?",a:["7","70","700","7000"],c:1,src:"OpenStax"},
-      {q:"Which is greater: 3/4 or 1/2?",a:["1/2","Equal","3/4","Cannot tell"],c:2,src:"Illustrative Math"},
-      {q:"400 + 50 + 3 in standard form?",a:["453","435","543","345"],c:0,src:"Khan Academy"}
+      {q:"Place value of 5 in 253?",a:["Ones","Hundreds","Tens","Thousands"],c:2},
+      {q:"Value of 7 in 374?",a:["7","70","700","7000"],c:1},
+      {q:"Which is greater: 3/4 or 1/2?",a:["1/2","Equal","3/4","Cannot tell"],c:2},
+      {q:"400+50+3 in standard form?",a:["453","435","543","345"],c:0}
     ],
     Geometry:[
-      {q:"How many sides does a triangle have?",a:["2","4","3","5"],c:2,src:"Khan Academy"},
-      {q:"4 equal sides, 4 right angles - which shape?",a:["Rectangle","Triangle","Square","Pentagon"],c:2,src:"Illustrative Math"},
-      {q:"How many corners does a cube have?",a:["6","8","10","12"],c:1,src:"OpenStax"}
+      {q:"Sides of a triangle?",a:["2","4","3","5"],c:2},
+      {q:"4 equal sides, 4 right angles?",a:["Rectangle","Triangle","Square","Pentagon"],c:2},
+      {q:"Corners of a cube?",a:["6","8","10","12"],c:1}
     ]
   },
   grades_4_5:{
     Fractions:[
-      {q:"What is 1/3 + 1/3?",a:["1/6","2/6","2/3","1/9"],c:2,src:"Khan Academy"},
-      {q:"What is 3/4 of 20?",a:["12","15","16","18"],c:1,src:"STAAR Grade 5"},
-      {q:"What is 2/3 times 3/4?",a:["5/7","1/2","6/12","5/12"],c:1,src:"OpenStax"},
-      {q:"What is 5/6 minus 1/3?",a:["4/3","1/2","3/6","1/6"],c:2,src:"Khan Academy"},
-      {q:"What is 3 divided by 1/2?",a:["1.5","3/2","6","2/3"],c:2,src:"Khan Academy"}
+      {q:"1/3 + 1/3 = ?",a:["1/6","2/6","2/3","1/9"],c:2},
+      {q:"3/4 of 20?",a:["12","15","16","18"],c:1},
+      {q:"2/3 times 3/4?",a:["5/7","1/2","6/12","5/12"],c:1},
+      {q:"5/6 minus 1/3?",a:["4/3","1/2","3/6","1/6"],c:2},
+      {q:"3 divided by 1/2?",a:["1.5","3/2","6","2/3"],c:2}
     ],
     Decimals:[
-      {q:"What is 0.5 + 0.7?",a:["0.12","1.2","1.02","0.57"],c:1,src:"Khan Academy"},
-      {q:"Which decimal equals 3/5?",a:["0.35","0.53","0.6","0.3"],c:2,src:"Illustrative Math"},
-      {q:"Round 3.867 to nearest tenth.",a:["3.8","3.9","4.0","3.86"],c:1,src:"STAAR Grade 5"},
-      {q:"What is 4.2 times 3?",a:["12.3","12.6","14.2","10.6"],c:1,src:"Khan Academy"}
+      {q:"0.5 + 0.7 = ?",a:["0.12","1.2","1.02","0.57"],c:1},
+      {q:"Decimal for 3/5?",a:["0.35","0.53","0.6","0.3"],c:2},
+      {q:"Round 3.867 to nearest tenth.",a:["3.8","3.9","4.0","3.86"],c:1},
+      {q:"4.2 times 3?",a:["12.3","12.6","14.2","10.6"],c:1}
     ],
     Geometry:[
-      {q:"How many sides does a hexagon have?",a:["5","7","8","6"],c:3,src:"Khan Academy"},
-      {q:"Area of rectangle 8 wide and 5 tall?",a:["26","13","40","45"],c:2,src:"Illustrative Math"},
-      {q:"Perimeter of square with side 7?",a:["14","21","28","49"],c:2,src:"OpenStax"},
-      {q:"Volume of box 3 by 4 by 5?",a:["47","60","24","20"],c:1,src:"Khan Academy"}
+      {q:"Sides of a hexagon?",a:["5","7","8","6"],c:3},
+      {q:"Area of 8x5 rectangle?",a:["26","13","40","45"],c:2},
+      {q:"Perimeter of square side 7?",a:["14","21","28","49"],c:2},
+      {q:"Volume of 3x4x5 box?",a:["47","60","24","20"],c:1}
     ]
   },
   grades_6_8:{
     Algebra:[
-      {q:"If 3x + 7 = 22, what is x?",a:["3","5","7","4"],c:1,src:"Khan Academy"},
-      {q:"Simplify: 2(3x + 4) minus 5x",a:["x + 8","11x + 8","x - 8","11x - 8"],c:0,src:"Illustrative Math"},
-      {q:"What is the slope of y = 3x - 5?",a:["-5","3","-3","5"],c:1,src:"Khan Academy"},
-      {q:"Solve: 2x - 3 = 11",a:["x=4","x=7","x=5","x=8"],c:1,src:"STAAR Grade 8"},
-      {q:"Factor: x squared plus 5x plus 6",a:["(x+2)(x+3)","(x+1)(x+6)","(x+5)(x+1)","(x-2)(x-3)"],c:0,src:"Illustrative Math"},
-      {q:"y-intercept of y = -2x + 6?",a:["-2","6","-6","2"],c:1,src:"STAAR Grade 8"},
-      {q:"Slope between (2,4) and (6,12)?",a:["1","2","3","4"],c:1,src:"Khan Academy"}
+      {q:"3x + 7 = 22, x = ?",a:["3","5","7","4"],c:1},
+      {q:"Simplify 2(3x+4) minus 5x",a:["x+8","11x+8","x-8","11x-8"],c:0},
+      {q:"Slope of y = 3x - 5?",a:["-5","3","-3","5"],c:1},
+      {q:"Solve 2x - 3 = 11",a:["x=4","x=7","x=5","x=8"],c:1},
+      {q:"Factor x squared + 5x + 6",a:["(x+2)(x+3)","(x+1)(x+6)","(x+5)(x+1)","(x-2)(x-3)"],c:0},
+      {q:"y-intercept of y=-2x+6?",a:["-2","6","-6","2"],c:1},
+      {q:"Slope between (2,4) and (6,12)?",a:["1","2","3","4"],c:1}
     ],
     Geometry:[
-      {q:"Triangle has 45 and 60 degree angles. Find the third.",a:["75","85","90","65"],c:0,src:"Khan Academy"},
-      {q:"Area of circle radius 5? Use pi = 3.14",a:["31.4","78.5","15.7","25"],c:1,src:"Illustrative Math"},
-      {q:"Right triangle legs 3 and 4. Hypotenuse?",a:["5","6","7","2.6"],c:0,src:"STAAR Grade 8"},
-      {q:"Sum of interior angles of a pentagon?",a:["360","450","540","720"],c:2,src:"Khan Academy"},
-      {q:"Circumference of circle diameter 10? Pi = 3.14",a:["31.4","62.8","15.7","78.5"],c:0,src:"Khan Academy"}
+      {q:"Triangle: 45 and 60 degrees. Third angle?",a:["75","85","90","65"],c:0},
+      {q:"Area of circle radius 5? (pi=3.14)",a:["31.4","78.5","15.7","25"],c:1},
+      {q:"Right triangle legs 3 and 4. Hypotenuse?",a:["5","6","7","2.6"],c:0},
+      {q:"Interior angles of pentagon?",a:["360","450","540","720"],c:2},
+      {q:"Circumference circle diameter 10? (pi=3.14)",a:["31.4","62.8","15.7","78.5"],c:0}
     ],
     Statistics:[
-      {q:"Mean of: 4, 8, 6, 10, 2?",a:["5","6","7","8"],c:1,src:"Khan Academy"},
-      {q:"Median of: 3, 7, 1, 9, 5?",a:["5","7","3","4"],c:0,src:"Illustrative Math"},
-      {q:"Mode of: 2, 4, 4, 4, 6, 8?",a:["2","6","4","8"],c:2,src:"Khan Academy"},
-      {q:"Range of: 15, 3, 9, 21, 7?",a:["15","18","21","12"],c:1,src:"STAAR Grade 6"},
-      {q:"Bag: 4 red 3 blue 3 green. Probability of red?",a:["2/5","4/10","4/7","3/10"],c:0,src:"Khan Academy"}
+      {q:"Mean of 4,8,6,10,2?",a:["5","6","7","8"],c:1},
+      {q:"Median of 3,7,1,9,5?",a:["5","7","3","4"],c:0},
+      {q:"Mode of 2,4,4,4,6,8?",a:["2","6","4","8"],c:2},
+      {q:"Range of 15,3,9,21,7?",a:["15","18","21","12"],c:1},
+      {q:"4 red, 3 blue, 3 green. P(red)?",a:["2/5","4/10","4/7","3/10"],c:0}
     ],
     Ratios:[
-      {q:"3 pens cost $1.50. Cost of 7 pens?",a:["$3.00","$3.50","$4.00","$2.50"],c:1,src:"STAAR Grade 6"},
-      {q:"What is 30% of 80?",a:["20","24","28","32"],c:1,src:"Khan Academy"},
-      {q:"120 miles in 2 hours. What is the speed?",a:["240 mph","60 mph","50 mph","70 mph"],c:1,src:"Illustrative Math"},
-      {q:"What is 45% of 200?",a:["80","85","90","95"],c:2,src:"Khan Academy"}
+      {q:"3 pens = $1.50. Cost of 7?",a:["$3.00","$3.50","$4.00","$2.50"],c:1},
+      {q:"30% of 80?",a:["20","24","28","32"],c:1},
+      {q:"120 miles in 2 hours. Speed?",a:["240","60","50","70"],c:1},
+      {q:"45% of 200?",a:["80","85","90","95"],c:2}
     ]
   },
   grades_9_10:{
     AlgebraII:[
-      {q:"Solve x squared - 5x + 6 = 0",a:["x=2 and x=3","x=1 and x=6","x=-2 and x=-3","x=2 and x=-3"],c:0,src:"SAT Practice"},
-      {q:"Discriminant of 2x squared + 3x - 2?",a:["7","25","9","16"],c:1,src:"Khan Academy"},
-      {q:"f(x) = 2x squared - 3. Find f(-2).",a:["5","11","1","-11"],c:0,src:"Khan Academy"},
-      {q:"Roots of x squared - 9 = 0?",a:["x = plus or minus 3","x=3","x=9","x = plus or minus 9"],c:0,src:"SAT Practice"},
-      {q:"Axis of symmetry: y = x squared - 6x + 5?",a:["x=-3","x=3","x=5","x=-6"],c:1,src:"Khan Academy"},
-      {q:"Simplify the square root of 48",a:["4 times root 3","6 times root 2","3 times root 16","8 times root 3"],c:0,src:"Khan Academy"}
+      {q:"Solve x squared - 5x + 6 = 0",a:["x=2,x=3","x=1,x=6","x=-2,x=-3","x=2,x=-3"],c:0},
+      {q:"Discriminant of 2x sq + 3x - 2?",a:["7","25","9","16"],c:1},
+      {q:"f(x)=2x sq -3. Find f(-2).",a:["5","11","1","-11"],c:0},
+      {q:"Roots of x squared - 9 = 0?",a:["plus or minus 3","x=3","x=9","plus or minus 9"],c:0},
+      {q:"Axis of symmetry y=x sq -6x+5?",a:["x=-3","x=3","x=5","x=-6"],c:1},
+      {q:"Simplify square root of 48",a:["4 root 3","6 root 2","3 root 16","8 root 3"],c:0}
     ],
     Trigonometry:[
-      {q:"sin(30 degrees) = ?",a:["root3 over 2","1/2","root2 over 2","1"],c:1,src:"Khan Academy"},
-      {q:"cos(0 degrees) = ?",a:["0","1","-1","undefined"],c:1,src:"ACT Practice"},
-      {q:"tan(45 degrees) = ?",a:["0","root 3","1","root 2"],c:2,src:"Khan Academy"},
-      {q:"SOH means sin equals?",a:["Opposite over Hypotenuse","Adjacent over Hypotenuse","Opposite over Adjacent","Hypotenuse over Opposite"],c:0,src:"Khan Academy"}
+      {q:"sin(30 degrees)?",a:["root3/2","1/2","root2/2","1"],c:1},
+      {q:"cos(0 degrees)?",a:["0","1","-1","undefined"],c:1},
+      {q:"tan(45 degrees)?",a:["0","root 3","1","root 2"],c:2},
+      {q:"SOH means sin equals?",a:["Opp/Hyp","Adj/Hyp","Opp/Adj","Hyp/Opp"],c:0}
     ],
     Statistics:[
-      {q:"Probability of all heads in 3 coin flips?",a:["1/4","1/8","1/6","3/8"],c:1,src:"SAT Practice"},
-      {q:"Standard deviation measures?",a:["Average","Central tendency","Spread of data","Sample size"],c:2,src:"Khan Academy"}
+      {q:"P(all heads, 3 flips)?",a:["1/4","1/8","1/6","3/8"],c:1},
+      {q:"Standard deviation measures?",a:["Average","Central tendency","Spread","Sample size"],c:2}
     ]
   },
   grades_11_12:{
+    Calculus:[
+      {q:"Derivative of x cubed?",a:["x squared","3x","3x squared","2x cubed"],c:2},
+      {q:"Integral of 2x dx?",a:["x","x squared + C","2x squared + C","2 + C"],c:1},
+      {q:"Limit as x->2 of (x sq-4)/(x-2)?",a:["0","4","undefined","2"],c:1},
+      {q:"Derivative of sin(x)?",a:["-cos(x)","cos(x)","-sin(x)","tan(x)"],c:1},
+      {q:"Derivative of e to the x?",a:["x times e to x-1","e to the x","e to x-1","1/e to x"],c:1},
+      {q:"Product rule d/dx(fg)?",a:["f gprime + fprime g","fprime gprime","f gprime - fprime g","fprime-gprime"],c:0},
+      {q:"Derivative of ln(x)?",a:["1/x","ln(x)/x","x ln(x)","e to the x"],c:0}
+    ],
     Trigonometry:[
-      {q:"sin squared plus cos squared = ?",a:["0","2","sin(2x)","1"],c:3,src:"AP Precalculus"},
-      {q:"cos(60 degrees) = ?",a:["root3 over 2","1/2","0","1"],c:1,src:"AP Precalculus"},
-      {q:"Period of y = sin(2x)?",a:["pi","2pi","4pi","pi over 2"],c:0,src:"AP Precalculus"},
-      {q:"Convert 180 degrees to radians.",a:["pi over 2","pi","2pi","3pi over 2"],c:1,src:"Khan Academy"},
-      {q:"arcsin(1) = ?",a:["0 degrees","90 degrees","180 degrees","45 degrees"],c:1,src:"Khan Academy"}
+      {q:"sin sq + cos sq = ?",a:["0","2","sin(2x)","1"],c:3},
+      {q:"cos(60 degrees)?",a:["root3/2","1/2","0","1"],c:1},
+      {q:"Period of y=sin(2x)?",a:["pi","2pi","4pi","pi/2"],c:0},
+      {q:"180 degrees in radians?",a:["pi/2","pi","2pi","3pi/2"],c:1},
+      {q:"arcsin(1) = ?",a:["0 deg","90 deg","180 deg","45 deg"],c:1}
     ],
     PreCalculus:[
-      {q:"log base 2 of 32 = ?",a:["4","5","6","3"],c:1,src:"Khan Academy"},
-      {q:"Vertex of y = (x-3) squared + 5?",a:["(-3,5)","(3,-5)","(3,5)","(-3,-5)"],c:2,src:"SAT Practice"},
-      {q:"Expand: (x + 2) cubed",a:["x3+6x2+12x+8","x3+8","x3+2x2+2x+8","x3+3x2+3x+2"],c:0,src:"ACT Practice"},
-      {q:"e raised to the power of ln(5) = ?",a:["1","5","ln5","e to the 5th"],c:1,src:"AP Precalculus"}
-    ],
-    Calculus:[
-      {q:"Derivative of x cubed?",a:["x squared","3x","3x squared","2x cubed"],c:2,src:"AP Calculus AB"},
-      {q:"Integral of 2x dx = ?",a:["x","x squared + C","2x squared + C","2 + C"],c:1,src:"AP Calculus AB"},
-      {q:"Limit as x approaches 2 of (x sq - 4)/(x - 2)?",a:["0","4","undefined","2"],c:1,src:"AP Calculus AB"},
-      {q:"Derivative of sin(x)?",a:["-cos(x)","cos(x)","-sin(x)","tan(x)"],c:1,src:"AP Calculus BC"},
-      {q:"Derivative of e to the x?",a:["x times e to x-1","e to the x","e to the x-1","1 over e to x"],c:1,src:"AP Calculus AB"},
-      {q:"Product rule: d/dx of f times g = ?",a:["f g-prime plus f-prime g","f-prime g-prime","f g-prime minus f-prime g","f-prime minus g-prime"],c:0,src:"AP Calculus AB"},
-      {q:"Derivative of ln(x)?",a:["1/x","ln(x) over x","x times ln(x)","e to the x"],c:0,src:"AP Calculus AB"}
+      {q:"log base 2 of 32?",a:["4","5","6","3"],c:1},
+      {q:"Vertex of y=(x-3) sq +5?",a:["(-3,5)","(3,-5)","(3,5)","(-3,-5)"],c:2},
+      {q:"e to power of ln(5)?",a:["1","5","ln5","e to 5th"],c:1}
     ],
     APStatistics:[
-      {q:"p-value less than 0.05 means?",a:["Accept null","95% accurate","Reject null","No conclusion"],c:2,src:"AP Statistics"},
-      {q:"Type I error means?",a:["False negative","Rejecting a true null hypothesis","Accepting a false null","Correct rejection"],c:1,src:"AP Statistics"},
-      {q:"Correlation ranges from?",a:["0 to 1","-1 to 0","-1 to 1","0 to infinity"],c:2,src:"AP Statistics"},
-      {q:"Central Limit Theorem says sample means are?",a:["Skewed","Normally distributed","Uniform","Bimodal"],c:1,src:"AP Statistics"}
+      {q:"p-value < 0.05 means?",a:["Accept null","95% accurate","Reject null","No conclusion"],c:2},
+      {q:"Type I error means?",a:["False negative","Reject true null","Accept false null","Correct rejection"],c:1},
+      {q:"Correlation ranges from?",a:["0 to 1","-1 to 0","-1 to 1","0 to infinity"],c:2}
     ]
   }
 };
 
-var TOPIC_ICONS = {
-  "Arithmetic":"#","NumberSense":"N","Geometry":"G","Fractions":"F",
-  "Decimals":"D","Algebra":"A","AlgebraII":"A2","Statistics":"S",
-  "Ratios":"R","Trigonometry":"T","PreCalculus":"PC","Calculus":"C",
-  "APStatistics":"AP"
-};
-
-var SOURCES = [
-  {n:"Khan Academy",icon:"K",desc:"K-12 curriculum, all topics",cnt:"60+"},
-  {n:"OpenStax",icon:"O",desc:"Free peer-reviewed textbooks",cnt:"25+"},
-  {n:"Illustrative Mathematics",icon:"I",desc:"Common Core aligned tasks",cnt:"30+"},
-  {n:"STAAR Released Tests",icon:"S",desc:"Texas state exams",cnt:"20+"},
-  {n:"SAT Practice Tests",icon:"SAT",desc:"College Board released SAT math",cnt:"20+"},
-  {n:"ACT Practice Tests",icon:"ACT",desc:"ACT released math sections",cnt:"15+"},
-  {n:"AP Calculus AB/BC",icon:"AP",desc:"AP Calculus released",cnt:"15+"},
-  {n:"AP Statistics",icon:"AP",desc:"AP Statistics released exams",cnt:"10+"},
-  {n:"AP Precalculus",icon:"AP",desc:"AP Precalculus sample questions",cnt:"10+"},
-  {n:"Claude AI (Live)",icon:"AI",desc:"Fresh AI-generated questions per session",cnt:"unlimited"}
+var OPPS = [
+  {n:"Lily M.",   gradeN:2,  band:1, tier:"Bronze",   meta:"2nd Grade - 12 Wins",  wr:"55% Win Rate", winRate:0.55, e:"L", bg:"linear-gradient(135deg,#cd7f32,#a06020)"},
+  {n:"Noah B.",   gradeN:3,  band:1, tier:"Silver",   meta:"3rd Grade - 28 Wins",  wr:"61% Win Rate", winRate:0.61, e:"N", bg:"linear-gradient(135deg,#c0c0c0,#909090)"},
+  {n:"Mia T.",    gradeN:4,  band:2, tier:"Silver",   meta:"4th Grade - 35 Wins",  wr:"63% Win Rate", winRate:0.63, e:"M", bg:"linear-gradient(135deg,#06d6a0,#4ecdc4)"},
+  {n:"Ethan R.",  gradeN:5,  band:2, tier:"Gold",     meta:"5th Grade - 52 Wins",  wr:"70% Win Rate", winRate:0.70, e:"E", bg:"linear-gradient(135deg,#ffd93d,#ff9f1c)"},
+  {n:"Riley M.",  gradeN:6,  band:3, tier:"Silver",   meta:"6th Grade - 43 Wins",  wr:"65% Win Rate", winRate:0.65, e:"R", bg:"linear-gradient(135deg,#4ecdc4,#06d6a0)"},
+  {n:"Jordan K.", gradeN:7,  band:3, tier:"Gold",     meta:"7th Grade - 89 Wins",  wr:"78% Win Rate", winRate:0.78, e:"J", bg:"linear-gradient(135deg,#f5c842,#ff9f1c)"},
+  {n:"Sam P.",    gradeN:7,  band:3, tier:"Gold",     meta:"7th Grade - 74 Wins",  wr:"71% Win Rate", winRate:0.71, e:"S", bg:"linear-gradient(135deg,#ff6b6b,#f15bb5)"},
+  {n:"Chris W.",  gradeN:8,  band:3, tier:"Platinum", meta:"8th Grade - 102 Wins", wr:"83% Win Rate", winRate:0.83, e:"C", bg:"linear-gradient(135deg,#9b5de5,#4ecdc4)"},
+  {n:"Dana R.",   gradeN:9,  band:4, tier:"Diamond",  meta:"9th Grade - 145 Wins", wr:"91% Win Rate", winRate:0.91, e:"D", bg:"linear-gradient(135deg,#4ecdc4,#2196f3)"},
+  {n:"Alex K.",   gradeN:10, band:4, tier:"Platinum", meta:"10th Grade - 118 Wins",wr:"86% Win Rate", winRate:0.86, e:"A", bg:"linear-gradient(135deg,#9b5de5,#f15bb5)"},
+  {n:"Morgan L.", gradeN:11, band:5, tier:"Diamond",  meta:"11th Grade - 201 Wins",wr:"94% Win Rate", winRate:0.94, e:"M", bg:"linear-gradient(135deg,#ffd93d,#9b5de5)"},
+  {n:"Taylor B.", gradeN:12, band:5, tier:"Legend",   meta:"12th Grade - 312 Wins",wr:"97% Win Rate", winRate:0.97, e:"T", bg:"linear-gradient(135deg,#ff6b6b,#ffd93d)"}
 ];
 
 var LB_DATA = [
-  {n:"Jordan K.",g:"7th",pts:5820,e:"#1",chg:"+2",up:true},
-  {n:"Sam P.",g:"7th",pts:5410,e:"#2",chg:"+1",up:true},
-  {n:"Riley M.",g:"7th",pts:5200,e:"#3",chg:"0",up:false},
-  {n:"Alex J.",g:"7th",pts:3240,e:"#4",chg:"+3",up:true},
-  {n:"Casey T.",g:"7th",pts:3100,e:"#5",chg:"-1",up:false},
-  {n:"Morgan L.",g:"7th",pts:2980,e:"#6",chg:"+4",up:true},
-  {n:"Taylor B.",g:"7th",pts:2750,e:"#7",chg:"-2",up:false},
-  {n:"Drew K.",g:"7th",pts:2640,e:"#8",chg:"+5",up:true}
+  {n:"Jordan K.", g:"7th", pts:5820, e:"J", chg:"+2", up:true},
+  {n:"Sam P.",    g:"7th", pts:5410, e:"S", chg:"+1", up:true},
+  {n:"Riley M.",  g:"7th", pts:5200, e:"R", chg:"0",  up:false},
+  {n:"Alex J.",   g:"7th", pts:3240, e:"A", chg:"+3", up:true},
+  {n:"Casey T.",  g:"7th", pts:3100, e:"C", chg:"-1", up:false},
+  {n:"Morgan L.", g:"7th", pts:2980, e:"M", chg:"+4", up:true},
+  {n:"Taylor B.", g:"7th", pts:2750, e:"T", chg:"-2", up:false},
+  {n:"Drew K.",   g:"7th", pts:2640, e:"D", chg:"+5", up:true}
 ];
-
-var OPPS = [
-  // Grades 1-3 Elementary
-  {n:"Lily M.",   grade:1, gradeN:2,  tier:"Bronze",  meta:"Bronze - 2nd Grade - 12 Wins",  wr:"Win Rate 55%", e:"L", bg:"linear-gradient(135deg,#cd7f32,#a06020)", winRate:0.55},
-  {n:"Noah B.",   grade:1, gradeN:3,  tier:"Silver",  meta:"Silver - 3rd Grade - 28 Wins",  wr:"Win Rate 61%", e:"N", bg:"linear-gradient(135deg,#c0c0c0,#a0a0a0)", winRate:0.61},
-  // Grades 4-5 Elementary
-  {n:"Mia T.",    grade:2, gradeN:4,  tier:"Silver",  meta:"Silver - 4th Grade - 35 Wins",  wr:"Win Rate 63%", e:"M", bg:"linear-gradient(135deg,#06d6a0,#4ecdc4)", winRate:0.63},
-  {n:"Ethan R.",  grade:2, gradeN:5,  tier:"Gold",    meta:"Gold - 5th Grade - 52 Wins",    wr:"Win Rate 70%", e:"E", bg:"linear-gradient(135deg,#ffd93d,#ff9f1c)", winRate:0.70},
-  // Grades 6-8 Middle School
-  {n:"Jordan K.", grade:3, gradeN:7,  tier:"Gold",    meta:"Gold - 7th Grade - 89 Wins",    wr:"Win Rate 78%", e:"J", bg:"linear-gradient(135deg,#f5c842,#ff9f1c)", winRate:0.78},
-  {n:"Sam P.",    grade:3, gradeN:7,  tier:"Gold",    meta:"Gold - 7th Grade - 74 Wins",    wr:"Win Rate 71%", e:"S", bg:"linear-gradient(135deg,#ff6b6b,#f15bb5)", winRate:0.71},
-  {n:"Riley M.",  grade:3, gradeN:6,  tier:"Silver",  meta:"Silver - 6th Grade - 43 Wins",  wr:"Win Rate 65%", e:"R", bg:"linear-gradient(135deg,#4ecdc4,#06d6a0)", winRate:0.65},
-  {n:"Chris W.",  grade:3, gradeN:8,  tier:"Platinum",meta:"Platinum - 8th Grade - 102 Wins",wr:"Win Rate 83%",e:"C", bg:"linear-gradient(135deg,#9b5de5,#4ecdc4)", winRate:0.83},
-  // Grades 9-10 High School
-  {n:"Dana R.",   grade:4, gradeN:9,  tier:"Diamond", meta:"Diamond - 9th Grade - 145 Wins", wr:"Win Rate 91%",e:"D", bg:"linear-gradient(135deg,#4ecdc4,#2196f3)", winRate:0.91},
-  {n:"Alex K.",   grade:4, gradeN:10, tier:"Platinum",meta:"Platinum - 10th Grade - 118 Wins",wr:"Win Rate 86%",e:"A",bg:"linear-gradient(135deg,#9b5de5,#f15bb5)", winRate:0.86},
-  // Grades 11-12 High School
-  {n:"Morgan L.", grade:5, gradeN:11, tier:"Diamond", meta:"Diamond - 11th Grade - 201 Wins",wr:"Win Rate 94%",e:"M", bg:"linear-gradient(135deg,#ffd93d,#9b5de5)", winRate:0.94},
-  {n:"Taylor B.", grade:5, gradeN:12, tier:"Legend",  meta:"Legend - 12th Grade - 312 Wins", wr:"Win Rate 97%",e:"T", bg:"linear-gradient(135deg,#ff6b6b,#ffd93d)", winRate:0.97}
-];
-// grade band: 1=K-3, 2=4-5, 3=6-8, 4=9-10, 5=11-12
-
 
 var SKILLS_DATA = [
-  {n:"Number Sense",i:"N",m:95,unlocked:true},
-  {n:"Arithmetic",i:"A",m:90,unlocked:true},
-  {n:"Fractions",i:"F",m:62,unlocked:true},
-  {n:"Algebra",i:"AL",m:88,unlocked:true},
-  {n:"Geometry",i:"G",m:80,unlocked:true},
-  {n:"Statistics",i:"S",m:74,unlocked:true},
-  {n:"Trigonometry",i:"T",m:45,unlocked:true},
-  {n:"Pre-Calculus",i:"PC",m:0,unlocked:false},
-  {n:"Calculus",i:"C",m:0,unlocked:false}
+  {n:"Number Sense", i:"N", m:95, unlocked:true},
+  {n:"Arithmetic",   i:"A", m:90, unlocked:true},
+  {n:"Fractions",    i:"F", m:62, unlocked:true},
+  {n:"Algebra",      i:"AL",m:88, unlocked:true},
+  {n:"Geometry",     i:"G", m:80, unlocked:true},
+  {n:"Statistics",   i:"S", m:74, unlocked:true},
+  {n:"Trigonometry", i:"T", m:45, unlocked:true},
+  {n:"Pre-Calculus", i:"PC",m:0,  unlocked:false},
+  {n:"Calculus",     i:"C", m:0,  unlocked:false}
 ];
 
 var PRIZES = [
-  {n:"Amazon Gift Card",e:"$5",cost:500,val:"$5"},
-  {n:"$10 Amazon Card",e:"$10",cost:1000,val:"$10"},
-  {n:"GameStop Card",e:"$25",cost:2500,val:"$25"},
-  {n:"Calculator",e:"Calc",cost:2000,val:"$20"},
-  {n:"College Savings",e:"529",cost:5000,val:"$50"},
-  {n:"Math Merch",e:"Merch",cost:1500,val:"$15"}
-];
-
-var FUN_FACTS = [
-  "A googol is 1 followed by 100 zeros - more than atoms in the universe!",
-  "Zero cannot be shown in Roman numerals!",
-  "The word mathematics comes from Greek meaning that which is learnt!",
-  "Fibonacci numbers appear in sunflowers, pinecones, and your DNA!",
-  "There are more possible chess games than atoms in the universe!",
-  "The equals sign was invented by Robert Recorde in 1557!",
-  "Pi has been calculated to over 100 trillion digits!",
-  "There are infinitely many prime numbers!"
-];
-
-var COIN_GUIDE = [
-  {a:"Daily trivia (3 questions)",c:"10-25 coins",i:"Q"},
-  {a:"Win a challenge",c:"15 coins",i:"W"},
-  {a:"Beat higher-ranked player",c:"30 coins bonus",i:"B"},
-  {a:"7-day streak",c:"50 coins",i:"S"},
-  {a:"Perfect score",c:"+15 bonus coins",i:"P"},
-  {a:"Complete skill topic",c:"20 coins",i:"T"},
-  {a:"Tournament win",c:"100-500 coins",i:"TW"}
-];
-
-var ACHIEVEMENTS_DATA = [
-  {n:"First Win",d:"Won your first challenge",i:"W",bg:"rgba(255,217,61,0.15)",unlocked:true},
-  {n:"Streak Master",d:"5-day login streak",i:"S",bg:"rgba(255,107,107,0.15)",unlocked:true},
-  {n:"Top 10%",d:"Ranked in top 10% of grade",i:"T",bg:"rgba(6,214,160,0.15)",unlocked:true},
-  {n:"Speed Demon",d:"Answer in under 5 seconds",i:"Sp",bg:"rgba(78,205,196,0.15)",unlocked:false},
-  {n:"Giant Slayer",d:"Beat a Diamond tier player",i:"G",bg:"rgba(255,107,107,0.15)",unlocked:false},
-  {n:"Math Scholar",d:"Complete 500 questions",i:"M",bg:"rgba(155,93,229,0.15)",unlocked:false}
-];
-
-var QUICK_PROMPTS = [
-  {t:"Explain fractions",emoji:"F"},
-  {t:"How does algebra work?",emoji:"A"},
-  {t:"Tips for geometry",emoji:"G"},
-  {t:"What is calculus?",emoji:"C"},
-  {t:"Statistics made easy",emoji:"S"},
-  {t:"Solve word problems",emoji:"W"}
-];
-
-var TOURNAMENTS = [
-  {n:"5th Grade Arithmetic Cup",date:"March 30, 2026",prize:"$200",spots:"428/500",color:"card-mint",grades:"Grades 4-5"},
-  {n:"Middle School Geometry Bowl",date:"April 15, 2026",prize:"$350",spots:"211/300",color:"card-sky",grades:"Grades 6-8"},
-  {n:"High School Pre-Calc Sprint",date:"May 1, 2026",prize:"$750",spots:"89/200",color:"card-purple",grades:"Grades 9-12"},
-  {n:"Elementary Fun Math Blitz",date:"May 15, 2026",prize:"$150",spots:"320/400",color:"card-sun",grades:"Grades 1-3"},
-  {n:"National Calculus Challenge",date:"June 1, 2026",prize:"$1000 + 529",spots:"45/100",color:"card-coral",grades:"Grades 11-12"}
+  {n:"Amazon Gift Card", e:"$5",  cost:500,  val:"$5 value"},
+  {n:"$10 Amazon Card",  e:"$10", cost:1000, val:"$10 value"},
+  {n:"GameStop Card",    e:"$25", cost:2500, val:"$25 value"},
+  {n:"Calculator",       e:"Calc",cost:2000, val:"$20 value"},
+  {n:"College Savings",  e:"529", cost:5000, val:"$50 value"},
+  {n:"Math Merch",       e:"Merch",cost:1500,val:"$15 value"}
 ];
 
 var EARNINGS_LOG = [
-  {d:"Won challenge",a:"+15 coins",date:"Today",color:"var(--mint)",i:"W"},
-  {d:"Daily trivia - perfect!",a:"+25 coins",date:"Today",color:"var(--mint)",i:"T"},
-  {d:"Tournament round 1 win",a:"+100 coins",date:"Mar 20",color:"var(--mint)",i:"TR"},
-  {d:"7-day streak bonus",a:"+50 coins",date:"Mar 18",color:"var(--mint)",i:"S"},
-  {d:"Redeemed Amazon Card",a:"-500 coins",date:"Mar 15",color:"var(--coral)",i:"R"}
+  {d:"Won challenge",        a:"+15 coins", date:"Today",   color:"var(--mint)", i:"W"},
+  {d:"Daily trivia perfect", a:"+25 coins", date:"Today",   color:"var(--mint)", i:"T"},
+  {d:"Tournament win",       a:"+100 coins",date:"Mar 20",  color:"var(--mint)", i:"TR"},
+  {d:"7-day streak bonus",   a:"+50 coins", date:"Mar 18",  color:"var(--mint)", i:"S"},
+  {d:"Redeemed Amazon Card", a:"-500 coins",date:"Mar 15",  color:"var(--coral)",i:"R"}
 ];
 
-var W3F_KEY = "b477849b-f836-414d-8eb3-1ea9704201a1";
+var COIN_GUIDE = [
+  {a:"Daily trivia (3 questions)", c:"10-25 coins", i:"Q"},
+  {a:"Win a challenge",            c:"15 coins",    i:"W"},
+  {a:"Beat higher-ranked player",  c:"30 bonus",    i:"B"},
+  {a:"7-day streak",               c:"50 coins",    i:"S"},
+  {a:"Perfect score",              c:"+15 bonus",   i:"P"},
+  {a:"Complete skill topic",       c:"20 coins",    i:"T"},
+  {a:"Tournament win",             c:"100-500 coins",i:"TW"}
+];
 
-// UTILITIES
-function $$(id){return document.getElementById(id);}
+var TOURNAMENTS = [
+  {n:"5th Grade Arithmetic Cup",    date:"March 30, 2026", prize:"$200",  spots:"428/500", color:"card-mint",   grades:"Grades 4-5"},
+  {n:"Middle School Geometry Bowl", date:"April 15, 2026", prize:"$350",  spots:"211/300", color:"card-sky",    grades:"Grades 6-8"},
+  {n:"High School Pre-Calc Sprint", date:"May 1, 2026",    prize:"$750",  spots:"89/200",  color:"card-purple", grades:"Grades 9-12"},
+  {n:"Elementary Fun Math Blitz",   date:"May 15, 2026",   prize:"$150",  spots:"320/400", color:"card-sun",    grades:"Grades 1-3"},
+  {n:"National Calculus Challenge", date:"June 1, 2026",   prize:"$1000", spots:"45/100",  color:"card-coral",  grades:"Grades 11-12"}
+];
 
-function showToast(msg,dur){
-  dur=dur||2800;
-  var t=$$("toast");
-  if(!t)return;
-  t.textContent=msg;
+var QUICK_PROMPTS = [
+  {t:"Explain fractions",     emoji:"F"},
+  {t:"How does algebra work", emoji:"A"},
+  {t:"Tips for geometry",     emoji:"G"},
+  {t:"What is calculus",      emoji:"C"},
+  {t:"Statistics made easy",  emoji:"S"},
+  {t:"Solve word problems",   emoji:"W"}
+];
+
+var ACHIEVEMENTS_DATA = [
+  {n:"First Win",    d:"Won your first challenge",     i:"W",  bg:"rgba(255,217,61,0.15)",  unlocked:true},
+  {n:"Streak Master",d:"5-day login streak",           i:"S",  bg:"rgba(255,107,107,0.15)", unlocked:true},
+  {n:"Top 10%",      d:"Ranked in top 10% of grade",  i:"T",  bg:"rgba(6,214,160,0.15)",   unlocked:true},
+  {n:"Speed Demon",  d:"Answer in under 5 seconds",   i:"Sp", bg:"rgba(78,205,196,0.15)",  unlocked:false},
+  {n:"Giant Slayer", d:"Beat a Diamond tier player",  i:"G",  bg:"rgba(255,107,107,0.15)", unlocked:false},
+  {n:"Math Scholar", d:"Complete 500 questions",      i:"M",  bg:"rgba(155,93,229,0.15)",  unlocked:false}
+];
+
+var FUN_FACTS = [
+  "A googol is 1 followed by 100 zeros!",
+  "Zero cannot be shown in Roman numerals!",
+  "Pi has been calculated to over 100 trillion digits!",
+  "Fibonacci numbers appear in sunflowers and pinecones!",
+  "There are more chess games than atoms in the universe!",
+  "The equals sign was invented by Robert Recorde in 1557!",
+  "There are infinitely many prime numbers!"
+];
+
+var MUSIC_TRACKS = [
+  {name:"Chill Study Lofi",    artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2024/11/13/audio_2aadff8a20.mp3"},
+  {name:"Lofi Hip Hop Vibes",  artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2024/03/10/audio_13e1ff0939.mp3"},
+  {name:"Coffee Shop Beats",   artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2023/10/30/audio_a1f75e9c7d.mp3"},
+  {name:"Smooth Focus Flow",   artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2024/02/15/audio_b8e6c3e31e.mp3"},
+  {name:"Rainy Day Lofi",      artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2023/11/13/audio_94cb5f71a4.mp3"}
+];
+
+var SOURCES = [
+  {n:"Khan Academy",         icon:"K",   cnt:"60+"},
+  {n:"OpenStax",             icon:"O",   cnt:"25+"},
+  {n:"Illustrative Math",    icon:"I",   cnt:"30+"},
+  {n:"STAAR Released Tests", icon:"S",   cnt:"20+"},
+  {n:"SAT Practice Tests",   icon:"SAT", cnt:"20+"},
+  {n:"AP Calculus AB/BC",    icon:"AP",  cnt:"15+"},
+  {n:"AP Statistics",        icon:"AP",  cnt:"10+"},
+  {n:"Claude AI (Live)",     icon:"AI",  cnt:"unlimited"}
+];
+
+// ── UTILITIES ──────────────────────────────────────────
+function $$(id){ return document.getElementById(id); }
+
+function showToast(msg, dur){
+  var t = $$("toast"); if(!t) return;
+  t.textContent = msg;
   t.classList.add("show");
-  setTimeout(function(){t.classList.remove("show");},dur);
+  setTimeout(function(){ t.classList.remove("show"); }, dur||2800);
 }
 
 function gradeBand(n){
-  n=parseInt(n)||7;
-  if(n<=3)return "grades_1_3";
-  if(n<=5)return "grades_4_5";
-  if(n<=8)return "grades_6_8";
-  if(n<=10)return "grades_9_10";
+  n = parseInt(n)||7;
+  if(n<=3)  return "grades_1_3";
+  if(n<=5)  return "grades_4_5";
+  if(n<=8)  return "grades_6_8";
+  if(n<=10) return "grades_9_10";
   return "grades_11_12";
 }
 
+function getGradeBandNum(n){
+  n = parseInt(n)||7;
+  if(n<=3) return 1; if(n<=5) return 2;
+  if(n<=8) return 3; if(n<=10) return 4;
+  return 5;
+}
+
 function getRandQ(gradeN){
-  var band=gradeBand(gradeN);
-  var bank=QUESTION_BANK[band];
-  var topics=Object.keys(bank);
-  var t=topics[Math.floor(Math.random()*topics.length)];
-  var qs=bank[t];
-  var q=qs[Math.floor(Math.random()*qs.length)];
-  return {q:q.q,a:q.a,c:q.c,topic:t,src:q.src,ai:false,explanation:""};
+  var band = gradeBand(gradeN);
+  var bank = QUESTION_BANK[band];
+  var topics = Object.keys(bank);
+  var t = topics[Math.floor(Math.random()*topics.length)];
+  var qs = bank[t];
+  var q = qs[Math.floor(Math.random()*qs.length)];
+  return {q:q.q, a:q.a, c:q.c, topic:t, src:"Question Bank", ai:false, explanation:""};
 }
 
-function shuffle(arr){return arr.sort(function(){return Math.random()-.5;});}
+function shuffle(arr){ return arr.slice().sort(function(){ return Math.random()-.5; }); }
 
-// NAVIGATION
-function goPage(id,el,mob){
-  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on");});
-  var pg=$$("p-"+id);if(pg)pg.classList.add("on");
-  if(mob){
-    document.querySelectorAll(".mob-item").forEach(function(n){n.classList.remove("on");});
-    if(el)el.classList.add("on");
-  } else {
-    document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("on");});
-    if(el)el.classList.add("on");
+function saveSession(){
+  if(!S.name || S.isPreview) return;
+  try{
+    var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
+    localStorage.setItem(key, JSON.stringify({
+      xp:S.xp, level:S.level, streak:S.streak, coins:S.coins,
+      name:S.name, grade:S.grade, gradeNum:S.gradeNum
+    }));
+  }catch(e){}
+}
+
+function registerPlayer(name, grade){
+  if(!SESSION_PLAYERS.find(function(p){ return p.name===name; })){
+    SESSION_PLAYERS.push({name:name, grade:grade, wins:0, level:1, online:true});
   }
-  if(id==="room")renderRoom();
-  if(id==="challenge")renderChallenge();
-  if(id==="leaderboard")renderLeaderboard();
-  if(id==="tournament")renderTournaments();
-  if(id==="wallet")renderWallet();
-  if(id==="skills")renderSkills();
-  if(id==="profile")renderProfile();
-  if(id==="tutor")renderTutor();
-  if(id==="practice")renderPractice();
-  if(id==="parentdash")renderParentDash();
 }
 
-// MODAL
+// ── MODAL ─────────────────────────────────────────────
 function openModal(t){
-  var m=$$("signup-modal");
-  if(m)m.classList.add("open");
-  switchTab(t, $$("tab-"+t[0]+"-btn"));
+  var m = $$("signup-modal"); if(!m) return;
+  m.classList.add("open");
+  switchTab(t, $$("tab-"+(t==="student"?"s":"p")+"-btn"));
 }
-function closeModal(){
-  var m=$$("signup-modal");
-  if(m)m.classList.remove("open");
-}
-function switchTab(t,btn){
-  var ts=$$("tab-student"),tp=$$("tab-parent");
-  if(ts)ts.style.display=t==="student"?"block":"none";
-  if(tp)tp.style.display=t==="parent"?"block":"none";
-  document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("on");});
-  if(btn)btn.classList.add("on");
+function closeModal(){ var m=$$("signup-modal"); if(m) m.classList.remove("open"); }
+
+function switchTab(t, btn){
+  var ts=$$("tab-student"), tp=$$("tab-parent");
+  if(ts) ts.style.display = t==="student"?"block":"none";
+  if(tp) tp.style.display = t==="parent"?"block":"none";
+  document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("on"); });
+  if(btn) btn.classList.add("on");
 }
 function selectPlan(el){
-  document.querySelectorAll(".plan-card").forEach(function(c){c.classList.remove("sel");});
+  document.querySelectorAll(".plan-card").forEach(function(c){ c.classList.remove("sel"); });
   el.classList.add("sel");
 }
 
-// SIGNUP
-function signupStudent(){
-  var fn=$$("s-fn")?$$("s-fn").value.trim():"";
-  var ln=$$("s-ln")?$$("s-ln").value.trim():"";
-  var gr=$$("s-grade")?$$("s-grade").value:"";
-  if(!fn||!ln||!gr){showToast("Please fill in all fields!");return;}
-  S.name=fn+" "+ln; S.grade=gr+"th Grade"; S.gradeNum=parseInt(gr)||7;
-  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.credits=0; S.isPreview=false;
-  var ava=fn[0].toUpperCase();
-  var e;
-  e=$$("sb-avatar");if(e)e.textContent=ava;
-  e=$$("prof-ava");if(e)e.textContent=ava;
-  e=$$("sb-name");if(e)e.textContent=fn+" "+ln[0]+".";
-  e=$$("sb-ulevel");if(e)e.textContent="Level 1 - Beginner";
-  e=$$("home-greet");if(e)e.textContent="Welcome, "+fn+"! Math is Fun!";
-  e=$$("home-sub");if(e)e.textContent="Complete your first trivia to start earning XP and MathCoins!";
-  e=$$("prof-name");if(e)e.textContent=fn+" "+ln;
-  e=$$("prof-grade");if(e)e.textContent=gr+"th Grade - Math Champ";
-  e=$$("stat-wins");if(e)e.textContent="0";
-  e=$$("stat-streak");if(e)e.textContent="0";
-  e=$$("stat-rank");if(e)e.textContent="--";
-  e=$$("home-coins");if(e)e.textContent="0";
-  e=$$("wallet-coins");if(e)e.textContent="0";
-  e=$$("xp-level-num");if(e)e.textContent="1";
-  e=$$("xp-tier-label");if(e)e.textContent="Beginner - Just Getting Started!";
-  e=$$("xp-nums-label");if(e)e.textContent="0 / 500 XP";
-  e=$$("xp-prog");if(e)e.style.width="0%";
-  e=$$("daily-prog");if(e)e.style.width="0%";
-  e=$$("daily-status");if(e)e.textContent="0 of 3 completed today";
-  closeModal();
-  e=$$("s-land");if(e)e.classList.remove("active");
-  e=$$("s-app");if(e)e.classList.add("active");
-  e=$$("mob-nav");if(e)e.style.display="block";
-  registerPlayer(fn+" "+(ln?ln[0]+".":""), gr+"th");  saveSession();  showMusicBtn(true);
-  showToast("Welcome to MathChamp, "+fn+"! Math is Fun!");
-  renderHome();
+function openLoginModal(){ var m=$$("login-modal"); if(m) m.classList.add("open"); }
+function closeLoginModal(){ var m=$$("login-modal"); if(m) m.classList.remove("open"); }
+function showLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.add("open"); }
+function closeLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.remove("open"); }
+
+// ── NAVIGATION ─────────────────────────────────────────
+function goPage(id, el, mob){
+  document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("on"); });
+  var pg = $$("p-"+id); if(pg) pg.classList.add("on");
+  var navSel = mob ? ".mob-item" : ".nav-item";
+  document.querySelectorAll(navSel).forEach(function(n){ n.classList.remove("on"); });
+  if(el) el.classList.add("on");
+  var renderMap = {
+    room:renderRoom, challenge:renderChallenge,
+    leaderboard:renderLeaderboard, tournament:renderTournaments,
+    wallet:renderWallet, skills:renderSkills,
+    profile:renderProfile, tutor:renderTutor,
+    practice:renderPractice, parentdash:renderParentDash
+  };
+  if(renderMap[id]) renderMap[id]();
 }
 
-function previewApp(){
-  S.name="Demo Player"; S.grade="7th Grade"; S.gradeNum=7;
-  S.xp=1240; S.level=4; S.streak=3; S.coins=620; S.credits=6.20; S.isPreview=true;
-  var e;
-  e=$$("sb-avatar");if(e)e.textContent="D";
-  e=$$("prof-ava");if(e)e.textContent="D";
-  e=$$("sb-name");if(e)e.textContent="Demo Player";
-  e=$$("sb-ulevel");if(e)e.textContent="Preview Mode";
-  e=$$("home-greet");if(e)e.textContent="Exploring MathChamp! Preview Mode";
-  e=$$("home-sub");if(e)e.textContent="This is a preview - sign up free to save real progress and earn prizes!";
-  e=$$("prof-name");if(e)e.textContent="Demo Player";
-  e=$$("prof-grade");if(e)e.textContent="7th Grade - Preview Mode";
-  e=$$("stat-wins");if(e)e.textContent="12";
-  e=$$("stat-streak");if(e)e.textContent="3";
-  e=$$("stat-rank");if(e)e.textContent="#8";
-  e=$$("home-coins");if(e)e.textContent="620";
-  e=$$("wallet-coins");if(e)e.textContent="620";
-  e=$$("xp-level-num");if(e)e.textContent="4";
-  e=$$("xp-tier-label");if(e)e.textContent="Silver Tier - Rising Star (Preview)";
-  e=$$("xp-nums-label");if(e)e.textContent="1,240 / 2,000 XP";
-  e=$$("xp-prog");if(e)e.style.width="62%";
-  e=$$("daily-prog");if(e)e.style.width="33%";
-  e=$$("daily-status");if(e)e.textContent="1 of 3 completed (demo)";
-  var land=$$("s-land");if(land)land.classList.remove("active");
-  var app=$$("s-app");if(app)app.classList.add("active");
-  var nav=$$("mob-nav");if(nav)nav.style.display="block";
-  showPreviewBanner();
+// ── ENTER APP ──────────────────────────────────────────
+function enterApp(name, grade, gradeNum, isPreview){
+  S.name=name; S.grade=grade; S.gradeNum=gradeNum; S.isPreview=isPreview;
+  var ava = name[0].toUpperCase();
+  var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
+  setEl("sb-avatar", ava); setEl("prof-ava", ava);
+  setEl("sb-name", name.split(" ")[0]+(name.split(" ")[1]?" "+name.split(" ")[1][0]+".":""));
+  setEl("sb-ulevel", "Level "+S.level+" - "+(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner"));
+  setEl("home-greet", "Welcome, "+name.split(" ")[0]+"! Math is Fun!");
+  setEl("prof-name", name); setEl("prof-grade", grade+" - Math Champ");
+  setEl("stat-wins","0"); setEl("stat-streak",S.streak); setEl("stat-rank","--");
+  setEl("home-coins",S.coins.toLocaleString()); setEl("wallet-coins",S.coins.toLocaleString());
+  setEl("xp-level-num",S.level); setEl("xp-nums-label",S.xp+" / "+S.level*500+" XP");
+  setEl("daily-status","0 of 3 completed today");
+  var xpEl=$$("xp-prog"); if(xpEl) xpEl.style.width=Math.min(100,Math.round(S.xp/(S.level*500)*100))+"%";
+  var land=$$("s-land"); if(land) land.classList.remove("active");
+  var app=$$("s-app"); if(app) app.classList.add("active");
+  var nav=$$("mob-nav"); if(nav) nav.style.display="block";
   showMusicBtn(true);
   renderHome();
 }
 
+function signupStudent(){
+  var fn=$$("s-fn")?$$("s-fn").value.trim():"";
+  var ln=$$("s-ln")?$$("s-ln").value.trim():"";
+  var gr=$$("s-grade")?$$("s-grade").value:"";
+  if(!fn||!gr){ showToast("Please fill in all fields!"); return; }
+  S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  closeModal();
+  registerPlayer(fn+(ln?" "+ln:""), gr+"th");
+  saveSession();
+  enterApp(fn+(ln?" "+ln:""), gr+"th Grade", parseInt(gr)||7, false);
+  showToast("Welcome to MathChamp, "+fn+"! Math is Fun!");
+}
+
+function previewApp(){
+  S.xp=1240; S.level=4; S.streak=3; S.coins=620;
+  enterApp("Demo Player", "7th Grade", 7, true);
+  showPreviewBanner();
+}
+
 function showPreviewBanner(){
-  var existing=$$("preview-banner");
-  if(existing)return;
-  var banner=document.createElement("div");
-  banner.id="preview-banner";
-  banner.style.cssText="position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,var(--purple),var(--sky));padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;";
-  var bSpan=document.createElement("span");
-  bSpan.style.cssText="font-size:13px;font-weight:800;color:#fff";
-  bSpan.textContent="PREVIEW MODE - Sign up free to save progress and earn real prizes!";
-  var bBtn=document.createElement("button");
-  bBtn.className="btn btn-sun btn-xs";
-  bBtn.textContent="Sign Up Free";
-  bBtn.addEventListener("click",function(){closeModal();openModal("student");var b=document.getElementById("preview-banner");if(b)b.remove();});
-  banner.appendChild(bSpan);
-  banner.appendChild(bBtn);
+  if($$("preview-banner")) return;
+  var banner = document.createElement("div");
+  banner.id = "preview-banner";
+  banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,var(--purple),var(--sky));padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;";
+  var span = document.createElement("span");
+  span.style.cssText = "font-size:13px;font-weight:800;color:#fff";
+  span.textContent = "PREVIEW MODE - Sign up free to save progress and earn real prizes!";
+  var btn = document.createElement("button");
+  btn.className = "btn btn-sun btn-xs";
+  btn.textContent = "Sign Up Free";
+  btn.addEventListener("click", function(){
+    closeModal();
+    openModal("student");
+    var b = $$("preview-banner"); if(b) b.remove();
+  });
+  banner.appendChild(span);
+  banner.appendChild(btn);
   document.body.prepend(banner);
 }
 
-// HOME
+function switchLoginTab(t, btn){
+  var ts=$$("login-tab-student"), tp=$$("login-tab-parent");
+  if(ts) ts.style.display = t==="student"?"block":"none";
+  if(tp) tp.style.display = t==="parent"?"block":"none";
+  document.querySelectorAll("#login-modal .tab-btn").forEach(function(b){ b.classList.remove("on"); });
+  if(btn) btn.classList.add("on");
+}
+
+function loginParent(){
+  var fn=$$("l-parent-fn")?$$("l-parent-fn").value.trim():"";
+  var email=$$("l-parent-email")?$$("l-parent-email").value.trim():"";
+  if(!fn){ showToast("Please enter your name!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
+  // Restore parent state
+  PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
+  // Try restore plan from localStorage
+  try{
+    var saved=localStorage.getItem("mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,""));
+    if(saved){
+      var d=JSON.parse(saved);
+      PARENT.plan=d.plan||"Free";
+      PARENT.children=d.children||[];
+    }
+  }catch(e){}
+  // Show parent dashboard nav
+  var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
+  // Enter app in parent mode
+  closeLoginModal();
+  var land=$$("s-land"); if(land) land.classList.remove("active");
+  var app=$$("s-app"); if(app) app.classList.add("active");
+  var mobNav=$$("mob-nav"); if(mobNav) mobNav.style.display="block";
+  showMusicBtn(true);
+  // Go straight to parent dashboard
+  goPage("parentdash", $$("nav-parent-dash"), false);
+  showToast("Welcome back, "+fn+"! Here is your parent dashboard.");
+}
+
+function loginStudent(){
+  var fn=$$("l-fn")?$$("l-fn").value.trim():"";
+  var gr=$$("l-grade")?$$("l-grade").value:"";
+  if(!fn){ showToast("Please enter your first name!"); return; }
+  if(!gr){ showToast("Please select your grade!"); return; }
+  S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  try{
+    var saved = localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
+    if(saved){
+      var d = JSON.parse(saved);
+      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
+      showToast("Welcome back, "+fn+"! Progress restored!");
+    } else {
+      showToast("Welcome back, "+fn+"! Math is Fun!");
+    }
+  }catch(e){}
+  closeLoginModal();
+  enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
+}
+
+function logout(){
+  saveSession();
+  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false;
+  var app=$$("s-app"); if(app) app.classList.remove("active");
+  var land=$$("s-land"); if(land) land.classList.add("active");
+  var nav=$$("mob-nav"); if(nav) nav.style.display="none";
+  var banner=$$("preview-banner"); if(banner) banner.remove();
+  showMusicBtn(false);
+  var audio=$$("music-audio"); if(audio){ audio.pause(); MUSIC.playing=false; }
+  showToast("Logged out. See you soon!");
+}
+
+// ── HOME ───────────────────────────────────────────────
 function renderHome(){
-  renderMiniLB();
   var ff=$$("fun-fact");
-  if(ff)ff.textContent=FUN_FACTS[Math.floor(Math.random()*FUN_FACTS.length)];
+  if(ff) ff.textContent = FUN_FACTS[Math.floor(Math.random()*FUN_FACTS.length)];
   var gs=$$("getting-started-card");
-  if(gs)gs.style.display=(S.xp>0&&!S.isPreview)?"none":"block";
-  var hs=$$("home-sub");
-  if(hs&&S.streak>0&&!S.isPreview)hs.textContent="You are on a "+S.streak+"-day streak! Keep it going!";
+  if(gs) gs.style.display = (S.xp>0&&!S.isPreview)?"none":"block";
+  renderMiniLB();
+  var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
 }
 
 function renderMiniLB(){
-  var el=$$("mini-lb");if(!el)return;
-  el.innerHTML=LB_DATA.slice(0,4).map(function(p,i){
-    return "<div class='lb-row'>"
-      +"<div class='lb-rank'>"+(i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1))+"</div>"
+  var el=$$("mini-lb"); if(!el) return;
+  var html="";
+  LB_DATA.slice(0,4).forEach(function(p,i){
+    var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
+    html+="<div class='lb-row'>"
+      +"<div class='lb-rank'>"+rank+"</div>"
       +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
       +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div><div class='lb-grade'>"+p.g+"</div></div>"
       +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
-      +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+(p.up?"up":"dn")+" "+p.chg+"</div></div>"
+      +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+p.chg+"</div></div>"
       +"</div>";
-  }).join("");
+  });
+  el.innerHTML = html;
 }
 
-// TRIVIA / COMMON ROOM
-var triviaTimer=null, timerVal=20;
-var session={qs:[],idx:0,correct:0,mode:"trivia",loading:false};
-
-function setMode(mode,btn){
+// ── TRIVIA ─────────────────────────────────────────────
+function setMode(mode, btn){
   S.triviaMode=mode;
-  document.querySelectorAll(".mode-tab").forEach(function(t){t.classList.remove("on");});
-  if(btn)btn.classList.add("on");
+  document.querySelectorAll(".mode-tab").forEach(function(t){ t.classList.remove("on"); });
+  if(btn) btn.classList.add("on");
   session={qs:[],idx:0,correct:0,mode:mode,loading:false};
   loadTrivia();
 }
 
-function renderRoom(){
-  renderRoomLB();
-  renderSourceList();
-  if(!session.qs.length&&!session.loading)loadTrivia();
-}
+function renderRoom(){ renderRoomLB(); renderSourceList(); if(!session.qs.length&&!session.loading) loadTrivia(); }
 
 function renderRoomLB(){
-  var el=$$("room-lb");if(!el)return;
-  el.innerHTML=LB_DATA.slice(0,3).map(function(p,i){
-    return "<div class='lb-row'>"
-      +"<div class='lb-rank'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
+  var el=$$("room-lb"); if(!el) return;
+  var html="";
+  LB_DATA.slice(0,3).forEach(function(p,i){
+    var rank=i===0?"1st":i===1?"2nd":"3rd";
+    html+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
       +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
       +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div></div>"
-      +"<div class='lb-pts'>"+p.pts.toLocaleString()+" XP</div>"
-      +"</div>";
-  }).join("");
+      +"<div class='lb-pts'>"+p.pts.toLocaleString()+" XP</div></div>";
+  });
+  el.innerHTML=html;
 }
 
 function renderSourceList(){
-  var el=$$("source-list");if(!el)return;
-  el.innerHTML=SOURCES.map(function(s){
-    return "<div style='display:flex;align-items:center;gap:10px;padding:9px 10px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:7px'>"
+  var el=$$("source-list"); if(!el) return;
+  var html="";
+  SOURCES.forEach(function(s){
+    html+="<div style='display:flex;align-items:center;gap:10px;padding:9px 10px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:7px'>"
       +"<span style='font-size:16px;width:28px;text-align:center;font-weight:900'>"+s.icon+"</span>"
-      +"<div style='flex:1'><div style='font-size:13px;font-weight:800'>"+s.n+"</div><div style='font-size:11px;color:var(--text2)'>"+s.desc+"</div></div>"
-      +"<span class='badge b-purple' style='font-size:10px'>"+s.cnt+" Qs</span>"
-      +"</div>";
-  }).join("");
+      +"<div style='flex:1'><div style='font-size:13px;font-weight:800'>"+s.n+"</div></div>"
+      +"<span class='badge b-purple' style='font-size:10px'>"+s.cnt+"</span></div>";
+  });
+  el.innerHTML=html;
 }
 
 async function loadTrivia(){
-  if(session.loading)return;
+  if(session.loading) return;
   session.loading=true;
   clearInterval(triviaTimer);
   var arena=$$("trivia-arena");
-  if(arena)arena.innerHTML="<div style='text-align:center;padding:32px'><div style='font-size:36px;margin-bottom:12px'>Loading questions...</div><div style='color:var(--text2)'>AI + curated sources working together</div></div>";
-  var totalQs=session.mode==="trivia"?3:session.mode==="practice"?5:session.mode==="challenge"?10:15;
+  if(arena) arena.innerHTML="<div style='text-align:center;padding:32px'><div style='font-size:32px;margin-bottom:12px'>Loading questions...</div><div style='color:var(--text2)'>AI + curated sources</div></div>";
+  var total=session.mode==="trivia"?3:session.mode==="practice"?5:session.mode==="challenge"?10:15;
   var qs=[];
-  var aiQs=await genAIQuestions(S.grade,Math.ceil(totalQs*0.6),session.mode);
-  if(aiQs&&aiQs.length)qs=aiQs.slice();
-  var needed=totalQs-qs.length;
-  for(var i=0;i<needed+2;i++){var q=getRandQ(S.gradeNum);if(q)qs.push(q);}
-  session.qs=shuffle(qs).slice(0,totalQs);
+  var aiQs=await genAIQuestions(S.gradeNum, Math.ceil(total*0.6), session.mode);
+  if(aiQs&&aiQs.length) qs=aiQs.slice();
+  while(qs.length<total) qs.push(getRandQ(S.gradeNum));
+  session.qs=shuffle(qs).slice(0,total);
   session.idx=0; session.correct=0; session.loading=false;
   renderQuestion();
 }
 
-async function genAIQuestions(grade,count,mode){
-  var gradeN=parseInt(grade)||7;
-  var topicMap={
-    "1-3":["Addition","Subtraction","Place Value","Basic Shapes","Counting"],
-    "4-5":["Fractions","Decimals","Percentages","Area and Perimeter","Long Division"],
-    "6-8":["Linear Equations","Geometry","Ratios","Statistics","Probability"],
-    "9-10":["Quadratic Equations","Trigonometry","Functions","Logarithms","Statistics"],
-    "11-12":["Derivatives","Integrals","AP Statistics","Trigonometric Identities","Limits"]
-  };
+async function genAIQuestions(gradeN, count, mode){
   var band=gradeN<=3?"1-3":gradeN<=5?"4-5":gradeN<=8?"6-8":gradeN<=10?"9-10":"11-12";
-  var topics=topicMap[band];
-  var picked=shuffle(topics.slice()).slice(0,count);
-  var prompt="Generate "+count+" math questions for grade "+grade+" on topics: "+picked.join(", ")+". Return JSON array only: [{topic,question,choices:[A,B,C,D],correct,explanation,source}]";
-
+  var topicMap={"1-3":"Addition,Subtraction,Place Value","4-5":"Fractions,Decimals,Percentages","6-8":"Linear Equations,Geometry,Statistics","9-10":"Quadratic Equations,Trigonometry,Functions","11-12":"Derivatives,Integrals,AP Statistics"};
+  var prompt="Generate "+count+" math questions for grade "+gradeN+" on topics: "+topicMap[band]+". Return JSON array only: [{topic,question,choices:[A,B,C,D],correct,explanation,source}]";
   try{
     var r=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
@@ -2703,51 +2769,46 @@ async function genAIQuestions(grade,count,mode){
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2500,messages:[{role:"user",content:prompt}]})
     });
     var d=await r.json();
-    var raw=((d.content||[{text:"[]"}])[0].text||"[]");
-    var clean=raw.replace(/```json|```/g,"").trim();
-    var parsed=JSON.parse(clean);
-    return parsed.map(function(q){
-      return {q:q.question,a:q.choices,c:typeof q.correct==="number"?q.correct:0,topic:q.topic,explanation:q.explanation,src:q.source,ai:true};
+    var raw=((d.content||[{text:"[]"}])[0].text||"[]").replace(/```json|```/g,"").trim();
+    return JSON.parse(raw).map(function(q){
+      return {q:q.question,a:q.choices,c:typeof q.correct==="number"?q.correct:0,topic:q.topic,explanation:q.explanation||"",src:q.source||"AI Generated",ai:true};
     });
-  }catch(e){console.warn("AI gen failed:",e);return null;}
+  }catch(e){ return null; }
 }
 
 function renderQuestion(){
-  var arena=$$("trivia-arena");if(!arena)return;
-  if(session.idx>=session.qs.length){showTriviaResult();return;}
-  var q=session.qs[session.idx];
-  var total=session.qs.length;
+  var arena=$$("trivia-arena"); if(!arena) return;
+  if(session.idx>=session.qs.length){ showTriviaResult(); return; }
+  var q=session.qs[session.idx], total=session.qs.length;
   var dots="";
-  for(var d=0;d<total;d++){
-    dots+="<div class='q-dot "+(d<session.idx?"done":d===session.idx?"curr":"")+"'></div>";
-  }
-  var src=q.ai?"<span class='badge b-purple' style='font-size:10px'>AI Generated</span>":"<span class='badge b-sky' style='font-size:10px'>"+(q.src||"Question Bank")+"</span>";
-  var opts="";
-  var letters=["A","B","C","D"];
-  for(var i=0;i<(q.a||[]).length;i++){
-    opts+="<button class=\"q-opt\" onclick=\"answerQ("+i+","+q.c+",this)\"><span class=\"opt-letter\">"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
-  }
+  for(var d=0;d<total;d++) dots+="<div class='q-dot "+(d<session.idx?"done":d===session.idx?"curr":"")+"'></div>";
   arena.innerHTML="<div class='q-header'><div class='q-dots'>"+dots+"</div>"
     +"<div class='timer-ring' id='timer-ring' style='--p:100'><div class='timer-inner' id='timer-num'>20</div></div></div>"
-    +"<div class='q-topic'>"+(q.topic||"Math")+" - Question "+(session.idx+1)+" of "+total+"</div>"
+    +"<div class='q-topic'>"+(q.topic||"Math")+" - Q"+(session.idx+1)+"/"+total+"</div>"
     +"<div class='q-text'>"+q.q+"</div>"
-    +"<div class='q-opts'>"+opts+"</div>"
-    +"<div class='q-src'>"+src+"</div>";
-  timerVal=20;
-  startQTimer(q.c);
-}
-
-function startQTimer(correct){
+    +"<div class='q-opts' id='q-opts-wrap'></div>"
+    +"<div class='q-src'>"+(q.ai?"AI Generated":q.src||"Question Bank")+"</div>";
+  var wrap=$$("q-opts-wrap");
+  var letters=["A","B","C","D"];
+  (q.a||[]).forEach(function(ans,i){
+    var btn=document.createElement("button");
+    btn.className="q-opt";
+    btn.innerHTML="<span class='opt-letter'>"+letters[i]+"</span>"+ans;
+    btn.addEventListener("click",function(){ answerQ(i,q.c,btn); });
+    wrap.appendChild(btn);
+  });
+  var timerVal=20;
   clearInterval(triviaTimer);
   triviaTimer=setInterval(function(){
     timerVal--;
-    var nr=$$("timer-num"),rr=$$("timer-ring");
-    if(nr)nr.textContent=timerVal;
-    if(rr)rr.style.setProperty("--p",timerVal/20*100);
-    if(nr)nr.style.color=timerVal<=5?"var(--coral)":"var(--sun)";
+    var nr=$$("timer-num"), rr=$$("timer-ring");
+    if(nr) nr.textContent=timerVal;
+    if(rr) rr.style.setProperty("--p",timerVal/20*100);
+    if(nr) nr.style.color=timerVal<=5?"var(--coral)":"var(--sun)";
     if(timerVal<=0){
       clearInterval(triviaTimer);
-      document.querySelectorAll(".q-opt").forEach(function(o,i){if(i===correct)o.classList.add("reveal");o.disabled=true;});
+      var opts=document.querySelectorAll(".q-opt");
+      opts.forEach(function(o,i){ if(i===q.c) o.classList.add("reveal"); o.disabled=true; });
       showToast("Time is up!");
       session.idx++;
       setTimeout(renderQuestion,1800);
@@ -2757,1462 +2818,850 @@ function startQTimer(correct){
 
 function answerQ(sel,correct,btn){
   clearInterval(triviaTimer);
-  document.querySelectorAll(".q-opt").forEach(function(o){o.disabled=true;});
-  var q=session.qs[session.idx];
+  document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){
-    btn.classList.add("correct");
-    session.correct++;
-    S.coins+=10; S.xp+=50;
-    showToast("Correct! +10 MathCoins");
-  } else {
-    btn.classList.add("wrong");
-    document.querySelectorAll(".q-opt")[correct].classList.add("correct");
-    showToast("Not quite! Check the explanation.");
-  }
+  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; showToast("Correct! +10 MathCoins"); }
+  else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); showToast("Not quite!"); }
+  var q=session.qs[session.idx];
   if(q.explanation){
     var exBox=document.createElement("div");
     exBox.className="explain-box "+(right?"explain-correct":"explain-wrong");
-    exBox.innerHTML=(right?"<strong style=\"color:var(--mint)\">Correct!</strong> ":"<strong style=\"color:var(--coral)\">Explanation:</strong> ")+(q.explanation||"");
-    var opts=document.querySelector(".q-opts");
-    if(opts)opts.after(exBox);
+    exBox.innerHTML="<strong style='color:"+(right?"var(--mint)":"var(--coral)")+"'>"+(right?"Correct!":"Explanation:")+"</strong> "+q.explanation;
+    var wrap=$$("q-opts-wrap"); if(wrap) wrap.after(exBox);
   }
   session.idx++;
-  setTimeout(renderQuestion,right?1800:2400);
+  setTimeout(renderQuestion, right?1800:2400);
 }
 
 function showTriviaResult(){
   clearInterval(triviaTimer);
-  var t=session.qs.length, c=session.correct;
-  var pct=Math.round(c/t*100);
-  var coinsEarned=c*10+(c===t?25:0);
-  var xpEarned=c*50+(c===t?100:0);
+  var t=session.qs.length, c=session.correct, pct=Math.round(c/t*100);
+  var coinsEarned=c*10+(c===t?25:0), xpEarned=c*50+(c===t?100:0);
   S.coins+=coinsEarned; S.xp+=xpEarned;
-  var hc=$$("home-coins");if(hc)hc.textContent=S.coins.toLocaleString();
-  var wc=$$("wallet-coins");if(wc)wc.textContent=S.coins.toLocaleString();
-  var dp=$$("daily-prog");if(dp)dp.style.width=pct+"%";
-  var ds=$$("daily-status");if(ds)ds.textContent=c+" of "+t+" completed";
-  var emoji=pct===100?"Great!":pct>=70?"Good Job!":pct>=40?"Keep Going!":"Practice More!";
-  var arena=$$("trivia-arena");if(!arena)return;
-  arena.innerHTML="<div class='result-card'>"
-    +"<div class='result-emoji' style='font-size:48px;margin-bottom:12px'>"+emoji+"</div>"
-    +"<div class='result-title' style='color:var(--sun)'>"+emoji+"</div>"
+  saveSession();
+  var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
+  var msg=pct===100?"Perfect!":pct>=70?"Great Job!":"Keep Going!";
+  var arena=$$("trivia-arena"); if(!arena) return;
+  var div=document.createElement("div"); div.className="result-card";
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
+    +"<div style='font-family:Fredoka One,cursive;font-size:26px;color:var(--sun)'>"+msg+"</div>"
     +"<div style='color:var(--text2);margin-bottom:16px'>"+c+"/"+t+" correct - "+pct+"%</div>"
     +"<div class='result-grid'>"
-    +"<div class='result-box'><div class='result-val' style='color:var(--sun)'>+"+xpEarned+"</div><div class='result-key'>XP Earned</div></div>"
+    +"<div class='result-box'><div class='result-val' style='color:var(--sun)'>+"+xpEarned+"</div><div class='result-key'>XP</div></div>"
     +"<div class='result-box'><div class='result-val' style='color:var(--mint)'>+"+coinsEarned+"</div><div class='result-key'>MathCoins</div></div>"
-    +"</div>"
-    +"<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'>"
-    +"<button class='btn btn-sun btn-sm' onclick='session.qs=[];session.loading=false;loadTrivia()'>New Questions</button>"
-    +"<button class=\"btn btn-ghost btn-sm\" onclick=\"setMode('practice',null)\">Practice Mode</button>"
-    +"</div></div>";
+    +"</div>";
+  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;";
+  var b1=document.createElement("button"); b1.className="btn btn-sun btn-sm"; b1.textContent="New Questions";
+  b1.addEventListener("click",function(){ session={qs:[],idx:0,correct:0,mode:session.mode,loading:false}; loadTrivia(); });
+  var b2=document.createElement("button"); b2.className="btn btn-ghost btn-sm"; b2.textContent="Practice Mode";
+  b2.addEventListener("click",function(){ setMode("practice",null); });
+  btnRow.appendChild(b1); btnRow.appendChild(b2);
+  div.appendChild(btnRow);
+  arena.innerHTML=""; arena.appendChild(div);
 }
 
-// CHALLENGE
-var CHALLENGE_FILTER = "same"; // same / higher / cross
-
-function getPlayerGradeBand(gradeN){
-  if(gradeN <= 3) return 1;
-  if(gradeN <= 5) return 2;
-  if(gradeN <= 8) return 3;
-  if(gradeN <= 10) return 4;
-  return 5;
-}
-
+// ── CHALLENGE ──────────────────────────────────────────
 function filterOpponents(filter, btn){
-  CHALLENGE_FILTER = filter;
-  // Update badge styles
-  var ids = ["filter-same","filter-higher","filter-cross"];
-  var colors = {"filter-same":"var(--sky)","filter-higher":"var(--coral)","filter-cross":"var(--purple)"};
-  ids.forEach(function(id){
-    var el=$$(id);
-    if(!el) return;
-    el.style.border = "1px solid transparent";
-    el.style.fontWeight = "800";
-  });
-  if(btn){
-    btn.style.border = "2px solid currentColor";
-  }
+  CHALLENGE_FILTER=filter;
+  document.querySelectorAll("#grade-filter-btns span").forEach(function(s){ s.style.border="1px solid transparent"; });
+  if(btn) btn.style.border="2px solid currentColor";
   renderOppList();
 }
 
 function renderOppList(){
-  var el=$$("opp-list");
-  if(!el) return;
-
-  var myBand = getPlayerGradeBand(S.gradeNum || 7);
-  var myGrade = S.gradeNum || 7;
-
-  // Filter opponents based on selection
-  var filtered = OPPS.filter(function(o){
-    if(CHALLENGE_FILTER === "same"){
-      return o.grade === myBand;
-    } else if(CHALLENGE_FILTER === "higher"){
-      return o.gradeN > myGrade;
-    } else {
-      return true; // all levels
-    }
-  });
-
-  // Add any real session players
-  var sessionFiltered = SESSION_PLAYERS.filter(function(p){
-    if(CHALLENGE_FILTER === "same") return parseInt(p.grade) === myGrade;
-    if(CHALLENGE_FILTER === "higher") return parseInt(p.grade) > myGrade;
+  var el=$$("opp-list"); if(!el) return;
+  var myBand=getGradeBandNum(S.gradeNum||7);
+  var myGrade=S.gradeNum||7;
+  var filtered=OPPS.filter(function(o){
+    if(CHALLENGE_FILTER==="same") return o.band===myBand;
+    if(CHALLENGE_FILTER==="higher") return o.gradeN>myGrade;
     return true;
   });
-
-  var allOpps = filtered.concat(sessionFiltered.map(function(p){
-    return {
-      n: p.name, gradeN: parseInt(p.grade)||myGrade,
-      tier: "Level "+p.level, winRate: 0.5,
-      meta: "Grade "+p.grade+" - Level "+p.level+" - "+p.wins+" Wins",
-      wr: "Win Rate "+(Math.round(p.wins/(p.wins+5)*100)||50)+"%",
-      e: p.name[0], bg: "linear-gradient(135deg,var(--mint),var(--sky))",
-      isReal: true
-    };
+  var allOpps=filtered.concat(SESSION_PLAYERS.filter(function(p){
+    var g=parseInt(p.grade)||myGrade;
+    if(CHALLENGE_FILTER==="same") return g===myGrade;
+    if(CHALLENGE_FILTER==="higher") return g>myGrade;
+    return true;
+  }).map(function(p){
+    return {n:p.name,gradeN:parseInt(p.grade)||myGrade,band:myBand,tier:"Level "+p.level,meta:p.grade+" - "+p.wins+" Wins",wr:(50+p.wins)+"% Win Rate",winRate:0.5,e:p.name[0],bg:"linear-gradient(135deg,var(--mint),var(--sky))",isReal:true};
   }));
-
-  if(allOpps.length === 0){
-    el.innerHTML = "<div class='card' style='text-align:center;padding:28px;color:var(--text2)'>"
-      +"<div style='font-size:36px;margin-bottom:10px'>🔍</div>"
-      +"<div style='font-size:15px;font-weight:800;margin-bottom:6px'>No opponents found at this level</div>"
-      +"<div style='font-size:13px'>Try <strong>All Levels</strong> to see all available opponents, or challenge a friend by name in the search box below.</div>"
-      +"</div>";
-    return;
+  el.innerHTML="";
+  if(allOpps.length===0){
+    var empty=document.createElement("div"); empty.className="card"; empty.style.cssText="text-align:center;padding:28px;color:var(--text2)";
+    empty.innerHTML="<div style='font-size:36px;margin-bottom:10px'>No opponents at this level</div><div>Try All Levels</div>";
+    el.appendChild(empty); return;
   }
-
-  el.innerHTML = allOpps.map(function(o){
-    var tierColor = o.tier==="Legend"?"var(--sun)":o.tier==="Diamond"?"var(--sky)":o.tier==="Platinum"?"#c0c0c0":o.tier==="Gold"?"var(--sun2)":"var(--text2)";
-    var realBadge = o.isReal ? "<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>" : "";
-    var gradeLabel = o.gradeN ? "Grade "+o.gradeN : "";
-    var card = document.createElement("div");
-    card.className = "opp-card";
-    card.style.cursor = "pointer";
-    card.setAttribute("data-name", o.n);
-    card.setAttribute("data-emoji", o.e);
-    card.setAttribute("data-bg", o.bg);
-    card.setAttribute("data-wr", o.winRate||0.72);
-    card.addEventListener("click", function(){
-      challengeOpp(this.getAttribute("data-name"), this.getAttribute("data-emoji"), this.getAttribute("data-bg"), this.getAttribute("data-wr"));
+  allOpps.forEach(function(o){
+    var card=document.createElement("div"); card.className="opp-card"; card.style.cursor="pointer";
+    card.setAttribute("data-n",o.n); card.setAttribute("data-e",o.e); card.setAttribute("data-bg",o.bg); card.setAttribute("data-wr",o.winRate||0.72);
+    card.addEventListener("click",function(){
+      challengeOpp(this.getAttribute("data-n"),this.getAttribute("data-e"),this.getAttribute("data-bg"),parseFloat(this.getAttribute("data-wr")));
     });
-    card.innerHTML = "<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0'>"+o.e+"</div>"
-      +"<div class='opp-info'>"
-      +"<div class='opp-name'>"+o.n+realBadge+"</div>"
-      +"<div class='opp-meta'>"+gradeLabel+" - <span style='color:"+tierColor+"'>"+o.tier+"</span> - "+o.meta.split(" - ").slice(-1)[0]+"</div>"
-      +"<div class='opp-wr' style='color:var(--mint)'>"+o.wr+"</div>"
-      +"</div>"
+    var badge=o.isReal?"<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>":"";
+    card.innerHTML="<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0'>"+o.e+"</div>"
+      +"<div class='opp-info'><div class='opp-name'>"+o.n+badge+"</div>"
+      +"<div class='opp-meta'>Grade "+o.gradeN+" - "+o.tier+" - "+o.meta.split(" - ").slice(-1)[0]+"</div>"
+      +"<div class='opp-wr' style='color:var(--mint)'>"+o.wr+"</div></div>"
       +"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>Battle</button>";
-    return card.outerHTML;
-  }).join("");
+    el.appendChild(card);
+  });
 }
 
 function renderChallenge(){
-  CHALLENGE_FILTER = "same";
+  CHALLENGE_FILTER="same";
   renderOppList();
-  var hist=$$("battle-hist");
-  if(hist)hist.innerHTML=[
+  var hist=$$("battle-hist"); if(!hist) return;
+  var histData=[
     {o:"Jordan K.",r:"Win",sc:"4/5 vs 3/5",d:"Today",c:"var(--mint)"},
     {o:"Riley M.",r:"Loss",sc:"2/5 vs 4/5",d:"Yesterday",c:"var(--coral)"},
     {o:"Sam P.",r:"Win",sc:"5/5 vs 2/5",d:"Mar 21",c:"var(--mint)"}
-  ].map(function(h){
-    return "<div class='hist-row'>"
-      +"<div class='hist-dot' style='background:"+h.c+"'></div>"
-      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>vs "+h.o+"</div><div style='font-size:12px;color:var(--text2)'>"+h.sc+" - "+h.d+"</div></div>"
-      +"<span class='badge "+(h.r==="Win"?"b-mint":"b-coral")+"'>"+h.r+"</span>"
-      +"</div>";
-  }).join("");
+  ];
+  var html="";
+  histData.forEach(function(h){
+    html+="<div class='hist-row'><div class='hist-dot' style='background:"+h.c+"'></div>"
+      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>vs "+h.o+"</div>"
+      +"<div style='font-size:12px;color:var(--text2)'>"+h.sc+" - "+h.d+"</div></div>"
+      +"<span class='badge "+(h.r==="Win"?"b-mint":"b-coral")+"'>"+h.r+"</span></div>";
+  });
+  hist.innerHTML=html;
 }
 
 function challengeOpp(name,emoji,bg,winRate){
-  winRate = parseFloat(winRate) || 0.72;
-  showToast("Challenge sent to "+name+"! Get ready!");
+  winRate=parseFloat(winRate)||0.72;
+  showToast("Challenge sent to "+name+"!");
   startBattleWith(name,emoji,bg,winRate);
 }
 
 function startBattle(){
   var o=OPPS[Math.floor(Math.random()*OPPS.length)];
-  startBattleWith(o.n,o.e,o.bg,0.72);
+  startBattleWith(o.n,o.e,o.bg,o.winRate||0.72);
 }
 
 async function startBattleWith(name,emoji,bg,winRate){
-  var bs=S.battleState;
-  bs.opp={name:name,emoji:emoji,winRate:winRate};
-  bs.myScore=0; bs.oppScore=0; bs.round=0; bs.active=true;
-  var ba=$$("battle-arena");if(ba)ba.style.display="block";
-  if(ba)ba.scrollIntoView({behavior:"smooth",block:"nearest"});
+  var bs={opp:{name:name,emoji:emoji,winRate:winRate},myScore:0,oppScore:0,round:0,active:true,qs:[],timeLeft:30,timer:null};
+  S.battleState=bs;
+  var ba=$$("battle-arena"); if(ba){ ba.style.display="block"; ba.scrollIntoView({behavior:"smooth",block:"nearest"}); }
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   var fn=S.name.split(" ")[0]||"You";
-  var e;
-  e=$$("b-my-name");if(e)e.textContent=fn;
-  e=$$("b-my-ava");if(e){e.textContent=fn[0];e.style.background="linear-gradient(135deg,var(--purple),var(--sky))";}
-  e=$$("b-opp-name");if(e)e.textContent=name;
-  e=$$("b-opp-ava");if(e){e.textContent=emoji;e.style.background=bg;}
-  e=$$("b-my-score");if(e)e.textContent="0";
-  e=$$("b-opp-score");if(e)e.textContent="0";
-  var wrap=$$("battle-q-wrap");
-  if(wrap)wrap.innerHTML="<div style='text-align:center;padding:24px'><div style='font-size:36px'>Loading battle...</div></div>";
-  var aiQs=await genAIQuestions(S.gradeNum,3,"challenge");
+  setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg; }
+  var wrap=$$("battle-q-wrap"); if(wrap) wrap.innerHTML="<div style='text-align:center;padding:24px'>Loading battle...</div>";
+  var aiQs=await genAIQuestions(S.gradeNum,2,"challenge");
   bs.qs=[];
-  for(var i=0;i<5;i++)bs.qs.push(getRandQ(S.gradeNum));
-  if(aiQs)bs.qs=bs.qs.slice(0,3).concat(aiQs.slice(0,2));
+  for(var i=0;i<5;i++) bs.qs.push(getRandQ(S.gradeNum));
+  if(aiQs) bs.qs=bs.qs.slice(0,3).concat(aiQs.slice(0,2));
   bs.qs=shuffle(bs.qs).slice(0,5);
-  nextBattleRound();
+  nextBattleRound(bs);
 }
 
-function nextBattleRound(){
-  var bs=S.battleState;
-  if(bs.round>=bs.qs.length){endBattle();return;}
+function nextBattleRound(bs){
+  if(!bs||bs.round>=bs.qs.length){ endBattle(bs); return; }
   var q=bs.qs[bs.round];
-  var e=$$("b-round");if(e)e.textContent="ROUND "+(bs.round+1)+" of "+bs.qs.length;
-  bs.timeLeft=30;
-  clearInterval(bs.timer);
-  updateBTimer();
+  var rEl=$$("b-round"); if(rEl) rEl.textContent="ROUND "+(bs.round+1)+" of "+bs.qs.length;
+  bs.timeLeft=30; clearInterval(bs.timer);
+  updateBTimer(bs);
   bs.timer=setInterval(function(){
-    bs.timeLeft--; updateBTimer();
+    bs.timeLeft--; updateBTimer(bs);
     if(bs.timeLeft<=0){
       clearInterval(bs.timer);
-      if(Math.random()<bs.opp.winRate){bs.oppScore++;var oe=$$("b-opp-score");if(oe)oe.textContent=bs.oppScore;}
-      bs.round++;
-      setTimeout(nextBattleRound,800);
+      if(Math.random()<bs.opp.winRate){ bs.oppScore++; var os=$$("b-opp-score"); if(os) os.textContent=bs.oppScore; }
+      bs.round++; setTimeout(function(){ nextBattleRound(bs); },800);
     }
   },1000);
-  var wrap=$$("battle-q-wrap");if(!wrap)return;
-  var opts="";var letters=["A","B","C","D"];
-  for(var i=0;i<(q.a||[]).length;i++){
-    opts+="<button class=\"q-opt\" onclick=\"battleAnswer("+i+","+q.c+",this)\"><span class=\"opt-letter\">"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
-  }
-  wrap.innerHTML="<div style='background:rgba(0,0,0,0.3);border-radius:14px;padding:18px;margin-bottom:12px'>"
-    +"<div class='q-topic'>"+(q.topic||"Math")+" "+(q.ai?"(AI)":"(Curated)")+"</div>"
-    +"<div class='q-text'>"+q.q+"</div>"
-    +"<div class='q-opts'>"+opts+"</div>"
-    +"</div>";
+  var wrap=$$("battle-q-wrap"); if(!wrap) return;
+  var letters=["A","B","C","D"];
+  var div=document.createElement("div"); div.style.cssText="background:rgba(0,0,0,0.3);border-radius:14px;padding:18px;margin-bottom:12px;";
+  div.innerHTML="<div class='q-topic'>"+(q.topic||"Math")+"</div><div class='q-text'>"+q.q+"</div>";
+  var optsDiv=document.createElement("div"); optsDiv.className="q-opts";
+  (q.a||[]).forEach(function(ans,i){
+    var btn=document.createElement("button"); btn.className="q-opt";
+    btn.innerHTML="<span class='opt-letter'>"+letters[i]+"</span>"+ans;
+    btn.addEventListener("click",function(){ battleAnswer(i,q.c,btn,bs); });
+    optsDiv.appendChild(btn);
+  });
+  div.appendChild(optsDiv);
+  wrap.innerHTML=""; wrap.appendChild(div);
 }
 
-function updateBTimer(){
-  var bs=S.battleState;
-  var el=$$("b-timer");if(!el)return;
+function updateBTimer(bs){
+  var el=$$("b-timer"); if(!el) return;
   el.textContent="0:"+String(bs.timeLeft).padStart(2,"0");
   el.style.color=bs.timeLeft<=10?"var(--coral)":"var(--sun)";
 }
 
-function battleAnswer(sel,correct,btn){
-  var bs=S.battleState;
+function battleAnswer(sel,correct,btn,bs){
   clearInterval(bs.timer);
-  document.querySelectorAll("#battle-q-wrap .q-opt").forEach(function(o){o.disabled=true;});
+  var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
+  opts.forEach(function(o){ o.disabled=true; });
   if(sel===correct){
-    btn.classList.add("correct");
-    bs.myScore++;
-    var ms=$$("b-my-score");if(ms)ms.textContent=bs.myScore;
+    btn.classList.add("correct"); bs.myScore++;
+    var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
     showToast("Correct! +1 point!");
   } else {
     btn.classList.add("wrong");
-    document.querySelectorAll("#battle-q-wrap .q-opt")[correct].classList.add("correct");
-    if(Math.random()<bs.opp.winRate){bs.oppScore++;var os=$$("b-opp-score");if(os)os.textContent=bs.oppScore;}
+    if(opts[correct]) opts[correct].classList.add("correct");
+    if(Math.random()<bs.opp.winRate){ bs.oppScore++; var os=$$("b-opp-score"); if(os) os.textContent=bs.oppScore; }
   }
-  bs.round++;
-  setTimeout(nextBattleRound,1400);
+  bs.round++; setTimeout(function(){ nextBattleRound(bs); },1400);
 }
 
-function endBattle(){
-  var bs=S.battleState;
-  clearInterval(bs.timer); bs.active=false;
+function endBattle(bs){
+  if(!bs) return;
+  clearInterval(bs.timer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?200:tie?100:50, coins=win?150:tie?75:25;
-  S.xp+=xp; S.coins+=coins;
-  var wrap=$$("battle-q-wrap");if(!wrap)return;
+  S.xp+=xp; S.coins+=coins; saveSession();
+  var wrap=$$("battle-q-wrap"); if(!wrap) return;
   var msg=win?"Victory!":tie?"Draw!":"Keep Training!";
-  var html="<div style='text-align:center;padding:24px'>";
-  html+="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>";
-  html+="<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+msg+"</div>";
-  html+="<div style='font-size:16px;margin-bottom:16px'>"+bs.myScore+" - "+bs.oppScore+" vs "+bs.opp.name+"</div>";
-  html+="<div style='display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap'>";
-  html+="<span class='badge b-sun'>+"+xp+" XP</span>";
-  html+="<span class='badge b-mint'>+"+coins+" MathCoins</span>";
-  html+="</div>";
-  html+="<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'>";
-  html+="<button class='btn btn-coral btn-sm' onclick='startBattle()'>Rematch</button>";
-  html+="<button class='btn btn-ghost btn-sm' onclick='closeBattle()'>Close</button>";
-  html+="</div></div>";
-  wrap.innerHTML=html;
+  var div=document.createElement("div"); div.style.textAlign="center"; div.style.padding="24px";
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
+    +"<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+msg+"</div>"
+    +"<div style='font-size:16px;margin-bottom:16px'>"+bs.myScore+" - "+bs.oppScore+" vs "+bs.opp.name+"</div>"
+    +"<div style='display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap'>"
+    +"<span class='badge b-sun'>+"+xp+" XP</span><span class='badge b-mint'>+"+coins+" MathCoins</span></div>";
+  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;";
+  var b1=document.createElement("button"); b1.className="btn btn-coral btn-sm"; b1.textContent="Rematch";
+  b1.addEventListener("click",startBattle);
+  var b2=document.createElement("button"); b2.className="btn btn-ghost btn-sm"; b2.textContent="Close";
+  b2.addEventListener("click",function(){ var ba=$$("battle-arena"); if(ba) ba.style.display="none"; });
+  btnRow.appendChild(b1); btnRow.appendChild(b2); div.appendChild(btnRow);
+  wrap.innerHTML=""; wrap.appendChild(div);
   showToast(win?"Victory! +"+coins+" MathCoins":"Good fight! +"+xp+" XP");
 }
 
-function closeBattle(){var ba=$$("battle-arena");if(ba)ba.style.display="none";}
-
-// LEADERBOARD
-function setLBTab(tab,btn){
-  document.querySelectorAll(".lb-tab").forEach(function(t){t.classList.remove("on");});
-  if(btn)btn.classList.add("on");
-  renderLeaderboard(tab);
-}
-
-function renderLeaderboard(tab){
-  tab=tab||"grade";
-  var data=LB_DATA;
-  var el=$$("lb-podium");
-  if(el){
-    var top3=data.slice(0,3);
-    var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
-    var heights=["100px","80px","65px"];
-    var order=[1,0,2];
-    el.innerHTML=order.map(function(i){
-      return "<div class='podium-place'>"
-        +"<div class='pod-crown'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
-        +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+top3[i].e+"</div>"
-        +"<div class='pod-name'>"+top3[i].n+"</div>"
-        +"<div class='pod-pts'>"+top3[i].pts.toLocaleString()+"</div>"
-        +"<div class='pod-block' style='background:"+colors[i]+";height:"+heights[i]+";width:100%;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900'>#"+(i+1)+"</div>"
-        +"</div>";
-    }).join("");
-  }
-  var full=$$("lb-full");
-  if(full)full.innerHTML=data.map(function(p,i){
-    var you=(S.name&&(p.n===S.name.split(" ")[0]+" "+S.name.split(" ").slice(-1)[0].charAt(0)+"."));
-    return "<div class='lb-row "+(you?"you":"")+"'>"
-      +"<div class='lb-rank'>"+(i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1))+"</div>"
-      +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
-      +"<div class='lb-info'><div class='lb-name'>"+p.n+(you?" <span class='badge b-sun' style='font-size:10px'>YOU</span>":"")+"</div><div class='lb-grade'>"+p.g+"</div></div>"
-      +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
-      +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+(p.up?"up":"dn")+" "+p.chg+"</div></div>"
-      +"</div>";
-  }).join("");
-}
-
-// TOURNAMENTS
-function renderTournaments(){
-  var el=$$("tourn-list");if(!el)return;
-  el.innerHTML=TOURNAMENTS.map(function(t){
-    return "<div class='t-card "+t.color+"'>"
-      +"<div class='t-card-row'>"
-      +"<div><div class='t-name'>"+t.n+"</div><div class='t-meta'>"+t.date+" - "+t.spots+" registered - "+t.grades+"</div></div>"
-      +"<div><div class='t-prize'>"+t.prize+"</div><div class='t-pplace'>1st place</div></div>"
-    +"<button class=\"btn btn-sun btn-xs\" onclick=\"showToast('Registered for "+t.n+"!')\">Join Free</button>"
-      +"</div></div>";
-  }).join("");
-}
-
-// AI TUTOR
-function renderTutor(){
-  var qp=$$("quick-prompts");
-  if(qp)qp.innerHTML=QUICK_PROMPTS.map(function(p){
-    return "<div class=\"card card-purple skill-card\" onclick=\"askTutor('"+p.t+"')\">"
-      +"<span class='skill-icon'>"+p.emoji+"</span>"
-      +"<div class='skill-name'>"+p.t+"</div>"
-      +"</div>";
-  }).join("");
-  var ws=$$("weak-spots");
-  if(ws)ws.innerHTML=[
-    {n:"Fractions",m:62,c:"var(--coral)"},
-    {n:"Word Problems",m:71,c:"var(--sun2)"},
-    {n:"Trigonometry",m:45,c:"var(--coral)"},
-    {n:"Algebra",m:88,c:"var(--mint)"}
-  ].map(function(w){
-    return "<div class='weak-topic'>"
-      +"<div class='wt-top'><span class='wt-name'>"+w.n+"</span><span class='badge "+(w.m<65?"b-coral":w.m<80?"b-sun":"b-mint")+"'>"+w.m+"%</span></div>"
-      +"<div class='prog-wrap'><div class='prog-fill' style='width:"+w.m+"%;background:"+w.c+"'></div></div>"
-      +"<div style='font-size:12px;color:var(--text2);margin-top:4px'>"+(w.m<65?"Needs work":"Improving!")+"</div>"
-      +"</div>";
-  }).join("");
-}
-
-function askTutor(prompt){
-  var input=$$("chat-input");
-  if(input){input.value=prompt;sendMsg();}
-}
-
-async function sendMsg(){
-  var input=$$("chat-input");
-  var chat=$$("chat-box");
-  if(!input||!chat)return;
-  var msg=input.value.trim();
-  if(!msg)return;
-  input.value="";
-  chat.innerHTML+="<div class='chat-msg chat-user'><div class='chat-who chat-who-user'>You</div>"+msg+"</div>";
-  var thinking=document.createElement("div");
-  thinking.className="chat-msg chat-bot";
-  thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div><span style='color:var(--text2)'>Thinking...</span>";
-  chat.appendChild(thinking);
-  chat.scrollTop=chat.scrollHeight;
-  try{
-    var r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
-        system:"You are Axiom, a friendly math tutor for MathChamp (Math is Fun!). Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear. End with a follow-up question.",
-        messages:[{role:"user",content:msg}]})
-    });
-    var d=await r.json();
-    var reply=((d.content||[{text:"I am offline right now - but keep practicing!"}])[0].text||"");
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"+reply;
-  }catch(e){
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>Axiom is taking a break! Try again soon. Math is Fun!";
-  }
-  chat.scrollTop=chat.scrollHeight;
-}
-
-// PRACTICE MODE
-var practiceSession={qs:[],idx:0,correct:0,loading:false};
-var practiceTimer=null, practiceTimerVal=15;
-
-function renderPractice(){
-  var el=$$("topic-picker");if(!el)return;
-  var band=QUESTION_BANK[gradeBand(S.gradeNum)];
-  el.innerHTML=Object.keys(band).map(function(t){
-    return "<div class=\"card skill-card\" onclick=\"startPractice('"+t+"')\" style=\"cursor:pointer\">"
-      +"<span class='skill-icon'>"+(TOPIC_ICONS[t]||"?")+"</span>"
-      +"<div class='skill-name'>"+t+"</div>"
-      +"<div style='font-size:12px;color:var(--text2)'>"+(band[t].length||0)+"+ questions</div>"
-      +"</div>";
-  }).join("");
-  var pa=$$("practice-arena");if(pa)pa.style.display="none";
-}
-
-async function startPractice(topic){
-  var pa=$$("practice-arena");if(!pa)return;
-  pa.style.display="block"; pa.scrollIntoView({behavior:"smooth"});
-  practiceSession={qs:[],idx:0,correct:0,loading:true};
-  clearInterval(practiceTimer);
-  var wrap=$$("practice-q-wrap");
-  if(wrap)wrap.innerHTML="<div style='text-align:center;padding:32px'>Loading "+topic+" questions...</div>";
-  var band=QUESTION_BANK[gradeBand(S.gradeNum)];
-  var qs=(band[topic]||[]).map(function(q){return {q:q.q,a:q.a,c:q.c,topic:topic,src:q.src,ai:false,explanation:""};});
-  var aiQs=await genAIQuestions(S.gradeNum,3,"practice");
-  if(aiQs)qs=qs.concat(aiQs);
-  practiceSession.qs=shuffle(qs).slice(0,5);
-  practiceSession.loading=false;
-  renderPracticeQ();
-}
-
-function renderPracticeQ(){
-  var wrap=$$("practice-q-wrap");if(!wrap)return;
-  if(practiceSession.idx>=practiceSession.qs.length){showPracticeResult();return;}
-  var q=practiceSession.qs[practiceSession.idx];
-  var total=practiceSession.qs.length;
-  var dots="";
-  for(var d=0;d<total;d++){
-    dots+="<div class='q-dot "+(d<practiceSession.idx?"done":d===practiceSession.idx?"curr":"")+"'></div>";
-  }
-  var opts="";var letters=["A","B","C","D"];
-  for(var i=0;i<(q.a||[]).length;i++){
-    opts+="<button class=\"q-opt\" onclick=\"answerPractice("+i+","+q.c+",this)\"><span class=\"opt-letter\">"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
-  }
-  wrap.innerHTML="<div class='q-header'><div class='q-dots'>"+dots+"</div>"
-    +"<div class='timer-ring' id='p-timer-ring' style='--p:100'><div class='timer-inner' id='p-timer-num'>15</div></div></div>"
-    +"<div class='q-topic'>"+(q.topic||"Math")+" - Q"+(practiceSession.idx+1)+"/"+total+"</div>"
-    +"<div class='q-text'>"+q.q+"</div>"
-    +"<div class='q-opts' id='p-opts'>"+opts+"</div>"
-    +"<div class='q-src'>"+(q.ai?"AI Generated":q.src||"Question Bank")+"</div>";
-  practiceTimerVal=15;
-  clearInterval(practiceTimer);
-  practiceTimer=setInterval(function(){
-    practiceTimerVal--;
-    var nr=$$("p-timer-num"),rr=$$("p-timer-ring");
-    if(nr)nr.textContent=practiceTimerVal;
-    if(rr)rr.style.setProperty("--p",practiceTimerVal/15*100);
-    if(nr)nr.style.color=practiceTimerVal<=5?"var(--coral)":"var(--sun)";
-    if(practiceTimerVal<=0){
-      clearInterval(practiceTimer);
-      document.querySelectorAll("#p-opts .q-opt").forEach(function(o,i){
-        if(i===practiceSession.qs[practiceSession.idx].c)o.classList.add("reveal");
-        o.disabled=true;
-      });
-      practiceSession.idx++;
-      setTimeout(renderPracticeQ,1600);
-    }
-  },1000);
-}
-
-function answerPractice(sel,correct,btn){
-  clearInterval(practiceTimer);
-  document.querySelectorAll("#p-opts .q-opt").forEach(function(o){o.disabled=true;});
-  var q=practiceSession.qs[practiceSession.idx];
-  var right=sel===correct;
-  if(right){btn.classList.add("correct");practiceSession.correct++;S.coins+=8;showToast("Correct! +8 MathCoins");}
-  else{btn.classList.add("wrong");document.querySelectorAll("#p-opts .q-opt")[correct].classList.add("correct");showToast("Check the answer!");}
-  if(q.explanation){
-    var eb=document.createElement("div");
-    eb.className="explain-box "+(right?"explain-correct":"explain-wrong");
-    eb.innerHTML=(right?"<strong style=\"color:var(--mint)\">Correct!</strong> ":"<strong style=\"color:var(--coral)\">Explanation:</strong> ")+(q.explanation||"");
-    var po=document.querySelector("#p-opts");
-    if(po)po.after(eb);
-  }
-  practiceSession.idx++;
-  setTimeout(renderPracticeQ,right?1800:2400);
-}
-
-function showPracticeResult(){
-  clearInterval(practiceTimer);
-  var c=practiceSession.correct,t=practiceSession.qs.length;
-  var pct=Math.round(c/t*100);
-  var wrap=$$("practice-q-wrap");if(!wrap)return;
-  var msg=pct===100?"Perfect!":pct>=70?"Great Job!":"Keep Going!";
-  wrap.innerHTML="<div class='result-card'>"
-    +"<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
-    +"<div style='font-family:Fredoka One,cursive;font-size:26px;color:var(--sun)'>"+msg+"</div>"
-    +"<div style='color:var(--text2);margin-bottom:16px'>"+c+"/"+t+" correct - "+pct+"%</div>"
-    +"<div class='result-grid'>"
-    +"<div class='result-box'><div class='result-val' style='color:var(--sun)'>+"+(c*40)+"</div><div class='result-key'>XP</div></div>"
-    +"<div class='result-box'><div class='result-val' style='color:var(--mint)'>+"+(c*8)+"</div><div class='result-key'>MathCoins</div></div>"
-    +"</div>"
-    +"<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'>"
-    +"<button class='btn btn-sun btn-sm' onclick='renderPractice()'>Pick Another Topic</button>"
-    +"<button class=\"btn btn-ghost btn-sm\" onclick=\"goPage('room',null)\">Try Daily Trivia</button>"
-    +"</div></div>";
-}
-
-// WALLET
-function renderWallet(){
-  var e=$$("wallet-coins");if(e)e.textContent=S.coins.toLocaleString();
-  var cg=$$("coin-guide");
-  if(cg)cg.innerHTML=COIN_GUIDE.map(function(c){
-    return "<div style='display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)'>"
-      +"<div style='width:32px;height:32px;border-radius:10px;background:rgba(255,217,61,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0'>"+c.i+"</div>"
-      +"<div style='flex:1;font-size:13px;font-weight:700'>"+c.a+"</div>"
-      +"<div class='badge b-sun'>"+c.c+"</div>"
-      +"</div>";
-  }).join("");
-  var ps=$$("prize-store");
-  if(ps)ps.innerHTML=PRIZES.map(function(p){
-    return "<div class=\"card prize-card\" onclick=\"showToast('"+p.n+" costs "+p.cost+" MathCoins - parent redeems!')\"><div class=\"prize-emo\">"+p.e+"</div><div class=\"prize-name\">"+p.n+"</div><div class=\"prize-cost\">"+p.cost+" coins</div></div>";
-  }).join("");
-  var eg=$$("earnings");
-  if(eg)eg.innerHTML=EARNINGS_LOG.map(function(e){
-    return "<div class='earn-row'>"
-      +"<div class='earn-icon' style='background:rgba(255,255,255,0.06)'>"+e.i+"</div>"
-      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+e.d+"</div><div style='font-size:12px;color:var(--text2)'>"+e.date+"</div></div>"
-      +"<div style='font-size:16px;font-weight:800;color:"+e.color+"'>"+e.a+"</div>"
-      +"</div>";
-  }).join("");
-}
-
-// SKILLS
-function renderSkills(){
-  var el=$$("skills-grid");if(!el)return;
-  el.innerHTML=SKILLS_DATA.map(function(s){
-    var locked=!s.unlocked;
-    var bar=s.unlocked
-      ?"<div class=\"prog-wrap\"><div class=\"prog-fill\" style=\"width:"+s.m+"%;background:"+(s.m>80?"var(--mint)":s.m>60?"var(--sun)":"var(--coral)")+"\"\"></div></div><div class=\"skill-pct\">"+s.m+"% mastery</div>"
-      :"<span class=\"badge b-purple\" style=\"margin-top:6px\">Locked</span>";
-    var cls="card skill-card"+(locked?" skill-locked":"");
-    var cur=s.unlocked?"pointer":"default";
-    var div=document.createElement("div");
-    div.className=cls;
-    div.style.cursor=cur;
-    if(s.unlocked){div.addEventListener("click",function(){showToast("Practice "+s.n+" - go to Practice Mode!");});}
-    div.innerHTML="<span class=\"skill-icon\">"+s.i+"</span><div class=\"skill-name\">"+s.n+"</div>"+bar;
-    return div.outerHTML;
-  }).join("");
-}
-
-// PROFILE
-function renderProfile(){
-  var e=$$("prof-ava");if(e)e.textContent=S.name?S.name[0].toUpperCase():"?";
-  var pn=$$("prof-name");if(pn)pn.textContent=S.name||"Sign up to create your profile";
-  var pg=$$("prof-grade");if(pg)pg.textContent=S.grade?(S.grade+" - Math Champ"):"Sign up free to get started";
-  var pb=$$("prof-badges-row");
-  if(pb){
-    var tier=S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner";
-    pb.innerHTML="<span class='badge b-mint'>"+tier+"</span>"
-      +(S.streak>=5?"<span class='badge b-coral'>Streak Master</span>":"")
-      +(S.xp>0?"<span class='badge b-sky'>Active Player</span>":"")
-      +(S.isPreview?"<span class='badge b-purple'>Preview</span>":"");
-  }
-  var stats=[
-    ["Total XP",S.xp.toLocaleString()+" XP"],
-    ["Level","Level "+S.level],
-    ["Day Streak",S.streak+" days"],
-    ["MathCoins",S.coins.toLocaleString()+" coins"],
-    ["Grade",S.grade||"Not set"],
-    ["Challenges Won","Play to earn wins!"],
-    ["Problems Solved","Complete trivia to track"],
-    ["Prizes Redeemed","Earn 500+ coins to redeem"]
-  ];
-  var el=$$("all-stats");
-  if(el)el.innerHTML=stats.map(function(sv){
-    return "<div style='display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)'>"
-      +"<span style='font-size:14px;color:var(--text2)'>"+sv[0]+"</span>"
-      +"<span style='font-size:16px;font-weight:800'>"+sv[1]+"</span>"
-      +"</div>";
-  }).join("");
-  var achs=$$("achievements");
-  if(achs)achs.innerHTML=ACHIEVEMENTS_DATA.map(function(a){
-    return "<div class='ach-row "+(a.unlocked?"":"ach-locked")+"'>"
-      +"<div class='ach-icon' style='background:"+a.bg+"'>"+a.i+"</div>"
-      +"<div style='flex:1'><div class='ach-name'>"+a.n+"</div><div class='ach-desc'>"+a.d+"</div></div>"
-      +"<span class='badge "+(a.unlocked?"b-mint":"b-purple")+"'>"+(a.unlocked?"Done":"Locked")+"</span>"
-      +"</div>";
-  }).join("");
-}
-
-// WEB3FORMS
-async function sendToWeb3Forms(data){
-  try{
-    var payload=Object.assign({"access_key":W3F_KEY},data);
-    var res=await fetch("https://api.web3forms.com/submit",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify(payload)
-    });
-    var json=await res.json();
-    return json.success===true;
-  }catch(e){console.warn("Web3Forms error:",e);return false;}
-}
-
-function submitParentSignupWithDash(){
-  // Grab form values before async call
-  var modal=$$("signup-modal");
-  var inputs=modal?modal.querySelectorAll("#tab-parent .form-input"):[];
-  if(inputs[0])PARENT.name=inputs[0].value.trim()+" "+(inputs[1]?inputs[1].value.trim():"");
-  if(inputs[2])PARENT.email=inputs[2].value.trim();
-  var selCard=modal?modal.querySelector(".plan-card.sel"):null;
-  if(selCard){var pn=selCard.querySelector(".plan-name");if(pn)PARENT.plan=pn.textContent.trim();}
-  PARENT.isLoggedIn=true;
-  // Show parent dashboard nav
-  var nav=$$("nav-parent-dash");
-  if(nav)nav.style.display="flex";
-  submitParentSignup();
-}
-
-async function submitParentSignup(){
-  var modal=$$("signup-modal");
-  var inputs=modal?modal.querySelectorAll("#tab-parent .form-input"):[];
-  var firstName="",lastName="",email="",phone="",plan="Free";
-  if(inputs[0])firstName=inputs[0].value.trim();
-  if(inputs[1])lastName=inputs[1].value.trim();
-  if(inputs[2])email=inputs[2].value.trim();
-  if(inputs[3])phone=inputs[3].value.trim();
-  var selCard=modal?modal.querySelector(".plan-card.sel"):null;
-  if(selCard){var pn=selCard.querySelector(".plan-name");if(pn)plan=pn.textContent.trim();}
-  if(!firstName){showToast("Please enter your first name!");return;}
-  if(!email||email.indexOf("@")<1){showToast("Please enter a valid email address!");return;}
-  var btn=modal?modal.querySelector("#tab-parent .btn-mint"):null;
-  if(btn){btn.textContent="Sending...";btn.disabled=true;}
-  var sent=await sendToWeb3Forms({
-    subject:"New MathChamp Parent Signup - "+plan+" Plan",
-    name:firstName+(lastName?" "+lastName:""),
-    email:email,
-    message:"NEW PARENT SIGNUP | Name: "+firstName+" "+lastName+" | Email: "+email+" | Phone: "+(phone||"Not provided")+" | Plan: "+plan+" | Date: "+new Date().toLocaleString()
-  });
-  var tabParent=$$("tab-parent");
-  if(tabParent){
-    var confirmMsg=sent
-      ?"Your details have been saved. We will email "+email+" the moment we launch with your founding member link."
-      :"We have your email "+email+" and will contact you at launch.";
-    var html="<div style='text-align:center;padding:20px 10px'>";
-    html+="<div style='font-size:52px;margin-bottom:14px'>Success!</div>";
-    html+="<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:12px'>You are Registered!</div>";
-    html+="<div style='color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px'>";
-    html+="Welcome, <strong style='color:var(--mint)'>"+firstName+"</strong>!<br><br>";
-    html+="<span class='badge b-sun' style='font-size:12px'>Plan: "+plan+"</span><br><br>";
-    html+="MathChamp is currently in beta. Full accounts are coming very soon.<br><br>";
-    html+="<span style='color:var(--mint)'>"+confirmMsg+"</span><br><br>";
-    html+="<strong style='color:var(--mint)'>Founding Family:</strong> Your "+plan+" price is locked in forever.";
-    html+="</div>";
-    html+="<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'>";
-    html+="<button class='btn btn-sun btn-sm' onclick='closeModal();previewApp()'>Explore the App</button>";
-    html+="<button class='btn btn-ghost btn-sm' onclick='closeModal()'>Close</button>";
-    html+="</div></div>";
-    tabParent.innerHTML=html;
-  }
-  showToast(sent?"Registered! We will email "+email+" at launch!":"Registered, "+firstName+"! We will be in touch!",4000);
-}
-
-async function joinWaitlist(){
-  var nameEl=$$("wl-name"),emailEl=$$("wl-email"),gradeEl=$$("wl-grade");
-  var name=nameEl?nameEl.value.trim():"";
-  var email=emailEl?emailEl.value.trim():"";
-  var grade=gradeEl?gradeEl.value:"";
-  if(!name){showToast("Please enter your name!");return;}
-  if(!email||email.indexOf("@")<1){showToast("Please enter a valid email!");return;}
-  if(!grade){showToast("Please select your childs grade!");return;}
-  var wlBtn=document.querySelector(".waitlist-form .btn-sun");
-  if(wlBtn){wlBtn.textContent="Joining...";wlBtn.disabled=true;}
-  var sent=await sendToWeb3Forms({
-    subject:"New MathChamp Founding Family Signup - "+name,
-    name:name,
-    email:email,
-    message:"NEW WAITLIST SIGNUP | Name: "+name+" | Email: "+email+" | Grade: "+grade+" | Date: "+new Date().toLocaleString()
-  });
-  var box=document.querySelector(".waitlist-box");
-  if(box){
-    var confirmMsg=sent
-      ?"Your spot is confirmed! We will email "+email+" the moment MathChamp launches with your founding member price locked forever."
-      :"You are on the list! We will reach out to "+email+" at launch with your founding member offer.";
-    var html="<div style='text-align:center;padding:20px'>";
-    html+="<div style='font-size:60px;margin-bottom:16px'>You are In!</div>";
-    html+="<div style='font-size:28px;font-weight:800;color:var(--sun);margin-bottom:10px'>You are on the list, "+name+"!</div>";
-    html+="<div style='color:var(--text2);font-size:14px;line-height:1.8;margin-bottom:20px'>"+confirmMsg+"</div>";
-    html+="<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px'>";
-    html+="<span class='badge b-sun'>On the founding list</span>";
-    html+="<span class='badge b-mint'>Price locked forever</span>";
-    html+="</div>";
-    html+="<button class='btn btn-ghost btn-sm' onclick='previewApp()'>Take a Peek Inside</button>";
-    html+="</div>";
-    box.innerHTML=html;
-  }
-  showToast(sent?"You are on the list, "+name+"! Check your email soon!":"You are on the founding family list, "+name+"!",4000);
-}
-
-// COUNTDOWN
-function startCountdown(){
-  var secs=8*3600+23*60+41;
-  setInterval(function(){
-    if(secs>0)secs--;
-    var h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
-    var hh=$$("cd-h"),mm=$$("cd-m"),ss=$$("cd-s");
-    if(hh)hh.textContent=String(h).padStart(2,"0");
-    if(mm)mm.textContent=String(m).padStart(2,"0");
-    if(ss)ss.textContent=String(s).padStart(2,"0");
-  },1000);
-}
-
-// LOGIN / SESSION
-function openLoginModal(){
-  var m=$$("login-modal");
-  if(m)m.classList.add("open");
-}
-function closeLoginModal(){
-  var m=$$("login-modal");
-  if(m)m.classList.remove("open");
-}
-
-function loginStudent(){
-  var fn=$$("l-fn")?$$("l-fn").value.trim():"";
-  var ln=$$("l-ln")?$$("l-ln").value.trim():"";
-  var gr=$$("l-grade")?$$("l-grade").value:"";
-  if(!fn){showToast("Please enter your first name!");return;}
-  if(!gr){showToast("Please select your grade!");return;}
-  // Restore session
-  S.name=fn+(ln?" "+ln:"");
-  S.grade=gr+"th Grade";
-  S.gradeNum=parseInt(gr)||7;
-  S.isPreview=false;
-  // Try to load saved data from localStorage
-  try{
-    var saved=localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
-    if(saved){
-      var d=JSON.parse(saved);
-      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0;
-      S.coins=d.coins||0; S.credits=d.credits||0;
-      showToast("Welcome back, "+fn+"! Your progress has been restored!");
-    } else {
-      showToast("Welcome back, "+fn+"! Math is Fun!");
-    }
-  }catch(e){ showToast("Welcome back, "+fn+"! Math is Fun!"); }
-  // Update UI
-  updateUIForPlayer(fn, ln, gr);
-  closeLoginModal();
-  var land=$$("s-land");if(land)land.classList.remove("active");
-  var app=$$("s-app");if(app)app.classList.add("active");
-  var nav=$$("mob-nav");if(nav)nav.style.display="block";
-  showMusicBtn(true);
-  renderHome();
-}
-
-function updateUIForPlayer(fn, ln, gr){
-  var ava=fn[0].toUpperCase();
-  var e;
-  e=$$("sb-avatar");if(e)e.textContent=ava;
-  e=$$("prof-ava");if(e)e.textContent=ava;
-  e=$$("sb-name");if(e)e.textContent=fn+(ln?" "+ln[0]+".":"");
-  e=$$("sb-ulevel");if(e)e.textContent="Level "+S.level+" - "+(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner");
-  e=$$("home-greet");if(e)e.textContent="Welcome, "+fn+"! Math is Fun!";
-  e=$$("home-sub");if(e)e.textContent=S.xp>0?"Great to have you back! Keep earning XP!":"Complete your first trivia to start earning XP!";
-  e=$$("prof-name");if(e)e.textContent=fn+(ln?" "+ln:"");
-  e=$$("prof-grade");if(e)e.textContent=gr+"th Grade - Math Champ";
-  e=$$("stat-wins");if(e)e.textContent="0";
-  e=$$("stat-streak");if(e)e.textContent=S.streak;
-  e=$$("stat-rank");if(e)e.textContent="--";
-  e=$$("home-coins");if(e)e.textContent=S.coins.toLocaleString();
-  e=$$("wallet-coins");if(e)e.textContent=S.coins.toLocaleString();
-  e=$$("xp-level-num");if(e)e.textContent=S.level;
-  var xpNext=S.level*500;
-  e=$$("xp-tier-label");if(e)e.textContent=(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner")+" Tier";
-  e=$$("xp-nums-label");if(e)e.textContent=S.xp.toLocaleString()+" / "+xpNext+" XP";
-  e=$$("xp-prog");if(e)e.style.width=Math.min(100,Math.round(S.xp/xpNext*100))+"%";
-}
-
-function saveSession(){
-  // Save progress to localStorage so returning users keep their data
-  if(!S.name||S.isPreview)return;
-  try{
-    var fn=S.name.split(" ")[0].toLowerCase();
-    var key="mc_"+fn+"_"+S.gradeNum;
-    localStorage.setItem(key,JSON.stringify({
-      xp:S.xp, level:S.level, streak:S.streak,
-      coins:S.coins, credits:S.credits,
-      name:S.name, grade:S.grade, gradeNum:S.gradeNum,
-      lastSeen:new Date().toISOString()
-    }));
-  }catch(e){}
-}
-
-// Also update signupStudent to save session after signup
-function saveAfterAction(){
-  S.xp+=50; S.coins+=10;
-  // Update level
-  var xpNext=S.level*500;
-  if(S.xp>=xpNext)S.level++;
-  saveSession();
-  // Update home coins display
-  var hc=$$("home-coins");if(hc)hc.textContent=S.coins.toLocaleString();
-  var wc=$$("wallet-coins");if(wc)wc.textContent=S.coins.toLocaleString();
-}
-
-// Add logout button to sidebar
-function logout(){
-  saveSession();
-  S.name=""; S.grade=""; S.gradeNum=0;
-  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false;
-  showMusicBtn(false);
-  var audio=getMusicAudio();if(audio){audio.pause();MUSIC.playing=false;}
-  var app=$$("s-app");if(app)app.classList.remove("active");
-  var land=$$("s-land");if(land)land.classList.add("active");
-  var nav=$$("mob-nav");if(nav)nav.style.display="none";
-  var banner=$$("preview-banner");if(banner)banner.remove();
-  showToast("Logged out successfully. See you soon!");
-}
-
-// STUDENT SEARCH
-// In-memory registry of students who signed up this session
-var SESSION_PLAYERS = [];
-
-function registerPlayer(name, grade){
-  // Add to session registry when a student signs up
-  var existing = SESSION_PLAYERS.find(function(p){return p.name.toLowerCase()===name.toLowerCase();});
-  if(!existing){
-    SESSION_PLAYERS.push({
-      name:name, grade:grade,
-      wins:Math.floor(Math.random()*20),
-      level:Math.floor(Math.random()*5)+1,
-      online:true
-    });
-  }
-}
-
+// ── SEARCH ─────────────────────────────────────────────
 function searchPlayers(query){
-  var resultsEl=$$("player-search-results");
-  if(!resultsEl)return;
-  if(!query||query.length<2){
-    resultsEl.innerHTML="";
-    return;
-  }
+  var resultsEl=$$("player-search-results"); if(!resultsEl) return;
+  if(!query||query.length<2){ resultsEl.innerHTML=""; return; }
   query=query.toLowerCase();
   var allPlayers=SESSION_PLAYERS.concat([
-    {name:"Jordan K.",grade:"7th",wins:89,level:7,online:true},
-    {name:"Sam P.",grade:"7th",wins:74,level:6,online:true},
-    {name:"Chris W.",grade:"8th",wins:102,level:8,online:false},
-    {name:"Dana R.",grade:"9th",wins:145,level:10,online:true},
-    {name:"Riley M.",grade:"7th",wins:52,level:5,online:false},
-    {name:"Morgan L.",grade:"7th",wins:43,level:4,online:true},
-    {name:"Taylor B.",grade:"6th",wins:31,level:3,online:false}
+    {name:"Jordan K.",grade:"7",wins:89,level:7,online:true},
+    {name:"Sam P.",grade:"7",wins:74,level:6,online:true},
+    {name:"Chris W.",grade:"8",wins:102,level:8,online:false},
+    {name:"Dana R.",grade:"9",wins:145,level:10,online:true},
+    {name:"Riley M.",grade:"7",wins:52,level:5,online:false},
+    {name:"Morgan L.",grade:"7",wins:43,level:4,online:true},
+    {name:"Taylor B.",grade:"6",wins:31,level:3,online:false}
   ]);
-  var matches=allPlayers.filter(function(p){
-    return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name;
-  });
-  if(matches.length===0){
-    resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:8px;text-align:center'>No players found for: "+query+"</div>";
-    return;
-  }
+  var matches=allPlayers.filter(function(p){ return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name; });
   resultsEl.innerHTML="";
+  if(matches.length===0){
+    var d=document.createElement("div"); d.style.cssText="color:var(--text2);font-size:13px;padding:8px;text-align:center";
+    d.textContent="No players found for: "+query;
+    resultsEl.appendChild(d); return;
+  }
   matches.slice(0,5).forEach(function(p){
     var row=document.createElement("div");
     row.style.cssText="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;cursor:pointer";
     row.setAttribute("data-pname",p.name);
-    row.addEventListener("click",function(){
-      selectPlayerChallenge(this.getAttribute("data-pname"));
-    });
-    var dot="<span style='display:inline-block;width:8px;height:8px;background:"+(p.online?"var(--mint)":"var(--text2)")+";border-radius:50%;margin-right:4px'></span>";
+    row.addEventListener("click",function(){ selectPlayerChallenge(this.getAttribute("data-pname")); });
+    var dotColor=p.online?"var(--mint)":"var(--text2)";
     row.innerHTML="<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--sky));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
       +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.name+"</div>"
-      +"<div style='font-size:12px;color:var(--text2)'>"+dot+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
+      +"<div style='font-size:12px;color:var(--text2)'><span style='display:inline-block;width:8px;height:8px;background:"+dotColor+";border-radius:50%;margin-right:4px'></span>Grade "+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
       +"<button class='btn btn-coral btn-xs'>Challenge</button>";
     resultsEl.appendChild(row);
   });
 }
 
 function selectPlayerChallenge(name){
-  var input=$$("search-player-input");
-  if(input)input.value=name;
-  var r=$$("player-search-results");if(r)r.innerHTML="";
-  showToast("Challenge request sent to "+name+"!");
-  // Find opponent data
-  var opp=OPPS.find(function(o){return o.n===name;});
-  if(opp){
-    startBattleWith(opp.n,opp.e,opp.bg,0.72);
-  } else {
-    startBattle();
-  }
+  var input=$$("search-player-input"); if(input) input.value=name;
+  var r=$$("player-search-results"); if(r) r.innerHTML="";
+  showToast("Challenge sent to "+name+"!");
+  var opp=OPPS.find(function(o){ return o.n===name; });
+  if(opp) startBattleWith(opp.n,opp.e,opp.bg,opp.winRate);
+  else startBattle();
 }
 
 function sendDirectChallenge(){
-  var input=$$("search-player-input");
-  var name=input?input.value.trim():"";
-  if(!name){showToast("Type a student name to challenge them!");return;}
+  var input=$$("search-player-input"); var name=input?input.value.trim():"";
+  if(!name){ showToast("Type a student name to challenge!"); return; }
   selectPlayerChallenge(name);
 }
 
+// ── LEADERBOARD ────────────────────────────────────────
+function setLBTab(tab,btn){
+  document.querySelectorAll(".lb-tab").forEach(function(t){ t.classList.remove("on"); });
+  if(btn) btn.classList.add("on");
+  renderLeaderboard();
+}
 
-// ═══════════════════════════════════════════
-// PARENT DASHBOARD SYSTEM
-// ═══════════════════════════════════════════
-
-// Parent state
-var PARENT = {
-  name:"", email:"", plan:"Free",
-  isLoggedIn:false,
-  children:[],
-  pendingPrizes:[]
-};
-
-// Demo children data for when no real children linked
-var DEMO_CHILDREN = [
-  {
-    name:"Your Child", grade:"7th", gradeNum:7, age:13,
-    level:4, xp:1240, coins:620, streak:3, wins:12,
-    topics_weak:["Fractions","Word Problems"],
-    topics_strong:["Algebra","Geometry"],
-    recent_wrong:[
-      {q:"What is 5/6 minus 1/3?", correct:"1/2", got:"4/3", topic:"Fractions"},
-      {q:"What is 30% of 80?", correct:"24", got:"20", topic:"Percentages"},
-      {q:"Solve: 2x - 3 = 11", correct:"x=7", got:"x=4", topic:"Algebra"}
-    ],
-    activity:[
-      {txt:"Answered 12 trivia questions", time:"Today", color:"var(--mint)"},
-      {txt:"Won challenge vs Jordan K.", time:"Today", color:"var(--mint)"},
-      {txt:"Asked Axiom about fractions", time:"Yesterday", color:"var(--sky)"},
-      {txt:"Completed Algebra practice set", time:"2 days ago", color:"var(--purple)"},
-      {txt:"Earned 50-coin streak bonus", time:"3 days ago", color:"var(--sun)"}
-    ],
-    pendingPrize:null
+function renderLeaderboard(){
+  var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
+  var pod=$$("lb-podium");
+  if(pod){
+    var order=[1,0,2], html="";
+    order.forEach(function(i){
+      var p=LB_DATA[i];
+      html+="<div class='podium-place'>"
+        +"<div class='pod-crown'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
+        +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+p.e+"</div>"
+        +"<div class='pod-name'>"+p.n+"</div>"
+        +"<div class='pod-pts'>"+p.pts.toLocaleString()+"</div>"
+        +"<div class='pod-block' style='background:"+colors[i]+";height:"+(i===0?"100px":i===1?"80px":"65px")+";width:100%;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900'>#"+(i+1)+"</div>"
+        +"</div>";
+    });
+    pod.innerHTML=html;
   }
-];
-
-function submitParentSignupFull(){
-  // Enhanced parent signup that shows dashboard
-  submitParentSignup();
-  // Show parent nav after signup
-  setTimeout(function(){
-    var nav=$$("nav-parent-dash");
-    if(nav)nav.style.display="flex";
-  },500);
+  var full=$$("lb-full");
+  if(full){
+    var fhtml="";
+    LB_DATA.forEach(function(p,i){
+      var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
+      fhtml+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
+        +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
+        +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div><div class='lb-grade'>"+p.g+"</div></div>"
+        +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
+        +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+p.chg+"</div></div></div>";
+    });
+    full.innerHTML=fhtml;
+  }
 }
 
-function showParentDashboard(){
-  var nav=$$("nav-parent-dash");
-  if(nav)nav.style.display="flex";
-  goPage("parentdash",nav);
+// ── TOURNAMENTS ────────────────────────────────────────
+function renderTournaments(){
+  var el=$$("tourn-list"); if(!el) return;
+  var html="";
+  TOURNAMENTS.forEach(function(t){
+    html+="<div class='t-card "+t.color+"'><div class='t-card-row'>"
+      +"<div><div class='t-name'>"+t.n+"</div><div class='t-meta'>"+t.date+" - "+t.spots+" - "+t.grades+"</div></div>"
+      +"<div><div class='t-prize'>"+t.prize+"</div><div class='t-pplace'>1st place</div></div>"
+      +"</div></div>";
+  });
+  el.innerHTML=html;
 }
 
+// ── AI TUTOR ───────────────────────────────────────────
+function renderTutor(){
+  var qp=$$("quick-prompts"); if(!qp) return;
+  qp.innerHTML="";
+  QUICK_PROMPTS.forEach(function(p){
+    var card=document.createElement("div"); card.className="card card-purple skill-card"; card.style.cursor="pointer";
+    card.setAttribute("data-prompt",p.t);
+    card.addEventListener("click",function(){ askTutor(this.getAttribute("data-prompt")); });
+    card.innerHTML="<span class='skill-icon'>"+p.emoji+"</span><div class='skill-name'>"+p.t+"</div>";
+    qp.appendChild(card);
+  });
+}
+
+function askTutor(prompt){ var input=$$("chat-input"); if(input){ input.value=prompt; sendMsg(); } }
+
+async function sendMsg(){
+  var input=$$("chat-input"), chat=$$("chat-box");
+  if(!input||!chat) return;
+  var msg=input.value.trim(); if(!msg) return;
+  input.value="";
+  chat.innerHTML+="<div class='chat-msg chat-user'><div class='chat-who chat-who-user'>You</div>"+msg+"</div>";
+  var thinking=document.createElement("div"); thinking.className="chat-msg chat-bot";
+  thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div><span style='color:var(--text2)'>Thinking...</span>";
+  chat.appendChild(thinking); chat.scrollTop=chat.scrollHeight;
+  try{
+    var r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
+        system:"You are Axiom, a friendly math tutor for MathChamp. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
+        messages:[{role:"user",content:msg}]})
+    });
+    var d=await r.json();
+    var reply=((d.content||[{text:"I am offline right now!"}])[0].text||"");
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"+reply;
+  }catch(e){
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>Axiom is taking a break! Try again soon.";
+  }
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// ── PRACTICE ───────────────────────────────────────────
+function renderPractice(){
+  var el=$$("topic-picker"); if(!el) return;
+  el.innerHTML="";
+  var band=QUESTION_BANK[gradeBand(S.gradeNum)];
+  Object.keys(band).forEach(function(t){
+    var card=document.createElement("div"); card.className="card skill-card"; card.style.cursor="pointer";
+    card.setAttribute("data-topic",t);
+    card.addEventListener("click",function(){ startPractice(this.getAttribute("data-topic")); });
+    card.innerHTML="<span class='skill-icon'>"+(t[0]||"?")+"</span><div class='skill-name'>"+t+"</div><div style='font-size:12px;color:var(--text2)'>"+band[t].length+"+ questions</div>";
+    el.appendChild(card);
+  });
+  var pa=$$("practice-arena"); if(pa) pa.style.display="none";
+}
+
+async function startPractice(topic){
+  var pa=$$("practice-arena"); if(!pa) return;
+  pa.style.display="block"; pa.scrollIntoView({behavior:"smooth"});
+  practiceSession={qs:[],idx:0,correct:0,loading:true};
+  var wrap=$$("practice-q-wrap"); if(wrap) wrap.innerHTML="<div style='text-align:center;padding:32px'>Loading "+topic+" questions...</div>";
+  var band=QUESTION_BANK[gradeBand(S.gradeNum)];
+  var qs=(band[topic]||[]).map(function(q){ return {q:q.q,a:q.a,c:q.c,topic:topic,src:"Question Bank",ai:false,explanation:""}; });
+  var aiQs=await genAIQuestions(S.gradeNum,3,"practice");
+  if(aiQs) qs=qs.concat(aiQs);
+  practiceSession.qs=shuffle(qs).slice(0,5); practiceSession.loading=false;
+  renderPracticeQ();
+}
+
+function renderPracticeQ(){
+  var wrap=$$("practice-q-wrap"); if(!wrap) return;
+  if(practiceSession.idx>=practiceSession.qs.length){ showPracticeResult(); return; }
+  var q=practiceSession.qs[practiceSession.idx], total=practiceSession.qs.length;
+  var dots="";
+  for(var d=0;d<total;d++) dots+="<div class='q-dot "+(d<practiceSession.idx?"done":d===practiceSession.idx?"curr":"")+"'></div>";
+  wrap.innerHTML="<div class='q-header'><div class='q-dots'>"+dots+"</div>"
+    +"<div class='timer-ring' id='p-timer-ring' style='--p:100'><div class='timer-inner' id='p-timer-num'>15</div></div></div>"
+    +"<div class='q-topic'>"+q.topic+" - Q"+(practiceSession.idx+1)+"/"+total+"</div>"
+    +"<div class='q-text'>"+q.q+"</div>"
+    +"<div class='q-opts' id='p-opts'></div>";
+  var pOpts=$$("p-opts"), letters=["A","B","C","D"];
+  (q.a||[]).forEach(function(ans,i){
+    var btn=document.createElement("button"); btn.className="q-opt";
+    btn.innerHTML="<span class='opt-letter'>"+letters[i]+"</span>"+ans;
+    btn.addEventListener("click",function(){ answerPractice(i,q.c,btn); });
+    pOpts.appendChild(btn);
+  });
+  var ptv=15;
+  clearInterval(practiceTimer);
+  practiceTimer=setInterval(function(){
+    ptv--;
+    var nr=$$("p-timer-num"),rr=$$("p-timer-ring");
+    if(nr) nr.textContent=ptv;
+    if(rr) rr.style.setProperty("--p",ptv/15*100);
+    if(nr) nr.style.color=ptv<=5?"var(--coral)":"var(--sun)";
+    if(ptv<=0){
+      clearInterval(practiceTimer);
+      var opts=document.querySelectorAll("#p-opts .q-opt");
+      opts.forEach(function(o,i){ if(i===practiceSession.qs[practiceSession.idx].c) o.classList.add("reveal"); o.disabled=true; });
+      practiceSession.idx++; setTimeout(renderPracticeQ,1600);
+    }
+  },1000);
+}
+
+function answerPractice(sel,correct,btn){
+  clearInterval(practiceTimer);
+  document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
+  var right=sel===correct;
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); }
+  else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
+  practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
+}
+
+function showPracticeResult(){
+  clearInterval(practiceTimer);
+  var c=practiceSession.correct, t=practiceSession.qs.length, pct=Math.round(c/t*100);
+  S.xp+=c*40; S.coins+=c*8; saveSession();
+  var wrap=$$("practice-q-wrap"); if(!wrap) return;
+  var msg=pct===100?"Perfect!":pct>=70?"Great Job!":"Keep Going!";
+  var div=document.createElement("div"); div.className="result-card";
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
+    +"<div style='font-family:Fredoka One,cursive;font-size:26px;color:var(--sun)'>"+msg+"</div>"
+    +"<div style='color:var(--text2);margin-bottom:16px'>"+c+"/"+t+" correct - "+pct+"%</div>"
+    +"<div class='result-grid'><div class='result-box'><div class='result-val' style='color:var(--sun)'>+"+(c*40)+"</div><div class='result-key'>XP</div></div>"
+    +"<div class='result-box'><div class='result-val' style='color:var(--mint)'>+"+(c*8)+"</div><div class='result-key'>MathCoins</div></div></div>";
+  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;";
+  var b1=document.createElement("button"); b1.className="btn btn-sun btn-sm"; b1.textContent="Pick Another Topic";
+  b1.addEventListener("click",renderPractice);
+  var b2=document.createElement("button"); b2.className="btn btn-ghost btn-sm"; b2.textContent="Try Daily Trivia";
+  b2.addEventListener("click",function(){ goPage("room",null); });
+  btnRow.appendChild(b1); btnRow.appendChild(b2); div.appendChild(btnRow);
+  wrap.innerHTML=""; wrap.appendChild(div);
+}
+
+// ── WALLET ─────────────────────────────────────────────
+function renderWallet(){
+  var wc=$$("wallet-coins"); if(wc) wc.textContent=S.coins.toLocaleString();
+  var cg=$$("coin-guide");
+  if(cg){
+    var html="";
+    COIN_GUIDE.forEach(function(c){
+      html+="<div style='display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)'>"
+        +"<div style='width:32px;height:32px;border-radius:10px;background:rgba(255,217,61,0.1);display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0'>"+c.i+"</div>"
+        +"<div style='flex:1;font-size:13px;font-weight:700'>"+c.a+"</div>"
+        +"<div class='badge b-sun'>"+c.c+"</div></div>";
+    });
+    cg.innerHTML=html;
+  }
+  var ps=$$("prize-store");
+  if(ps){
+    ps.innerHTML="";
+    PRIZES.forEach(function(p){
+      var card=document.createElement("div"); card.className="card prize-card"; card.style.cursor="pointer";
+      card.setAttribute("data-msg",p.n+" costs "+p.cost+" MathCoins - parent redeems!");
+      card.addEventListener("click",function(){ showToast(this.getAttribute("data-msg")); });
+      card.innerHTML="<div class='prize-emo'>"+p.e+"</div><div class='prize-name'>"+p.n+"</div><div class='prize-cost'>"+p.cost+" coins</div><div style='font-size:11px;color:var(--text2);margin-top:2px'>"+p.val+"</div>";
+      ps.appendChild(card);
+    });
+  }
+  var eg=$$("earnings");
+  if(eg){
+    var ehtml="";
+    EARNINGS_LOG.forEach(function(e){
+      ehtml+="<div class='earn-row'><div class='earn-icon' style='background:rgba(255,255,255,0.06)'>"+e.i+"</div>"
+        +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+e.d+"</div><div style='font-size:12px;color:var(--text2)'>"+e.date+"</div></div>"
+        +"<div style='font-size:16px;font-weight:800;color:"+e.color+"'>"+e.a+"</div></div>";
+    });
+    eg.innerHTML=ehtml;
+  }
+}
+
+// ── SKILLS ─────────────────────────────────────────────
+function renderSkills(){
+  var el=$$("skills-grid"); if(!el) return;
+  el.innerHTML="";
+  SKILLS_DATA.forEach(function(s){
+    var card=document.createElement("div");
+    card.className="card skill-card"+(s.unlocked?"":" skill-locked");
+    card.style.cursor=s.unlocked?"pointer":"default";
+    if(s.unlocked) card.addEventListener("click",function(){ showToast("Practice "+s.n+" - go to Practice Mode!"); });
+    var bar=s.unlocked
+      ?"<div class='prog-wrap'><div class='prog-fill' style='width:"+s.m+"%;background:"+(s.m>80?"var(--mint)":s.m>60?"var(--sun)":"var(--coral)")+"'></div></div><div class='skill-pct'>"+s.m+"% mastery</div>"
+      :"<span class='badge b-purple' style='margin-top:6px'>Locked</span>";
+    card.innerHTML="<span class='skill-icon'>"+s.i+"</span><div class='skill-name'>"+s.n+"</div>"+bar;
+    el.appendChild(card);
+  });
+}
+
+// ── PROFILE ────────────────────────────────────────────
+function renderProfile(){
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  setEl("prof-ava", S.name?S.name[0].toUpperCase():"?");
+  setEl("prof-name", S.name||"Sign up to create your profile");
+  setEl("prof-grade", S.grade?(S.grade+" - Math Champ"):"Sign up free to get started");
+  var pb=$$("prof-badges-row");
+  if(pb){
+    var tier=S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner";
+    pb.innerHTML="<span class='badge b-mint'>"+tier+"</span>"+(S.streak>=5?"<span class='badge b-coral'>Streak Master</span>":"")+(S.isPreview?"<span class='badge b-purple'>Preview</span>":"");
+  }
+  var stats=[
+    ["Total XP",S.xp.toLocaleString()+" XP"],["Level","Level "+S.level],
+    ["Day Streak",S.streak+" days"],["MathCoins",S.coins.toLocaleString()+" coins"],
+    ["Grade",S.grade||"Not set"],["Challenges Won","Play to earn wins!"]
+  ];
+  var allStats=$$("all-stats");
+  if(allStats){
+    var html="";
+    stats.forEach(function(sv){
+      html+="<div style='display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)'>"
+        +"<span style='font-size:14px;color:var(--text2)'>"+sv[0]+"</span>"
+        +"<span style='font-size:16px;font-weight:800'>"+sv[1]+"</span></div>";
+    });
+    allStats.innerHTML=html;
+  }
+  var achs=$$("achievements");
+  if(achs){
+    var ahtml="";
+    ACHIEVEMENTS_DATA.forEach(function(a){
+      ahtml+="<div class='ach-row "+(a.unlocked?"":"ach-locked")+"'>"
+        +"<div class='ach-icon' style='background:"+a.bg+"'>"+a.i+"</div>"
+        +"<div style='flex:1'><div class='ach-name'>"+a.n+"</div><div class='ach-desc'>"+a.d+"</div></div>"
+        +"<span class='badge "+(a.unlocked?"b-mint":"b-purple")+"'>"+(a.unlocked?"Done":"Locked")+"</span></div>";
+    });
+    achs.innerHTML=ahtml;
+  }
+}
+
+// ── PARENT DASHBOARD ───────────────────────────────────
 function renderParentDash(){
-  // Update parent hero
-  var pn=$$("p-dash-name");if(pn)pn.textContent=PARENT.name||"Parent Account";
-  var pp=$$("p-dash-plan");if(pp)pp.textContent="Plan: "+PARENT.plan;
-  var pa=$$("p-dash-avatar");if(pa)pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
-
-  var children = PARENT.children.length > 0 ? PARENT.children : DEMO_CHILDREN;
-  var cb=$$("p-dash-children-badge");
-  if(cb)cb.textContent=children.length+" "+(children.length===1?"Child":"Children")+" Linked";
-
-  // Render children cards
-  var list=$$("p-children-list");
-  if(!list)return;
-
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  setEl("p-dash-name",PARENT.name||"Parent Account");
+  setEl("p-dash-plan","Plan: "+PARENT.plan);
+  var pa=$$("p-dash-avatar"); if(pa) pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
+  var cb=$$("p-dash-children-badge"); if(cb) cb.textContent=PARENT.children.length+" Children Linked";
+  var list=$$("p-children-list"); if(!list) return;
+  var demoChild={name:"Your Child",grade:"7th",age:13,level:4,xp:1240,coins:620,streak:3,wins:12,topics_weak:["Fractions","Word Problems"],topics_strong:["Algebra","Geometry"],activity:[{txt:"Answered 12 trivia questions",time:"Today",color:"var(--mint)"},{txt:"Won challenge vs Jordan K.",time:"Today",color:"var(--mint)"},{txt:"Asked Axiom about fractions",time:"Yesterday",color:"var(--sky)"}]};
+  var children=PARENT.children.length>0?PARENT.children:[demoChild];
+  list.innerHTML="";
   if(PARENT.children.length===0){
-    // Show demo + prompt to link real child
-    list.innerHTML = "<div class='link-child-box' onclick='showLinkChildModal()'>"
-      +"<div style='font-size:32px;margin-bottom:10px'>+</div>"
-      +"<div style='font-size:15px;font-weight:800;margin-bottom:6px'>Link Your Child's Account</div>"
-      +"<div style='font-size:13px;color:var(--text2)'>Tap to connect your child's MathChamp profile to see their progress, manage prizes and monitor activity.</div>"
-      +"</div>"
-      +"<div style='font-size:12px;color:var(--text2);margin-bottom:16px;text-align:center'>Preview below shows what your dashboard will look like once linked:</div>"
-      + renderChildCard(DEMO_CHILDREN[0], true);
-  } else {
-    list.innerHTML = children.map(function(c){return renderChildCard(c,false);}).join("")
-      +"<div class='link-child-box' onclick='showLinkChildModal()' style='padding:16px'>"
-      +"<div style='font-size:14px;font-weight:800'>+ Link Another Child</div>"
-      +"</div>";
+    var linkBox=document.createElement("div"); linkBox.className="link-child-box";
+    linkBox.setAttribute("onclick","showLinkChildModal()");
+    linkBox.innerHTML="<div style='font-size:32px;margin-bottom:10px'>+</div><div style='font-size:15px;font-weight:800;margin-bottom:6px'>Link Your Child Account</div><div style='font-size:13px;color:var(--text2)'>Tap to connect your child to see their real progress</div>";
+    linkBox.addEventListener("click",showLinkChildModal);
+    list.appendChild(linkBox);
+    var previewLabel=document.createElement("div"); previewLabel.style.cssText="font-size:12px;color:var(--text2);margin-bottom:12px;text-align:center"; previewLabel.textContent="Preview below:"; list.appendChild(previewLabel);
   }
-
-  // Render prize approval queue
-  renderPrizeQueue(children);
+  children.forEach(function(child){ list.appendChild(buildChildCard(child, PARENT.children.length===0)); });
+  renderPrizeQueue();
 }
 
-function renderChildCard(child, isDemo){
-  var ageWarning = child.age < 13
-    ? "<span class='badge b-coral' style='font-size:10px'>COPPA Protected</span>"
-    : child.age < 16
-    ? "<span class='badge b-sky' style='font-size:10px'>Prizes to Parent</span>"
-    : child.age < 18
-    ? "<span class='badge b-purple' style='font-size:10px'>Teen Wallet Eligible</span>"
-    : "<span class='badge b-mint' style='font-size:10px'>Adult Access</span>";
-
-  var colors=["linear-gradient(135deg,var(--purple),var(--sky))","linear-gradient(135deg,var(--coral),var(--pink))","linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,var(--mint),var(--sky))"];
-  var bg=colors[Math.floor(Math.random()*colors.length)];
-
-  var weakTopics = child.topics_weak.map(function(t){
-    return "<span class='badge b-coral' style='font-size:11px;margin-right:4px'>"+t+"</span>";
-  }).join("");
-
-  var strongTopics = child.topics_strong.map(function(t){
-    return "<span class='badge b-mint' style='font-size:11px;margin-right:4px'>"+t+"</span>";
-  }).join("");
-
-  var wrongQs = child.recent_wrong.map(function(q){
-    return "<div class='wrong-q-row'>"
-      +"<div style='font-size:10px;color:var(--text2);min-width:60px'>"+q.topic+"</div>"
-      +"<div style='flex:1'><div style='font-size:13px;font-weight:700'>"+q.q+"</div>"
-      +"<div style='font-size:12px;margin-top:3px'>"
-      +"<span style='color:var(--coral)'>Got: "+q.got+"</span>"
-      +"  <span style='color:var(--mint)'>Correct: "+q.correct+"</span></div></div>"
-      +"</div>";
-  }).join("");
-
-  var activityLog = child.activity.map(function(a){
-    return "<div class='activity-row'>"
-      +"<div class='activity-dot' style='background:"+a.color+"'></div>"
-      +"<div style='flex:1'>"+a.txt+"</div>"
-      +"<div style='font-size:11px;color:var(--text2)'>"+a.time+"</div>"
-      +"</div>";
-  }).join("");
-
-  var demoTag = isDemo ? "<span class='badge b-purple' style='font-size:10px;margin-left:6px'>PREVIEW</span>" : "";
-
-  var prizeBtn = child.age >= 16
-    ? "<button class='btn btn-purple btn-xs' onclick='showTeenPrizeRequest(child.name)'>Teen Wallet</button>"
-    : "<button class='btn btn-sun btn-xs' onclick='approveParentPrize(child.name)'>Manage Prizes</button>";
-
-  return "<div class='child-card'>"
-    // Header
-    +"<div class='child-card-header'>"
-    +"<div class='child-ava' style='background:"+bg+"'>"+child.name[0]+"</div>"
-    +"<div style='flex:1'>"
-    +"<div style='font-size:16px;font-weight:800'>"+child.name+demoTag+"</div>"
-    +"<div style='font-size:12px;color:var(--text2)'>"+child.grade+" &bull; Level "+child.level+" &bull; "+ageWarning+"</div>"
-    +"</div>"
-    +prizeBtn
-    +"</div>"
-    // Stats
+function buildChildCard(child, isDemo){
+  var card=document.createElement("div"); card.className="child-card";
+  var demoTag=isDemo?"<span class='badge b-purple' style='font-size:10px;margin-left:6px'>PREVIEW</span>":"";
+  var ageNote=child.age<13?"<span class='badge b-coral' style='font-size:10px'>COPPA Protected</span>":child.age<16?"<span class='badge b-sky' style='font-size:10px'>Prizes to Parent</span>":"<span class='badge b-purple' style='font-size:10px'>Teen Wallet Eligible</span>";
+  var weakHtml="", strongHtml="";
+  (child.topics_weak||[]).forEach(function(t){ weakHtml+="<span class='badge b-coral' style='font-size:11px;margin-right:4px'>"+t+"</span>"; });
+  (child.topics_strong||[]).forEach(function(t){ strongHtml+="<span class='badge b-mint' style='font-size:11px;margin-right:4px'>"+t+"</span>"; });
+  var actHtml="";
+  (child.activity||[]).forEach(function(a){ actHtml+="<div class='activity-row'><div class='activity-dot' style='background:"+a.color+"'></div><div style='flex:1'>"+a.txt+"</div><div style='font-size:11px;color:var(--text2)'>"+a.time+"</div></div>"; });
+  card.innerHTML="<div class='child-card-header'>"
+    +"<div class='child-ava' style='background:linear-gradient(135deg,var(--purple),var(--sky))'>"+child.name[0]+"</div>"
+    +"<div style='flex:1'><div style='font-size:16px;font-weight:800'>"+child.name+demoTag+"</div>"
+    +"<div style='font-size:12px;color:var(--text2)'>"+child.grade+" - Level "+child.level+" - "+ageNote+"</div></div></div>"
     +"<div class='child-stats'>"
-    +"<div class='child-stat'><div class='child-stat-val'>"+child.xp.toLocaleString()+"</div><div class='child-stat-lbl'>XP Earned</div></div>"
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.xp.toLocaleString()+"</div><div class='child-stat-lbl'>XP</div></div>"
     +"<div class='child-stat'><div class='child-stat-val'>"+child.coins.toLocaleString()+"</div><div class='child-stat-lbl'>MathCoins</div></div>"
     +"<div class='child-stat'><div class='child-stat-val'>"+child.wins+"</div><div class='child-stat-lbl'>Wins</div></div>"
-    +"<div class='child-stat'><div class='child-stat-val'>"+child.streak+"d</div><div class='child-stat-lbl'>Streak</div></div>"
-    +"</div>"
-    // Weak/Strong topics
-    +"<div style='margin-bottom:12px'>"
-    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px'>Needs Practice</div>"
-    +weakTopics
-    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px'>Doing Well In</div>"
-    +strongTopics
-    +"</div>"
-    // Questions got wrong
-    +"<div style='font-size:13px;font-weight:800;margin-bottom:8px;color:var(--coral)'>Recent Mistakes to Review</div>"
-    +wrongQs
-    // Activity
-    +"<div style='font-size:13px;font-weight:800;margin:12px 0 8px;color:var(--sky)'>Recent Activity</div>"
-    +activityLog
-    +"</div>";
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.streak+"d</div><div class='child-stat-lbl'>Streak</div></div></div>"
+    +"<div style='margin-bottom:12px'><div style='font-size:11px;color:var(--text2);font-weight:800;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px'>Needs Practice</div>"+weakHtml
+    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px'>Doing Well In</div>"+strongHtml+"</div>"
+    +"<div style='font-size:13px;font-weight:800;margin-bottom:8px;color:var(--sky)'>Recent Activity</div>"+actHtml;
+  return card;
 }
 
-function renderPrizeQueue(children){
-  var list=$$("prize-approval-list");
-  if(!list)return;
-
-  var badge=$$("prize-pending-badge");
-
-  // Demo prize requests
-  var prizes=[
-    {child:"Your Child", item:"Amazon Gift Card $10", coins:1000, age:14, status:"pending"},
-    {child:"Your Child", item:"GameStop Card $25", coins:2500, age:14, status:"pending"}
-  ];
-
-  if(prizes.length===0){
-    list.innerHTML="<div class='card' style='text-align:center;padding:20px;color:var(--text2)'>No pending prize requests. Your child can request prizes from the Rewards Wallet.</div>";
-    if(badge)badge.style.display="none";
-    return;
-  }
-
-  if(badge){badge.style.display="inline-flex";badge.textContent=prizes.length+" Pending";}
-
-  list.innerHTML=prizes.map(function(p,i){
-    var ageNote = p.age>=16
-      ? "<span class='badge b-purple' style='font-size:10px'>Teen Wallet - email approval</span>"
-      : "<span class='badge b-sky' style='font-size:10px'>Delivered to parent</span>";
-    return "<div class='prize-req-card'>"
-      +"<div style='font-size:28px'>🎁</div>"
-      +"<div style='flex:1'>"
-      +"<div style='font-size:14px;font-weight:800'>"+p.child+" wants: "+p.item+"</div>"
-      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+p.coins.toLocaleString()+" MathCoins &bull; "+ageNote+"</div>"
-      +"</div>"
-      +"<div style='display:flex;gap:6px;flex-direction:column'>"
-      +"<button class='btn btn-mint btn-xs' style='color:var(--dark)' onclick='approvePrize("+i+")'>Approve</button>"
-      +"<button class='btn btn-ghost btn-xs' onclick='denyPrize("+i+")'>Deny</button>"
-      +"</div>"
-      +"</div>";
-  }).join("");
-}
-
-function approvePrize(idx){
-  showToast("Prize approved! Gift card will be emailed to you (or your teen with Teen Wallet). Coming fully live with Stripe integration!");
-  var list=$$("prize-approval-list");
-  if(list){
-    var cards=list.querySelectorAll(".prize-req-card");
-    if(cards[idx])cards[idx].style.opacity="0.4";
-  }
-}
-
-function denyPrize(idx){
-  showToast("Prize request denied. Your child has been notified.");
-  var list=$$("prize-approval-list");
-  if(list){
-    var cards=list.querySelectorAll(".prize-req-card");
-    if(cards[idx])cards[idx].remove();
-  }
-}
-
-function approveParentPrize(childName){
-  showToast("Managing prizes for "+childName+". Full prize system coming with Stripe!");
-}
-
-function showTeenPrizeRequest(childName){
-  showToast("Teen Wallet for "+childName+": When a prize request comes in, you approve via email. Coming with full launch!");
-}
-
-// Link child modal
-function showLinkChildModal(){
-  var m=$$("link-child-modal");if(m)m.classList.add("open");
-}
-function closeLinkChildModal(){
-  var m=$$("link-child-modal");if(m)m.classList.remove("open");
+function renderPrizeQueue(){
+  var list=$$("prize-approval-list"); if(!list) return;
+  var prizes=[{child:"Your Child",item:"Amazon Gift Card $10",coins:1000,age:14},{child:"Your Child",item:"GameStop Card $25",coins:2500,age:14}];
+  list.innerHTML="";
+  prizes.forEach(function(p,i){
+    var card=document.createElement("div"); card.className="prize-req-card";
+    var ageBadge=p.age>=16?"<span class='badge b-purple' style='font-size:10px'>Teen Wallet</span>":"<span class='badge b-sky' style='font-size:10px'>To parent</span>";
+    card.innerHTML="<div style='font-size:28px'>Gift</div>"
+      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.child+" wants: "+p.item+"</div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+p.coins.toLocaleString()+" MathCoins - "+ageBadge+"</div></div>"
+      +"<div style='display:flex;gap:6px;flex-direction:column'></div>";
+    var appBtn=document.createElement("button"); appBtn.className="btn btn-mint btn-xs"; appBtn.style.color="var(--dark)"; appBtn.textContent="Approve";
+    appBtn.addEventListener("click",function(){ showToast("Prize approved! Gift card coming with Stripe integration!"); card.style.opacity="0.4"; });
+    var dnyBtn=document.createElement("button"); dnyBtn.className="btn btn-ghost btn-xs"; dnyBtn.textContent="Deny";
+    dnyBtn.addEventListener("click",function(){ showToast("Prize request denied."); card.remove(); });
+    var btnCol=card.querySelector("div:last-child"); btnCol.appendChild(appBtn); btnCol.appendChild(dnyBtn);
+    list.appendChild(card);
+  });
 }
 
 function linkChildAccount(){
   var fn=$$("lc-fn")?$$("lc-fn").value.trim():"";
-  var ln=$$("lc-ln")?$$("lc-ln").value.trim():"";
   var gr=$$("lc-grade")?$$("lc-grade").value:"";
   var dob=$$("lc-dob")?$$("lc-dob").value:"";
-  if(!fn){showToast("Please enter child's first name!");return;}
-  if(!gr){showToast("Please select child's grade!");return;}
-
-  // Calculate age from DOB
+  if(!fn){ showToast("Please enter child first name!"); return; }
+  if(!gr){ showToast("Please select child grade!"); return; }
   var age=13;
-  if(dob){
-    var birthDate=new Date(dob);
-    var today=new Date();
-    age=today.getFullYear()-birthDate.getFullYear();
-    var m=today.getMonth()-birthDate.getMonth();
-    if(m<0||(m===0&&today.getDate()<birthDate.getDate()))age--;
-  }
-
-  var child={
-    name:fn+(ln?" "+ln:""),
-    grade:gr+"th Grade", gradeNum:parseInt(gr)||7, age:age,
-    level:1, xp:0, coins:0, streak:0, wins:0,
-    topics_weak:["Starting out!"],
-    topics_strong:["Arithmetic"],
-    recent_wrong:[],
-    activity:[{txt:"Account just linked by parent",time:"Just now",color:"var(--mint)"}],
-    pendingPrize:null
-  };
-
+  if(dob){ var bd=new Date(dob),td=new Date(); age=td.getFullYear()-bd.getFullYear(); }
+  var child={name:fn,grade:gr+"th Grade",age:age,level:1,xp:0,coins:0,streak:0,wins:0,topics_weak:["Starting out"],topics_strong:["Arithmetic"],activity:[{txt:"Account linked by parent",time:"Just now",color:"var(--mint)"}]};
   PARENT.children.push(child);
+  // Save updated children list
+  try{
+    if(PARENT.email){
+      var pKey="mc_parent_"+PARENT.email.toLowerCase().replace(/[^a-z0-9]/g,"");
+      var saved=localStorage.getItem(pKey);
+      var d=saved?JSON.parse(saved):{};
+      d.children=PARENT.children;
+      localStorage.setItem(pKey,JSON.stringify(d));
+    }
+  }catch(e){}
   closeLinkChildModal();
   renderParentDash();
-  showToast(fn+" has been linked to your parent dashboard!");
+  showToast(fn+" linked to your dashboard!");
 }
 
-// Parent dashboard renders via goPage's existing if(id==='parentdash') check below
-
-
-// ═══════════════════════════════════════════
-// MUSIC SYSTEM — Lo-Fi Hip Hop Focus Beats
-// All tracks: Pixabay.com (royalty-free, no attribution required)
-// ═══════════════════════════════════════════
-
-var MUSIC_TRACKS = [
-  // Study / Home pages — calm lo-fi beats
-  {
-    name:"Chill Study Lofi",
-    artist:"Pixabay Free Music",
-    url:"https://cdn.pixabay.com/audio/2024/11/13/audio_2aadff8a20.mp3",
-    mood:"study"
-  },
-  {
-    name:"Lofi Hip Hop Vibes",
-    artist:"Pixabay Free Music",
-    url:"https://cdn.pixabay.com/audio/2024/03/10/audio_13e1ff0939.mp3",
-    mood:"study"
-  },
-  {
-    name:"Coffee Shop Beats",
-    artist:"Pixabay Free Music",
-    url:"https://cdn.pixabay.com/audio/2023/10/30/audio_a1f75e9c7d.mp3",
-    mood:"study"
-  },
-  {
-    name:"Smooth Focus Flow",
-    artist:"Pixabay Free Music",
-    url:"https://cdn.pixabay.com/audio/2024/02/15/audio_b8e6c3e31e.mp3",
-    mood:"study"
-  },
-  {
-    name:"Rainy Day Lofi",
-    artist:"Pixabay Free Music",
-    url:"https://cdn.pixabay.com/audio/2023/11/13/audio_94cb5f71a4.mp3",
-    mood:"study"
+// ── PARENT SIGNUP ──────────────────────────────────────
+async function submitParentSignup(){
+  var modal=$$("signup-modal");
+  var inputs=modal?modal.querySelectorAll("#tab-parent .form-input"):[];
+  var firstName=inputs[0]?inputs[0].value.trim():"";
+  var lastName=inputs[1]?inputs[1].value.trim():"";
+  var email=inputs[2]?inputs[2].value.trim():"";
+  var phone=inputs[3]?inputs[3].value.trim():"";
+  var plan="Free";
+  var selCard=modal?modal.querySelector(".plan-card.sel"):null;
+  if(selCard){ var pn=selCard.querySelector(".plan-name"); if(pn) plan=pn.textContent.trim(); }
+  if(!firstName){ showToast("Please enter your first name!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
+  var btn=modal?modal.querySelector("#tab-parent .btn-mint"):null;
+  if(btn){ btn.textContent="Sending..."; btn.disabled=true; }
+  PARENT.name=firstName+(lastName?" "+lastName:""); PARENT.email=email; PARENT.plan=plan; PARENT.isLoggedIn=true;
+  // Save parent session to localStorage for return visits
+  try{
+    var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
+    localStorage.setItem(pKey,JSON.stringify({name:PARENT.name,email:email,plan:plan,children:[]}));
+  }catch(e){}
+  var sent=await sendToWeb3Forms({subject:"New Parent Signup - "+plan,name:PARENT.name,email:email,message:"NEW PARENT | Name: "+PARENT.name+" | Email: "+email+" | Phone: "+(phone||"N/A")+" | Plan: "+plan});
+  var tabParent=$$("tab-parent");
+  if(tabParent){
+    var html="<div style='text-align:center;padding:20px 10px'>"
+      +"<div style='font-size:52px;margin-bottom:14px'>Success!</div>"
+      +"<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:12px'>You are Registered!</div>"
+      +"<div style='color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px'>"
+      +"Welcome, <strong style='color:var(--mint)'>"+firstName+"</strong>!<br><br>"
+      +"<span class='badge b-sun' style='font-size:12px'>Plan: "+plan+"</span><br><br>"
+      +"MathChamp is currently in beta. Full accounts coming very soon.<br><br>"
+      +"<span style='color:var(--mint)'>"+(sent?"We will email "+email+" at launch!":"We have your details and will be in touch!")+"</span><br><br>"
+      +"<strong style='color:var(--mint)'>Founding Family:</strong> Your "+plan+" price is locked forever."
+      +"</div>"
+      +"<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'></div></div>";
+    tabParent.innerHTML=html;
+    var btnDiv=tabParent.querySelector("div:last-child div:last-child");
+    if(btnDiv){
+      var eb=document.createElement("button"); eb.className="btn btn-sun btn-sm"; eb.textContent="Explore the App";
+      eb.addEventListener("click",function(){ closeModal(); previewApp(); }); btnDiv.appendChild(eb);
+      var cb=document.createElement("button"); cb.className="btn btn-ghost btn-sm"; cb.textContent="Close";
+      cb.addEventListener("click",closeModal); btnDiv.appendChild(cb);
+    }
   }
-];
+  var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
+  showToast(sent?"Registered! We will email "+email+"!":"Registered, "+firstName+"! We will be in touch!",4000);
+}
 
-var MUSIC = {
-  trackIdx: 0,
-  userManuallyStopped: false,
-  playing: false,
-  muted: true,
-  shuffle: false,
-  volume: 0.30,
-  panelOpen: false,
-  progressTimer: null,
-  userInteracted: false
-};
+async function joinWaitlist(){
+  var nameEl=$$("wl-name"), emailEl=$$("wl-email"), gradeEl=$$("wl-grade");
+  var name=nameEl?nameEl.value.trim():"", email=emailEl?emailEl.value.trim():"", grade=gradeEl?gradeEl.value:"";
+  if(!name){ showToast("Please enter your name!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
+  if(!grade){ showToast("Please select your childs grade!"); return; }
+  var wlBtn=document.querySelector(".waitlist-form .btn-sun");
+  if(wlBtn){ wlBtn.textContent="Joining..."; wlBtn.disabled=true; }
+  var sent=await sendToWeb3Forms({subject:"Founding Family Signup - "+name,name:name,email:email,message:"WAITLIST | Name: "+name+" | Email: "+email+" | Grade: "+grade});
+  var box=document.querySelector(".waitlist-box");
+  if(box){
+    var div=document.createElement("div"); div.style.cssText="text-align:center;padding:20px";
+    div.innerHTML="<div style='font-size:48px;margin-bottom:16px'>You are In!</div>"
+      +"<div style='font-size:24px;font-weight:800;color:var(--sun);margin-bottom:10px'>You are on the list, "+name+"!</div>"
+      +"<div style='color:var(--text2);font-size:14px;line-height:1.8;margin-bottom:16px'>"+(sent?"Your spot is confirmed! We will email "+email+" at launch.":"You are on the list! We will reach out to "+email+" at launch.")+"</div>"
+      +"<span class='badge b-sun'>On the founding list</span> <span class='badge b-mint'>Price locked forever</span>";
+    var peekBtn=document.createElement("button"); peekBtn.className="btn btn-ghost btn-sm"; peekBtn.style.marginTop="12px"; peekBtn.style.display="block"; peekBtn.textContent="Take a Peek Inside";
+    peekBtn.addEventListener("click",previewApp); div.appendChild(peekBtn);
+    box.innerHTML=""; box.appendChild(div);
+  }
+  showToast(sent?"You are on the list, "+name+"!":"You are on the founding list, "+name+"!",4000);
+}
 
-function getMusicAudio(){return $$("music-audio");}
+async function sendToWeb3Forms(data){
+  try{
+    var payload=Object.assign({"access_key":W3F_KEY},data);
+    var res=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});
+    var json=await res.json(); return json.success===true;
+  }catch(e){ return false; }
+}
+
+// ── MUSIC ──────────────────────────────────────────────
+function getMusicAudio(){ return $$("music-audio"); }
 
 function initMusic(){
-  var audio = getMusicAudio();
-  if(!audio) return;
-  audio.volume = MUSIC.volume;
-  audio.loop = false;
-  audio.addEventListener("ended", function(){ nextTrack(); });
-  audio.addEventListener("timeupdate", updateMusicProgress);
-  audio.addEventListener("loadedmetadata", updateMusicProgress);
-  audio.addEventListener("error", function(){
-    // If track fails to load, skip to next
-    console.warn("Music track failed, trying next...");
-    setTimeout(nextTrack, 1000);
-  });
-  loadTrack(MUSIC.trackIdx);
+  var audio=getMusicAudio(); if(!audio) return;
+  audio.volume=MUSIC.volume; audio.loop=false;
+  audio.addEventListener("ended",nextTrack);
+  audio.addEventListener("timeupdate",updateMusicProgress);
+  audio.addEventListener("error",function(){ console.warn("Music track failed, trying next..."); setTimeout(nextTrack,1000); });
+  loadTrack(0);
 }
 
 function loadTrack(idx){
-  var audio = getMusicAudio();
-  if(!audio) return;
-  if(idx < 0) idx = MUSIC_TRACKS.length - 1;
-  if(idx >= MUSIC_TRACKS.length) idx = 0;
-  MUSIC.trackIdx = idx;
-  var track = MUSIC_TRACKS[idx];
-  audio.src = track.url;
-  audio.load();
-  // Update UI
-  var tn = $$("music-track-name");
-  if(tn) tn.textContent = track.name;
-  var ta = $$("music-artist");
-  if(ta) ta.textContent = track.artist;
-  // Auto-play if was playing
-  if(MUSIC.playing && MUSIC.userInteracted){
-    audio.play().catch(function(){});
-  }
-  updateMusicProgress();
-}
-
-function updateMusicUI(){
-  var mb = $$("music-btn");
-  var icon = $$("music-btn-icon");
-  var eq = $$("music-eq");
-  var pb = $$("music-play-btn");
-  var offBtn = $$("music-off-btn");
-  var onBtn = $$("music-on-btn");
-  var trackName = $$("music-track-name");
-
-  if(MUSIC.playing){
-    // Music is ON and playing
-    if(mb){ mb.classList.remove("muted"); mb.title="Music is playing - click to control"; }
-    if(icon){ icon.style.display="none"; }
-    if(eq){ eq.style.display="flex"; }
-    if(pb){ pb.innerHTML="&#9646;&#9646;"; }
-    if(offBtn){ offBtn.style.display="block"; }
-    if(onBtn){ onBtn.style.display="none"; }
-  } else {
-    // Music is OFF / paused
-    if(mb){ mb.classList.add("muted"); mb.title="Music is off - click to turn on"; }
-    if(icon){ icon.textContent="🔇"; icon.style.display="block"; }
-    if(eq){ eq.style.display="none"; }
-    if(pb){ pb.innerHTML="&#9654;"; }
-    if(offBtn){ offBtn.style.display="none"; }
-    if(onBtn){ onBtn.style.display="block"; }
-  }
-}
-
-function turnMusicOff(){
-  var audio = getMusicAudio();
-  if(audio){ audio.pause(); }
-  MUSIC.playing = false;
-  MUSIC.muted = true;
-  MUSIC.userManuallyStopped = true;
-  updateMusicUI();
-  showToast("Music turned off. Click 🔇 anytime to turn back on.");
-  toggleMusicPanel(); // close the panel
-}
-
-function turnMusicOn(){
-  MUSIC.userInteracted = true;
-  MUSIC.userManuallyStopped = false;
-  MUSIC.playing = false; // togglePlay will flip it
-  togglePlay();
-  showToast("Music is on! Enjoy the lo-fi beats 🎵");
+  if(idx<0) idx=MUSIC_TRACKS.length-1;
+  if(idx>=MUSIC_TRACKS.length) idx=0;
+  MUSIC.trackIdx=idx;
+  var track=MUSIC_TRACKS[idx];
+  var audio=getMusicAudio(); if(!audio) return;
+  audio.src=track.url; audio.load();
+  var tn=$$("music-track-name"); if(tn) tn.textContent=track.name;
+  var ta=$$("music-artist"); if(ta) ta.textContent=track.artist;
+  if(MUSIC.playing&&MUSIC.userInteracted) audio.play().catch(function(){});
 }
 
 function togglePlay(){
-  var audio = getMusicAudio();
-  if(!audio) return;
-  MUSIC.userInteracted = true;
+  var audio=getMusicAudio(); if(!audio) return;
+  MUSIC.userInteracted=true;
   if(MUSIC.playing){
-    audio.pause();
-    MUSIC.playing = false;
-    MUSIC.muted = true;
+    audio.pause(); MUSIC.playing=false; MUSIC.muted=true;
   } else {
-    MUSIC.muted = false;
-    MUSIC.playing = true;
-    audio.volume = MUSIC.volume;
-    audio.play().catch(function(e){
-      console.warn("Autoplay blocked:", e);
-      showToast("Tap the music button to start playing!");
-      MUSIC.playing = false;
-      MUSIC.muted = true;
-    });
+    if(MUSIC.userManuallyStopped) return;
+    MUSIC.muted=false; MUSIC.playing=true;
+    audio.volume=MUSIC.volume;
+    audio.play().catch(function(){ MUSIC.playing=false; MUSIC.muted=true; });
   }
   updateMusicUI();
 }
 
-function nextTrack(){
-  var next = MUSIC.shuffle
-    ? Math.floor(Math.random() * MUSIC_TRACKS.length)
-    : MUSIC.trackIdx + 1;
-  loadTrack(next);
-  if(MUSIC.playing && MUSIC.userInteracted){
-    setTimeout(function(){
-      getMusicAudio() && getMusicAudio().play().catch(function(){});
-    }, 300);
-  }
+function turnMusicOff(){
+  var audio=getMusicAudio(); if(audio) audio.pause();
+  MUSIC.playing=false; MUSIC.muted=true; MUSIC.userManuallyStopped=true;
+  updateMusicUI(); showToast("Music off. Click the button to turn back on."); toggleMusicPanel();
 }
 
-function prevTrack(){
-  loadTrack(MUSIC.trackIdx - 1);
-  if(MUSIC.playing && MUSIC.userInteracted){
-    setTimeout(function(){
-      getMusicAudio() && getMusicAudio().play().catch(function(){});
-    }, 300);
-  }
+function turnMusicOn(){
+  MUSIC.userManuallyStopped=false; MUSIC.userInteracted=true; MUSIC.playing=false;
+  togglePlay(); showToast("Music is on! Enjoy the lo-fi beats!");
 }
+
+function nextTrack(){ loadTrack(MUSIC.shuffle?Math.floor(Math.random()*MUSIC_TRACKS.length):MUSIC.trackIdx+1); if(MUSIC.playing) getMusicAudio()&&getMusicAudio().play().catch(function(){}); }
+function prevTrack(){ loadTrack(MUSIC.trackIdx-1); if(MUSIC.playing) getMusicAudio()&&getMusicAudio().play().catch(function(){}); }
 
 function toggleShuffle(){
-  MUSIC.shuffle = !MUSIC.shuffle;
-  var btn = $$("music-shuffle-btn");
-  if(btn){
-    btn.style.color = MUSIC.shuffle ? "var(--purple)" : "";
-    btn.style.background = MUSIC.shuffle ? "rgba(155,93,229,0.2)" : "";
-  }
-  showToast(MUSIC.shuffle ? "Shuffle on!" : "Shuffle off");
+  MUSIC.shuffle=!MUSIC.shuffle;
+  var btn=$$("music-shuffle-btn"); if(btn){ btn.style.color=MUSIC.shuffle?"var(--purple)":""; btn.style.background=MUSIC.shuffle?"rgba(155,93,229,0.2)":""; }
+  showToast(MUSIC.shuffle?"Shuffle on!":"Shuffle off");
 }
 
 function setVolume(val){
-  MUSIC.volume = val / 100;
-  var audio = getMusicAudio();
-  if(audio) audio.volume = MUSIC.volume;
-  var lbl = $$("music-vol-label");
-  if(lbl) lbl.textContent = val + "%";
-  // Auto-unmute if volume raised
-  if(val > 0 && !MUSIC.playing && MUSIC.userInteracted){
-    togglePlay();
-  }
+  MUSIC.volume=val/100;
+  var audio=getMusicAudio(); if(audio) audio.volume=MUSIC.volume;
+  var lbl=$$("music-vol-label"); if(lbl) lbl.textContent=val+"%";
 }
 
 function seekMusic(e){
-  var audio = getMusicAudio();
-  if(!audio || !audio.duration) return;
-  var bar = $$("music-progress-bar");
-  if(!bar) return;
-  var rect = bar.getBoundingClientRect();
-  var pct = (e.clientX - rect.left) / rect.width;
-  audio.currentTime = pct * audio.duration;
+  var audio=getMusicAudio(); if(!audio||!audio.duration) return;
+  var bar=$$("music-progress-bar"); if(!bar) return;
+  var rect=bar.getBoundingClientRect();
+  audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
 }
 
 function updateMusicProgress(){
-  var audio = getMusicAudio();
-  if(!audio) return;
-  var dur = audio.duration || 0;
-  var cur = audio.currentTime || 0;
-  var pct = dur > 0 ? (cur / dur * 100) : 0;
-  var fill = $$("music-progress-fill");
-  if(fill) fill.style.width = pct + "%";
-  var time = $$("music-time");
-  if(time) time.textContent = formatTime(cur) + " / " + formatTime(dur);
+  var audio=getMusicAudio(); if(!audio) return;
+  var dur=audio.duration||0, cur=audio.currentTime||0;
+  var fill=$$("music-progress-fill"); if(fill) fill.style.width=(dur>0?(cur/dur*100):0)+"%";
+  var time=$$("music-time"); if(time) time.textContent=fmtTime(cur)+" / "+fmtTime(dur);
 }
 
-function formatTime(secs){
-  if(!secs || isNaN(secs)) return "0:00";
-  var m = Math.floor(secs / 60);
-  var s = Math.floor(secs % 60);
-  return m + ":" + (s < 10 ? "0" : "") + s;
+function fmtTime(s){ if(!s||isNaN(s)) return "0:00"; var m=Math.floor(s/60),sec=Math.floor(s%60); return m+":"+(sec<10?"0":"")+sec; }
+
+function updateMusicUI(){
+  var mb=$$("music-btn"), icon=$$("music-btn-icon"), eq=$$("music-eq"), pb=$$("music-play-btn"), offBtn=$$("music-off-btn"), onBtn=$$("music-on-btn");
+  if(MUSIC.playing){
+    if(mb){ mb.classList.remove("muted"); mb.title="Music playing - click to control"; }
+    if(icon){ icon.style.display="none"; } if(eq){ eq.style.display="flex"; }
+    if(pb) pb.innerHTML="&#9646;&#9646;"; if(offBtn) offBtn.style.display="block"; if(onBtn) onBtn.style.display="none";
+  } else {
+    if(mb){ mb.classList.add("muted"); mb.title="Music off - click to turn on"; }
+    if(icon){ icon.textContent="🔇"; icon.style.display="block"; } if(eq){ eq.style.display="none"; }
+    if(pb) pb.innerHTML="&#9654;"; if(offBtn) offBtn.style.display="none"; if(onBtn) onBtn.style.display="block";
+  }
 }
 
 function toggleMusicPanel(){
-  MUSIC.panelOpen = !MUSIC.panelOpen;
-  var panel = $$("music-panel");
-  if(panel){
-    if(MUSIC.panelOpen){
-      panel.classList.add("open");
-    } else {
-      panel.classList.remove("open");
-    }
-  }
-  // First time opening = start playing
-  if(MUSIC.panelOpen && !MUSIC.userInteracted){
-    MUSIC.userInteracted = true;
-    MUSIC.playing = false; // togglePlay will flip it
-    togglePlay();
-  }
+  MUSIC.panelOpen=!MUSIC.panelOpen;
+  var panel=$$("music-panel");
+  if(panel){ if(MUSIC.panelOpen) panel.classList.add("open"); else panel.classList.remove("open"); }
+  if(MUSIC.panelOpen&&!MUSIC.userInteracted&&!MUSIC.userManuallyStopped){ MUSIC.userInteracted=true; MUSIC.playing=false; togglePlay(); }
 }
 
-// Auto-start music on first user interaction with the app
-function enableMusicOnInteraction(){
-  if(MUSIC.userInteracted) return;
-  if(MUSIC.userManuallyStopped) return;
-  MUSIC.userInteracted = true;
-  var audio = getMusicAudio();
-  if(audio){
-    audio.volume = MUSIC.volume;
-    MUSIC.playing = false;
-    togglePlay(); // Will start playing
-  }
-}
-
-// Show music button only when inside the app
 function showMusicBtn(show){
-  var btn = $$("music-btn");
-  if(btn) btn.style.display = show ? "flex" : "none";
-  var panel = $$("music-panel");
-  if(panel && !show){ panel.classList.remove("open"); MUSIC.panelOpen = false; }
+  var btn=$$("music-btn"); if(btn) btn.style.display=show?"flex":"none";
+  var panel=$$("music-panel"); if(panel&&!show){ panel.classList.remove("open"); MUSIC.panelOpen=false; }
 }
 
-// DOM READY
-document.addEventListener("DOMContentLoaded",function(){
-  var mo=$$("signup-modal");
-  if(mo)mo.addEventListener("click",function(e){if(e.target===this)closeModal();});
-  var lm=$$("login-modal");
-  if(lm)lm.addEventListener("click",function(e){if(e.target===this)closeLoginModal();});
-  var lcm=$$("link-child-modal");
-  if(lcm)lcm.addEventListener("click",function(e){if(e.target===this)closeLinkChildModal();});
-  var pb=$$("preview-btn");
-  if(pb)pb.addEventListener("click",previewApp);
-  startCountdown();
-  // Init music system
-  initMusic();
-  showMusicBtn(false); // hidden on landing page
-  // Start music on first user interaction
-  document.addEventListener("click", enableMusicOnInteraction, {once:true});
-  document.addEventListener("touchstart", enableMusicOnInteraction, {once:true});
-});
+// ── COUNTDOWN ──────────────────────────────────────────
+function startCountdown(){
+  var secs=8*3600+23*60+41;
+  setInterval(function(){
+    if(secs>0) secs--;
+    var h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+    var hh=$$("cd-h"),mm=$$("cd-m"),ss=$$("cd-s");
+    if(hh) hh.textContent=String(h).padStart(2,"0");
+    if(mm) mm.textContent=String(m).padStart(2,"0");
+    if(ss) ss.textContent=String(s).padStart(2,"0");
+  },1000);
+}
 
+// ── DOM READY ──────────────────────────────────────────
+document.addEventListener("DOMContentLoaded",function(){
+  var mo=$$("signup-modal"); if(mo) mo.addEventListener("click",function(e){ if(e.target===this) closeModal(); });
+  var lm=$$("login-modal"); if(lm) lm.addEventListener("click",function(e){ if(e.target===this) closeLoginModal(); });
+  var lcm=$$("link-child-modal"); if(lcm) lcm.addEventListener("click",function(e){ if(e.target===this) closeLinkChildModal(); });
+  var pb=$$("preview-btn"); if(pb) pb.addEventListener("click",previewApp);
+  startCountdown();
+  initMusic();
+  showMusicBtn(false);
+  document.addEventListener("click",function onFirstClick(){
+    if(!MUSIC.userInteracted&&!MUSIC.userManuallyStopped){ MUSIC.userInteracted=true; MUSIC.playing=false; togglePlay(); }
+    document.removeEventListener("click",onFirstClick);
+  });
+});
 </script>
 <!-- ═══════════════ MUSIC PLAYER ═══════════════ -->
 <!-- All tracks from Pixabay.com (royalty-free, no attribution required) -->

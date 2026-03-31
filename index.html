@@ -3765,6 +3765,80 @@ document.addEventListener("DOMContentLoaded",function(){
 
 <!-- Hidden audio element -->
 <audio id="music-audio" preload="none" style="display:none!important;width:0;height:0;position:absolute;left:-9999px"></audio>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, orderBy, limit, onSnapshot }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBPSvyqDq5Rl-2omowIqo86OGvrJdrP-no",
+    authDomain: "mathchamp-adbd6.firebaseapp.com",
+    projectId: "mathchamp-adbd6",
+    storageBucket: "mathchamp-adbd6.appspot.com",
+    messagingSenderId: "452357170807",
+    appId: "1:452357170807:web:c8316419bda136ec628872"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  window.auth = auth;
+  window.db = db;
+
+  window.firebaseSignUp = async function(email, password, displayName, role) {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", cred.user.uid), {
+      displayName, email, role,
+      xp: 0, coins: 0, level: 1, streak: 0,
+      createdAt: new Date()
+    });
+    return cred.user;
+  };
+
+  window.firebaseLogin = async function(email, password) {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    return cred.user;
+  };
+
+  window.firebaseLogout = function() { return signOut(auth); };
+
+  window.saveProgress = async function(xp, coins, level, streak) {
+    const user = auth.currentUser;
+    if (!user) return;
+    await updateDoc(doc(db, "users", user.uid), { xp, coins, level, streak });
+  };
+
+  window.loadProgress = async function() {
+    const user = auth.currentUser;
+    if (!user) return null;
+    const snap = await getDoc(doc(db, "users", user.uid));
+    return snap.exists() ? snap.data() : null;
+  };
+
+  window.startLeaderboard = function(callback) {
+    const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
+    return onSnapshot(q, snapshot => {
+      const leaders = snapshot.docs.map((d, i) => ({
+        rank: i + 1, name: d.data().displayName,
+        xp: d.data().xp, level: d.data().level
+      }));
+      callback(leaders);
+    });
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const data = await loadProgress();
+      if (data) console.log("✅ User logged in:", data.displayName);
+    } else {
+      console.log("No user logged in");
+    }
+  });
+
+  console.log("✅ Firebase loaded successfully");
+</script>
 
 </body>
 </html>

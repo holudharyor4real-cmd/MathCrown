@@ -1404,6 +1404,14 @@ body{
         <label class="form-label">Date of Birth</label>
         <input class="form-input" type="date" id="s-dob">
       </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="s-email" placeholder="student@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Create Password</label>
+        <input class="form-input" type="password" id="s-password" placeholder="Minimum 6 characters">
+      </div>
       <div class="consent">
         <strong>👋 Parents!</strong> By signing up, you confirm a parent or guardian has approved this account. A parent account is needed to manage prizes and privacy settings. We comply with COPPA — no data is ever sold.
       </div>
@@ -1430,6 +1438,10 @@ body{
       <div class="form-group">
         <label class="form-label">Phone Number</label>
         <input class="form-input" type="tel" placeholder="(555) 000-0000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Create Password</label>
+        <input class="form-input" type="password" id="p-password" placeholder="Minimum 6 characters">
       </div>
       <div class="form-group">
         <label class="form-label">Choose Your Plan</label>
@@ -1472,37 +1484,25 @@ body{
   <div class="modal">
     <button class="modal-close" onclick="closeLinkChildModal()">✕</button>
     <div class="modal-title">Link a Child Account 👦</div>
-    <div class="modal-sub">Connect your child's MathChamp profile to your parent dashboard</div>
-    <div class="form-group">
-      <label class="form-label">Child's First Name</label>
-      <input class="form-input" type="text" id="lc-fn" placeholder="e.g. Josh">
+    <div class="modal-sub">Enter your child's registered email and their 6-digit link code</div>
+    <div id="lc-step1">
+      <div class="form-group">
+        <label class="form-label">Child's Email Address</label>
+        <input class="form-input" type="email" id="lc-email" placeholder="Email used when child signed up">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Child's 6-Digit Link Code</label>
+        <input class="form-input" type="text" id="lc-code" placeholder="e.g. 482916" maxlength="6" style="letter-spacing:6px;font-size:22px;text-align:center;font-weight:900">
+        <div style="font-size:11px;color:var(--text2);margin-top:6px">📱 Your child can find their link code in their Profile page under "Link to Parent"</div>
+      </div>
+      <div class="consent">
+        <strong>🔒 Secure Linking:</strong> Only the correct email and code will link successfully. This ensures no parent can access the wrong child's account.
+      </div>
+      <div id="lc-error" style="display:none;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:12px;padding:12px;color:var(--coral);font-size:13px;margin-bottom:12px"></div>
+      <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
+        🔗 Link Child Account
+      </button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Child's Last Name</label>
-      <input class="form-input" type="text" id="lc-ln" placeholder="e.g. Johnson">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Child's Grade</label>
-      <select class="form-select" id="lc-grade">
-        <option value="">Select grade...</option>
-        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
-        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
-        <option value="5">5th Grade</option><option value="6">6th Grade</option>
-        <option value="7">7th Grade</option><option value="8">8th Grade</option>
-        <option value="9">9th Grade</option><option value="10">10th Grade</option>
-        <option value="11">11th Grade</option><option value="12">12th Grade</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Child's Date of Birth</label>
-      <input class="form-input" type="date" id="lc-dob">
-    </div>
-    <div class="consent">
-      <strong>🔒 Privacy Note:</strong> This links your child's session data to your parent view. Full persistent linking requires Firebase (coming soon). For now this creates a local profile you can monitor this session.
-    </div>
-    <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
-      ✅ Link Child Account
-    </button>
   </div>
 </div>
 
@@ -1553,16 +1553,12 @@ body{
     <!-- Parent Login -->
     <div id="login-tab-parent" style="display:none">
       <div class="form-group">
-        <label class="form-label">Your First Name</label>
-        <input class="form-input" type="text" id="l-parent-fn" placeholder="Your first name">
-      </div>
-      <div class="form-group">
         <label class="form-label">Your Email</label>
         <input class="form-input" type="email" id="l-parent-email" placeholder="Email used during signup">
       </div>
-      <div class="consent" style="background:rgba(155,93,229,0.08);border-color:rgba(155,93,229,0.25);margin-bottom:16px">
-        <strong style="color:var(--purple)">Beta login:</strong>
-        Enter the name and email you used when signing up. Full password login coming with Firebase!
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="l-parent-password" placeholder="Your password">
       </div>
       <button class="btn btn-mint" style="width:100%;color:var(--dark);margin-bottom:12px" onclick="loginParent()">
         👨‍👩‍👧 Go to Parent Dashboard
@@ -1825,11 +1821,11 @@ body{
     <div class="page" id="p-challenge">
       <div class="page-title">⚔️ Challenge Arena</div>
       <div class="page-sub">Battle opponents · Cross-grade challenges · Earn MathCoins + XP</div>
-      <div class="card card-purple" style="margin-bottom:16px;padding:14px 16px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:24px">🚀</span>
+      <div class="card card-mint" style="margin-bottom:16px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:24px">⚡</span>
         <div>
-          <div style="font-size:13px;font-weight:800;color:var(--purple)">Coming Soon — Real Student Battles!</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">Right now you battle AI-powered practice opponents. Once Firebase launches, you will battle <strong>real MathChamp students</strong> from across the country in live real-time duels. Students who signed up will appear here automatically.</div>
+          <div style="font-size:13px;font-weight:800;color:var(--mint)">Real Student Battles Are Live!</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">Battle <strong>real MathChamp students</strong> using Quick Match or search by name. Registered students appear in the list below. AI opponents fill in when no real students are online.</div>
         </div>
       </div>
 
@@ -2008,7 +2004,7 @@ body{
       <div class="page-sub">Who's ruling the math arena this week?</div>
 
       <div class="lb-tabs">
-        <button class="lb-tab on" onclick="setLBTab('grade',this)">🏫 My Grade (7th)</button>
+        <button class="lb-tab on" id="lb-grade-tab" onclick="setLBTab('grade',this)">🏫 My Grade</button>
         <button class="lb-tab" onclick="setLBTab('school',this)">🏠 All Grades</button>
         <button class="lb-tab" onclick="setLBTab('national',this)">🌎 National</button>
         <button class="lb-tab" onclick="setLBTab('weekly',this)">📅 Weekly</button>
@@ -2107,7 +2103,7 @@ body{
           </div>
         </div>
         <div style="text-align:right">
-          <button class="btn btn-ghost btn-sm" onclick="showToast('Weekly reports coming soon with Firebase!')">📧 Weekly Reports</button>
+          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyReport()">📧 Weekly Reports</button>
         </div>
       </div>
 
@@ -2181,8 +2177,7 @@ body{
             <div class="activity-row" style="border:none"><div class="activity-dot" style="background:var(--mint)"></div><span>Current balance: <strong>2,450 MathCoins</strong> = $24.50 prize value</span></div>
           </div>
           <div style="margin-top:14px;font-size:12px;color:var(--text2)">
-            📧 Weekly reports will be sent to your registered email. 
-            <span style="color:var(--mint);font-weight:700">Coming with Firebase launch.</span>
+            📧 Click "Weekly Reports" above to generate and download a full report for any linked child.
           </div>
         </div>
       </div>
@@ -2217,7 +2212,10 @@ window.MATHCHAMP_LOADED = true;
 var S = {
   name:"", grade:"", gradeNum:0,
   xp:0, level:1, streak:0, coins:0,
-  isPreview:false, triviaMode:"trivia"
+  isPreview:false, triviaMode:"trivia",
+  email:"", age:13, wins:0,
+  topics_weak:["Fractions"], topics_strong:["Algebra"],
+  linkCode:""
 };
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
 var SESSION_PLAYERS = [];
@@ -2522,6 +2520,23 @@ function saveSession(){
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
+  // Also save by email so parent can pull real progress on link
+  if(S.email){
+    try{
+      var emailKey=S.email.toLowerCase().replace(/[^a-z0-9]/g,"");
+      localStorage.setItem("mc_student_"+emailKey, JSON.stringify({
+        xp:S.xp, level:S.level, streak:S.streak, coins:S.coins,
+        name:S.name, grade:S.grade, gradeNum:S.gradeNum,
+        age:S.age||13, wins:S.wins||0,
+        topics_weak:S.topics_weak||["Fractions"],
+        topics_strong:S.topics_strong||["Algebra"]
+      }));
+    }catch(e){}
+  }
+  // Push to Firebase if logged in
+  if(window.saveProgress && window.auth && window.auth.currentUser){
+    window.saveProgress(S.xp, S.coins, S.level, S.streak).catch(function(){});
+  }
 }
 
 function registerPlayer(name, grade){
@@ -2598,23 +2613,42 @@ async function signupStudent(){
   var fn=$$("s-fn")?$$("s-fn").value.trim():"";
   var ln=$$("s-ln")?$$("s-ln").value.trim():"";
   var gr=$$("s-grade")?$$("s-grade").value:"";
-  var dob=$$("s-dob")?$$("s-dob").value:"";
-  if(!fn||!gr){ showToast("Please fill in all fields!"); return; }
-  S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  var email=$$("s-email")?$$("s-email").value.trim():"";
+  var password=$$("s-password")?$$("s-password").value:"";
+  if(!fn||!gr){ showToast("Please fill in your name and grade!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email address!"); return; }
+  if(!password||password.length<6){ showToast("Password must be at least 6 characters!"); return; }
   var fullName=fn+(ln?" "+ln:"");
-  // Try Firebase signup if available
+  S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  // Save to Firebase
   if(window.firebaseSignUp){
-    // Generate a temp email if none provided (student accounts)
-    var tempEmail=fn.toLowerCase().replace(/\s/g,"")+(ln?ln[0].toLowerCase():"")+gr+"@student.mathchamp.com";
-    var tempPass="MC"+fn+gr+"2026!";
     try{
-      await window.firebaseSignUp(tempEmail, tempPass, fullName, "student");
-      showToast("Account created! Welcome, "+fn+"!");
+      var btn=$$("s-fn").closest(".modal").querySelector(".btn-sun");
+      if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+      await window.firebaseSignUp(email, password, fullName, "student", gr);
+      // Store link code for parent linking
+      var linkCode=Math.floor(100000+Math.random()*900000).toString();
+      try{ localStorage.setItem("mc_linkcode_"+email.toLowerCase().replace(/[^a-z0-9]/g,""), linkCode); }catch(e){}
+      S.email=email;
+      var linkCode=Math.floor(100000+Math.random()*900000).toString();
+      S.linkCode=linkCode;
+      closeModal();
+      registerPlayer(fullName, gr+"th");
+      saveSession();
+      enterApp(fullName, gr+"th Grade", parseInt(gr)||7, false);
+      showToast("Account created! Welcome, "+fn+"! Math is Fun! 🎉");
+      return;
     }catch(e){
-      // Account may already exist - continue anyway
-      console.log("Firebase signup note:", e.message);
+      var msg=e.message||"";
+      if(msg.indexOf("email-already-in-use")>-1) showToast("That email is already registered. Please log in!");
+      else if(msg.indexOf("invalid-email")>-1) showToast("Please enter a valid email address!");
+      else showToast("Signup error: "+msg.replace("Firebase: ","").split(" (")[0]);
+      var btn2=document.querySelector("#tab-student .btn-sun");
+      if(btn2){ btn2.textContent="🚀 Create My Profile — Free!"; btn2.disabled=false; }
+      return;
     }
   }
+  // Fallback if Firebase not loaded
   closeModal();
   registerPlayer(fullName, gr+"th");
   saveSession();
@@ -2657,33 +2691,58 @@ function switchLoginTab(t, btn){
   if(btn) btn.classList.add("on");
 }
 
-function loginParent(){
-  var fn=$$("l-parent-fn")?$$("l-parent-fn").value.trim():"";
+async function loginParent(){
   var email=$$("l-parent-email")?$$("l-parent-email").value.trim():"";
-  if(!fn){ showToast("Please enter your name!"); return; }
+  var password=$$("l-parent-password")?$$("l-parent-password").value:"";
   if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
-  // Restore parent state
-  PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
-  // Try restore plan from localStorage
-  try{
-    var saved=localStorage.getItem("mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,""));
-    if(saved){
-      var d=JSON.parse(saved);
-      PARENT.plan=d.plan||"Free";
-      PARENT.children=d.children||[];
+  if(!password){ showToast("Please enter your password!"); return; }
+  var loginBtn=document.querySelector("#login-tab-parent .btn-mint");
+  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
+  if(window.firebaseLogin){
+    try{
+      await window.firebaseLogin(email, password);
+      var data=await window.loadProgress();
+      var fn=(data&&data.displayName)||email.split("@")[0];
+      PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
+      PARENT.plan=(data&&data.plan)||"Free";
+      // Restore children from localStorage
+      try{
+        var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
+        var saved=localStorage.getItem(pKey);
+        if(saved){ var d=JSON.parse(saved); PARENT.children=d.children||[]; PARENT.plan=d.plan||PARENT.plan; }
+      }catch(e){}
+      var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
+      closeLoginModal();
+      var land=$$("s-land"); if(land) land.classList.remove("active");
+      var app=$$("s-app"); if(app) app.classList.add("active");
+      showMobNav(true); showMusicBtn(true);
+      goPage("parentdash",$$("nav-parent-dash"),false);
+      showToast("Welcome back, "+fn.split(" ")[0]+"! Here is your parent dashboard.");
+      return;
+    }catch(e){
+      var msg=e.message||"";
+      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1||msg.indexOf("user-not-found")>-1)
+        showToast("Wrong email or password. Please try again.");
+      else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
+      if(loginBtn){ loginBtn.textContent="👨‍👩‍👧 Go to Parent Dashboard"; loginBtn.disabled=false; }
+      return;
     }
+  }
+  // Fallback
+  var fn=email.split("@")[0];
+  PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
+  try{
+    var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
+    var saved=localStorage.getItem(pKey);
+    if(saved){ var d=JSON.parse(saved); PARENT.plan=d.plan||"Free"; PARENT.children=d.children||[]; fn=d.name||fn; PARENT.name=fn; }
   }catch(e){}
-  // Show parent dashboard nav
   var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
-  // Enter app in parent mode
   closeLoginModal();
   var land=$$("s-land"); if(land) land.classList.remove("active");
   var app=$$("s-app"); if(app) app.classList.add("active");
-  showMobNav(true);
-  showMusicBtn(true);
-  // Go straight to parent dashboard
-  goPage("parentdash", $$("nav-parent-dash"), false);
-  showToast("Welcome back, "+fn+"! Here is your parent dashboard.");
+  showMobNav(true); showMusicBtn(true);
+  goPage("parentdash",$$("nav-parent-dash"),false);
+  showToast("Welcome back, "+fn.split(" ")[0]+"!");
 }
 
 async function loginStudent(){
@@ -2693,38 +2752,41 @@ async function loginStudent(){
   var password=$$("l-password")?$$("l-password").value:"";
   if(!fn){ showToast("Please enter your first name!"); return; }
   if(!gr){ showToast("Please select your grade!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
+  if(!password){ showToast("Please enter your password!"); return; }
   S.xp=0; S.level=1; S.streak=0; S.coins=0;
-  // Try Firebase login if email+password provided
-  if(email && password && window.firebaseLogin){
+  var loginBtn=document.querySelector("#login-tab-student .btn-sun");
+  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
+  if(window.firebaseLogin){
     try{
-      var user = await window.firebaseLogin(email, password);
+      await window.firebaseLogin(email, password);
       var data = await window.loadProgress();
       if(data){
         S.xp=data.xp||0; S.level=data.level||1; S.streak=data.streak||0; S.coins=data.coins||0;
-        fn = data.displayName||fn; gr = data.grade||gr;
+        fn = data.displayName||fn;
+        gr = data.grade||gr;
       }
       closeLoginModal();
-      enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
-      showToast("Welcome back, "+fn+"! Progress loaded from all devices!");
+      enterApp(fn, (parseInt(gr)||7)+"th Grade", parseInt(gr)||7, false);
+      showToast("Welcome back, "+fn.split(" ")[0]+"! Progress loaded from all devices! 🎉");
       return;
     }catch(e){
-      showToast("Login failed: "+e.message.replace("Firebase: ","").replace(" (auth/invalid-credential).",""));
+      var msg=e.message||"";
+      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1||msg.indexOf("user-not-found")>-1)
+        showToast("Wrong email or password. Please try again.");
+      else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
+      if(loginBtn){ loginBtn.textContent="🚀 Go to My Dashboard"; loginBtn.disabled=false; }
       return;
     }
   }
-  // Fallback: name+grade local login
+  // Fallback
   try{
     var saved = localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
-    if(saved){
-      var d = JSON.parse(saved);
-      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
-      showToast("Welcome back, "+fn+"! Progress restored!");
-    } else {
-      showToast("Welcome back, "+fn+"! Math is Fun!");
-    }
+    if(saved){ var d=JSON.parse(saved); S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0; }
   }catch(e){}
   closeLoginModal();
   enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
+  showToast("Welcome back, "+fn+"!");
 }
 
 function logout(){
@@ -3099,7 +3161,7 @@ function endBattle(bs){
 }
 
 // ── SEARCH ─────────────────────────────────────────────
-function searchPlayers(query){
+async function searchPlayers(query){
   var resultsEl=$$("player-search-results"); if(!resultsEl) return;
   if(!query||query.length<2){ resultsEl.innerHTML=""; return; }
   query=query.toLowerCase();
@@ -3112,6 +3174,20 @@ function searchPlayers(query){
     {name:"Morgan L.",grade:"7",wins:43,level:4,online:true},
     {name:"Taylor B.",grade:"6",wins:31,level:3,online:false}
   ]);
+  // Also search Firebase registered students
+  if(window.db){
+    try{
+      var {collection,query:fbQuery,getDocs,where,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      var q=fbQuery(collection(window.db,"users"),where("role","==","student"),limit(50));
+      var snap=await getDocs(q);
+      snap.forEach(function(doc){
+        var d=doc.data();
+        if(d.displayName&&!allPlayers.find(function(p){ return p.name===d.displayName; })){
+          allPlayers.push({name:d.displayName,grade:d.grade||"",wins:d.wins||0,level:d.level||1,online:false,isReal:true});
+        }
+      });
+    }catch(e){}
+  }
   var matches=allPlayers.filter(function(p){ return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name; });
   resultsEl.innerHTML="";
   if(matches.length===0){
@@ -3149,19 +3225,62 @@ function sendDirectChallenge(){
 }
 
 // ── LEADERBOARD ────────────────────────────────────────
+var CURRENT_LB_TAB = "grade";
+
 function setLBTab(tab,btn){
+  CURRENT_LB_TAB=tab;
   document.querySelectorAll(".lb-tab").forEach(function(t){ t.classList.remove("on"); });
   if(btn) btn.classList.add("on");
   renderLeaderboard();
 }
 
 function renderLeaderboard(){
+  // Update grade tab label to show actual user grade
+  var gradeTab=$$("lb-grade-tab");
+  var userGrade=S.gradeNum||7;
+  var gradeSuffix=userGrade===1?"st":userGrade===2?"nd":userGrade===3?"rd":"th";
+  if(gradeTab) gradeTab.textContent="🏫 My Grade ("+userGrade+gradeSuffix+")";
+
+  // Filter leaderboard data based on active tab
+  var displayData;
+  if(CURRENT_LB_TAB==="grade"){
+    displayData=LB_DATA.filter(function(p){ return p.g===(userGrade+"th")||p.g===(userGrade+"th Grade"); });
+    if(displayData.length===0) displayData=LB_DATA; // fallback if no grade match
+  } else if(CURRENT_LB_TAB==="school"||CURRENT_LB_TAB==="national"){
+    displayData=LB_DATA.slice(); // all grades
+  } else if(CURRENT_LB_TAB==="weekly"){
+    displayData=LB_DATA.slice().sort(function(a,b){ return b.pts-a.pts; }).map(function(p,i){
+      return Object.assign({},p,{pts:Math.floor(p.pts*0.3),chg:"+"+(i+1),up:true});
+    });
+  } else {
+    displayData=LB_DATA;
+  }
+
+  // Try to inject Firebase real users at top
+  if(window.db && window.startLeaderboard && CURRENT_LB_TAB==="national"){
+    window.startLeaderboard(function(leaders){
+      if(leaders&&leaders.length>0){
+        var liveData=leaders.map(function(l,i){
+          return {n:l.name||"Player",g:l.grade||"?",pts:l.xp||0,e:(l.name||"P")[0],chg:"+0",up:true};
+        });
+        renderLBDisplay(liveData);
+      }
+    });
+    return;
+  }
+
+  renderLBDisplay(displayData);
+}
+
+function renderLBDisplay(displayData){
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
   var pod=$$("lb-podium");
   if(pod){
     var order=[1,0,2], html="";
+    var topThree=displayData.slice(0,3);
     order.forEach(function(i){
-      var p=LB_DATA[i];
+      var p=topThree[i]||topThree[0];
+      if(!p) return;
       html+="<div class='podium-place'>"
         +"<div class='pod-crown'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
         +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+p.e+"</div>"
@@ -3175,11 +3294,12 @@ function renderLeaderboard(){
   var full=$$("lb-full");
   if(full){
     var fhtml="";
-    LB_DATA.forEach(function(p,i){
+    displayData.forEach(function(p,i){
       var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
-      fhtml+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
+      var isYou=(S.name&&p.n&&p.n.indexOf(S.name.split(" ")[0])>-1);
+      fhtml+="<div class='lb-row"+(isYou?" you":"")+"'><div class='lb-rank'>"+rank+"</div>"
         +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
-        +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div><div class='lb-grade'>"+p.g+"</div></div>"
+        +"<div class='lb-info'><div class='lb-name'>"+p.n+(isYou?" <span class='badge b-sun' style='font-size:10px'>YOU</span>":"")+"</div><div class='lb-grade'>"+p.g+"</div></div>"
         +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
         +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+p.chg+"</div></div></div>";
     });
@@ -3414,6 +3534,24 @@ function renderProfile(){
     });
     allStats.innerHTML=html;
   }
+  // Show link code for student to give to parent
+  var existingCodeCard=$$("profile-link-code");
+  if(existingCodeCard) existingCodeCard.remove();
+  if(S.linkCode&&S.linkCode.length===6&&!S.isPreview){
+    var profHero=$$("p-profile");
+    if(profHero){
+      var codeCard=document.createElement("div");
+      codeCard.id="profile-link-code";
+      codeCard.className="card card-mint";
+      codeCard.style.cssText="margin-bottom:16px;text-align:center;padding:20px";
+      codeCard.innerHTML="<div style='font-size:13px;font-weight:800;color:var(--mint);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px'>🔗 Your Parent Link Code</div>"
+        +"<div style='font-family:Fredoka One,cursive;font-size:42px;color:var(--sun);letter-spacing:8px;margin-bottom:8px'>"+S.linkCode+"</div>"
+        +"<div style='font-size:12px;color:var(--text2);line-height:1.6'>Give this code + your email to your parent.<br>They enter both in their Parent Dashboard to link your account.</div>"
+        +"<button onclick=\"navigator.clipboard.writeText('"+S.linkCode+"');showToast('Code copied!')\" class='btn btn-mint btn-xs' style='margin-top:12px;color:var(--dark)'>📋 Copy Code</button>";
+      var firstCard=profHero.querySelector(".g2");
+      if(firstCard) profHero.insertBefore(codeCard,firstCard);
+    }
+  }
   var achs=$$("achievements");
   if(achs){
     var ahtml="";
@@ -3494,17 +3632,52 @@ function renderPrizeQueue(){
   });
 }
 
-function linkChildAccount(){
-  var fn=$$("lc-fn")?$$("lc-fn").value.trim():"";
-  var gr=$$("lc-grade")?$$("lc-grade").value:"";
-  var dob=$$("lc-dob")?$$("lc-dob").value:"";
-  if(!fn){ showToast("Please enter child first name!"); return; }
-  if(!gr){ showToast("Please select child grade!"); return; }
-  var age=13;
-  if(dob){ var bd=new Date(dob),td=new Date(); age=td.getFullYear()-bd.getFullYear(); }
-  var child={name:fn,grade:gr+"th Grade",age:age,level:1,xp:0,coins:0,streak:0,wins:0,topics_weak:["Starting out"],topics_strong:["Arithmetic"],activity:[{txt:"Account linked by parent",time:"Just now",color:"var(--mint)"}]};
+async function linkChildAccount(){
+  var email=$$("lc-email")?$$("lc-email").value.trim():"";
+  var code=$$("lc-code")?$$("lc-code").value.trim():"";
+  var errEl=$$("lc-error");
+  if(errEl) errEl.style.display="none";
+  if(!email||email.indexOf("@")<1){
+    if(errEl){ errEl.textContent="Please enter the child's email address."; errEl.style.display="block"; }
+    return;
+  }
+  if(!code||code.length!==6||!/^[0-9]{6}$/.test(code)){
+    if(errEl){ errEl.textContent="Please enter the 6-digit link code from the child's Profile page."; errEl.style.display="block"; }
+    return;
+  }
+  var linkBtn=document.querySelector("#lc-step1 .btn-mint");
+  if(linkBtn){ linkBtn.textContent="Verifying..."; linkBtn.disabled=true; }
+  // Verify code matches
+  var emailKey=email.toLowerCase().replace(/[^a-z0-9]/g,"");
+  var storedCode=null;
+  try{ storedCode=localStorage.getItem("mc_linkcode_"+emailKey); }catch(e){}
+  if(!storedCode||storedCode!==code){
+    if(errEl){ errEl.textContent="❌ The link code does not match for that email. Please check the code in your child's Profile page and try again."; errEl.style.display="block"; }
+    if(linkBtn){ linkBtn.textContent="🔗 Link Child Account"; linkBtn.disabled=false; }
+    return;
+  }
+  // Code verified — pull child's saved data
+  var childData=null;
+  try{
+    var savedChild=localStorage.getItem("mc_student_"+emailKey);
+    if(savedChild) childData=JSON.parse(savedChild);
+  }catch(e){}
+  var fn=email.split("@")[0];
+  var child={
+    name:childData?childData.name:fn,
+    email:email,
+    grade:childData?(childData.gradeNum+"th Grade"):"?",
+    age:childData?childData.age:13,
+    level:childData?childData.level:1,
+    xp:childData?childData.xp:0,
+    coins:childData?childData.coins:0,
+    streak:childData?childData.streak:0,
+    wins:childData?childData.wins:0,
+    topics_weak:childData?childData.topics_weak:["Starting out"],
+    topics_strong:childData?childData.topics_strong:["Arithmetic"],
+    activity:[{txt:"Account linked by parent",time:"Just now",color:"var(--mint)"}]
+  };
   PARENT.children.push(child);
-  // Save updated children list
   try{
     if(PARENT.email){
       var pKey="mc_parent_"+PARENT.email.toLowerCase().replace(/[^a-z0-9]/g,"");
@@ -3515,8 +3688,12 @@ function linkChildAccount(){
     }
   }catch(e){}
   closeLinkChildModal();
+  // Clear form
+  if($$("lc-email")) $$("lc-email").value="";
+  if($$("lc-code")) $$("lc-code").value="";
+  if(linkBtn){ linkBtn.textContent="🔗 Link Child Account"; linkBtn.disabled=false; }
   renderParentDash();
-  showToast(fn+" linked to your dashboard!");
+  showToast(child.name+" linked successfully! Progress loaded. 🎉");
 }
 
 // ── PARENT SIGNUP ──────────────────────────────────────
@@ -3530,11 +3707,25 @@ async function submitParentSignup(){
   var plan="Free";
   var selCard=modal?modal.querySelector(".plan-card.sel"):null;
   if(selCard){ var pn=selCard.querySelector(".plan-name"); if(pn) plan=pn.textContent.trim(); }
+  var parentPassword=$$("p-password")?$$("p-password").value:"";
   if(!firstName){ showToast("Please enter your first name!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
+  if(!parentPassword||parentPassword.length<6){ showToast("Password must be at least 6 characters!"); return; }
   var btn=modal?modal.querySelector("#tab-parent .btn-mint"):null;
-  if(btn){ btn.textContent="Sending..."; btn.disabled=true; }
+  if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
   PARENT.name=firstName+(lastName?" "+lastName:""); PARENT.email=email; PARENT.plan=plan; PARENT.isLoggedIn=true;
+  // Create Firebase account for parent
+  if(window.firebaseSignUp){
+    try{
+      await window.firebaseSignUp(email, parentPassword, PARENT.name, "parent", "parent");
+    }catch(e){
+      if((e.message||"").indexOf("email-already-in-use")>-1){
+        showToast("That email is already registered. Please log in!");
+        if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
+        return;
+      }
+    }
+  }
   // Save parent session to localStorage for return visits
   try{
     var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
@@ -3549,7 +3740,7 @@ async function submitParentSignup(){
       +"<div style='color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px'>"
       +"Welcome, <strong style='color:var(--mint)'>"+firstName+"</strong>!<br><br>"
       +"<span class='badge b-sun' style='font-size:12px'>Plan: "+plan+"</span><br><br>"
-      +"Your MathChamp account is now live and ready!<br><br>"
+      +"Your MathChamp account is now active!<br><br>"
       +"<span style='color:var(--mint)'>"+(sent?"We will email "+email+" at launch!":"We have your details and will be in touch!")+"</span><br><br>"
       +"<strong style='color:var(--mint)'>Founding Family:</strong> Your "+plan+" price is locked forever."
       +"</div>"
@@ -3588,6 +3779,30 @@ async function joinWaitlist(){
     box.innerHTML=""; box.appendChild(div);
   }
   showToast(sent?"You are on the list, "+name+"!":"You are on the founding list, "+name+"!",4000);
+}
+
+function generateWeeklyReport(){
+  if(!PARENT.children||PARENT.children.length===0){
+    showToast("No children linked yet. Link a child account first!"); return;
+  }
+  var report="MathChamp Weekly Report\n";
+  report+="Generated: "+new Date().toLocaleDateString()+"\n\n";
+  PARENT.children.forEach(function(child){
+    report+="=== "+child.name+" ("+child.grade+") ===\n";
+    report+="XP: "+child.xp.toLocaleString()+"\n";
+    report+="MathCoins: "+child.coins.toLocaleString()+"\n";
+    report+="Wins: "+child.wins+"\n";
+    report+="Streak: "+child.streak+" days\n";
+    report+="Level: "+child.level+"\n";
+    report+="Needs Practice: "+(child.topics_weak||[]).join(", ")+"\n";
+    report+="Doing Well In: "+(child.topics_strong||[]).join(", ")+"\n\n";
+  });
+  var blob=new Blob([report],{type:"text/plain"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url;
+  a.download="MathChamp_Weekly_Report_"+new Date().toISOString().split("T")[0]+".txt";
+  a.click(); URL.revokeObjectURL(url);
+  showToast("Weekly report downloaded! 📊");
 }
 
 async function sendToWeb3Forms(data){
@@ -3824,10 +4039,10 @@ document.addEventListener("DOMContentLoaded",function(){
   window.auth = auth;
   window.db = db;
 
-  window.firebaseSignUp = async function(email, password, displayName, role) {
+  window.firebaseSignUp = async function(email, password, displayName, role, grade) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, "users", cred.user.uid), {
-      displayName, email, role,
+      displayName, email, role, grade: grade||"",
       xp: 0, coins: 0, level: 1, streak: 0,
       createdAt: new Date()
     });

@@ -1381,8 +1381,8 @@ body{
       <a class="footer-link" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Waitlist</a>
       <a class="footer-link" onclick="openModal('student')">Sign Up Free</a>
       <a class="footer-link" onclick="showToast('📧 Contact: support@mymathcrown.com')">Contact Us</a>
-      <a class="footer-link" onclick="showToast('📋 Privacy Policy — Coming Soon')">Privacy Policy</a>
-      <a class="footer-link" onclick="showToast('📋 Terms of Service — Coming Soon')">Terms of Service</a>
+      <a class="footer-link" onclick="document.getElementById('modal-privacy').style.display='block'">Privacy Policy</a>
+      <a class="footer-link" onclick="document.getElementById('modal-terms').style.display='block'">Terms of Service</a>
     </div>
     <div class="footer-legal">
       © 2026 MathCrown™. All rights reserved. · mymathcrown.com All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
@@ -4318,5 +4318,121 @@ document.addEventListener("DOMContentLoaded",function(){
 </script>
 
 
+
+<div id="modal-privacy" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;padding:20px">
+  <div style="max-width:720px;margin:40px auto;background:#0B1629;border-radius:20px;border:1px solid rgba(255,217,61,0.2);overflow:hidden">
+    <div style="background:linear-gradient(135deg,#1C3A6E,#0D1F3C);padding:28px 32px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;letter-spacing:2px;color:#06D6A0;font-weight:700;margin-bottom:6px">MATHCROWN</div>
+        <div style="font-size:22px;font-weight:700;color:#FFD93D">Privacy Policy</div>
+        <div style="font-size:12px;color:rgba(240,246,255,0.6);margin-top:4px">Effective: April 6, 2026 · COPPA Compliant</div>
+      </div>
+      <button onclick="document.getElementById('modal-privacy').style.display='none'" style="background:rgba(255,255,255,0.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer">x</button>
+    </div>
+    <div style="padding:32px;color:rgba(240,246,255,0.85);font-size:14px;line-height:1.8;max-height:65vh;overflow-y:auto">
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">1. Who We Are</p>
+      <p style="margin-bottom:20px">MathCrown operates the platform at mymathcrown.com — a K-12 competitive math learning platform. We are committed to protecting the privacy of all users, especially children under 13.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">2. Information We Collect</p>
+      <p style="margin-bottom:8px">When you register we collect: first name, last name, grade level, date of birth, email address, and password. We also collect gameplay data (scores, battles, time spent) used solely to improve your learning experience.</p>
+      <p style="margin-bottom:20px">Parents/Guardians: email address, password, and child account link code.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">3. COPPA — Children Under 13</p>
+      <p style="margin-bottom:8px">MathCrown complies fully with the Children's Online Privacy Protection Act (COPPA). For children under 13:</p>
+      <ul style="margin:0 0 20px 20px">
+        <li>We require verifiable parental consent before collecting personal information.</li>
+        <li>Parents may review, edit, or delete their child's data at any time by emailing support@mymathcrown.com.</li>
+        <li>We do not serve behavioral advertising to children under 13.</li>
+        <li>We never sell, rent, or share children's personal data with third parties for commercial purposes.</li>
+        <li>Children's accounts are linked to a parent account for oversight and prize redemption.</li>
+      </ul>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">4. How We Use Your Information</p>
+      <ul style="margin:0 0 20px 20px">
+        <li>To create and manage your account</li>
+        <li>To provide personalized math practice and AI tutoring via Axiom</li>
+        <li>To display leaderboards and track progress</li>
+        <li>To send account-related emails (password reset, weekly reports)</li>
+        <li>To process prize redemptions through verified parent accounts</li>
+      </ul>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">5. Data Storage and Security</p>
+      <p style="margin-bottom:20px">Your data is stored securely using Google Firebase (Firestore) with enterprise-grade encryption in transit and at rest. We use Firebase Authentication for secure login and never store plain-text passwords.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">6. Third-Party Services</p>
+      <ul style="margin:0 0 20px 20px">
+        <li><strong style="color:#FFD93D">Google Firebase</strong> — Authentication and database storage</li>
+        <li><strong style="color:#FFD93D">Anthropic Claude API</strong> — Powers the Axiom AI math tutor</li>
+        <li><strong style="color:#FFD93D">Web3Forms</strong> — Email capture for the founding family waitlist</li>
+      </ul>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">7. Your Rights</p>
+      <ul style="margin:0 0 20px 20px">
+        <li><strong style="color:#FFD93D">Access:</strong> Request a copy of your personal data</li>
+        <li><strong style="color:#FFD93D">Correction:</strong> Update inaccurate information</li>
+        <li><strong style="color:#FFD93D">Deletion:</strong> Request account and data deletion within 30 days</li>
+        <li><strong style="color:#FFD93D">Opt-out:</strong> Withdraw consent at any time</li>
+      </ul>
+      <p style="margin-bottom:20px">To exercise any right, email <strong style="color:#FFD93D">support@mymathcrown.com</strong>. We respond within 5 business days.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">8. Contact Us</p>
+      <p>MathCrown Privacy Team — <strong style="color:#FFD93D">support@mymathcrown.com</strong></p>
+    </div>
+    <div style="padding:20px 32px;border-top:1px solid rgba(255,217,61,0.1);text-align:center">
+      <button onclick="document.getElementById('modal-privacy').style.display='none'" style="background:linear-gradient(135deg,#FFD93D,#E8B800);color:#080F1E;border:none;padding:12px 40px;border-radius:50px;font-weight:700;font-size:14px;cursor:pointer">I Understand</button>
+    </div>
+  </div>
+</div>
+<div id="modal-terms" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;padding:20px">
+  <div style="max-width:720px;margin:40px auto;background:#0B1629;border-radius:20px;border:1px solid rgba(255,217,61,0.2);overflow:hidden">
+    <div style="background:linear-gradient(135deg,#1C3A6E,#0D1F3C);padding:28px 32px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;letter-spacing:2px;color:#06D6A0;font-weight:700;margin-bottom:6px">MATHCROWN</div>
+        <div style="font-size:22px;font-weight:700;color:#FFD93D">Terms of Service</div>
+        <div style="font-size:12px;color:rgba(240,246,255,0.6);margin-top:4px">Effective: April 6, 2026</div>
+      </div>
+      <button onclick="document.getElementById('modal-terms').style.display='none'" style="background:rgba(255,255,255,0.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer">x</button>
+    </div>
+    <div style="padding:32px;color:rgba(240,246,255,0.85);font-size:14px;line-height:1.8;max-height:65vh;overflow-y:auto">
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">1. Acceptance of Terms</p>
+      <p style="margin-bottom:20px">By using MathCrown at mymathcrown.com, you agree to these Terms. If you are under 18, your parent or guardian must agree on your behalf. If you do not agree, do not use MathCrown.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">2. Eligibility</p>
+      <p style="margin-bottom:20px">MathCrown is designed for students in grades K-12 and their parents or guardians. Students under 13 must have a parent or guardian create or approve their account.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">3. Account Responsibilities</p>
+      <ul style="margin:0 0 20px 20px">
+        <li>You are responsible for maintaining the confidentiality of your password.</li>
+        <li>You must provide accurate information when creating your account.</li>
+        <li>You may not share your account or create multiple accounts.</li>
+        <li>Notify us immediately at support@mymathcrown.com if you suspect unauthorized access.</li>
+      </ul>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">4. Acceptable Use</p>
+      <p style="margin-bottom:8px">You agree NOT to:</p>
+      <ul style="margin:0 0 20px 20px">
+        <li>Use cheats, bots, or automated tools to gain unfair advantages</li>
+        <li>Harass, bully, or intimidate other students</li>
+        <li>Attempt to access other users' accounts or data</li>
+        <li>Use MathCrown for any commercial purpose without written consent</li>
+        <li>Reverse-engineer, copy, or redistribute MathCrown's content or code</li>
+      </ul>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">5. MathCoins and Prizes</p>
+      <ul style="margin:0 0 20px 20px">
+        <li>MathCoins are virtual rewards with no real monetary value and cannot be exchanged for cash directly.</li>
+        <li>Prize redemptions are processed through verified parent accounts only.</li>
+        <li>Prizes obtained through cheating will be forfeited and the account suspended.</li>
+        <li>MathCrown reserves the right to adjust the prize system at any time.</li>
+      </ul>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">6. AI Tutor — Axiom</p>
+      <p style="margin-bottom:20px">Axiom is powered by Claude (Anthropic) and is intended for educational purposes only. While we strive for accuracy, AI responses may occasionally contain errors. Always verify important concepts with a qualified teacher.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">7. Intellectual Property</p>
+      <p style="margin-bottom:20px">All MathCrown content — including the name, logo, crown design, question bank, and software — is protected by copyright and trademark law. You may not reproduce or distribute any content without written permission.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">8. Subscriptions and Payments</p>
+      <p style="margin-bottom:20px">MathCrown offers a free tier and optional paid plans. Refunds are available within 7 days of first purchase. Subscription fees are non-refundable after the 7-day window.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">9. Disclaimers</p>
+      <p style="margin-bottom:20px">MathCrown is provided as-is. We do not guarantee uninterrupted access or specific educational outcomes. MathCrown is a supplemental learning tool, not a substitute for formal education.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">10. Termination</p>
+      <p style="margin-bottom:20px">We may suspend accounts that violate these Terms. You may delete your account at any time by emailing support@mymathcrown.com. Your data is deleted within 30 days.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">11. Governing Law</p>
+      <p style="margin-bottom:20px">These Terms are governed by the laws of the United States. Any disputes shall be resolved through binding arbitration under American Arbitration Association rules.</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">12. Contact</p>
+      <p>MathCrown Legal — <strong style="color:#FFD93D">support@mymathcrown.com</strong></p>
+    </div>
+    <div style="padding:20px 32px;border-top:1px solid rgba(255,217,61,0.1);text-align:center">
+      <button onclick="document.getElementById('modal-terms').style.display='none'" style="background:linear-gradient(135deg,#FFD93D,#E8B800);color:#080F1E;border:none;padding:12px 40px;border-radius:50px;font-weight:700;font-size:14px;cursor:pointer">I Agree</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

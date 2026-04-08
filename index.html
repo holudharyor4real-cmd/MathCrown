@@ -1718,6 +1718,18 @@ body{
         </div>
       </div>
 
+      <!-- Parent Link Code — prominent on home -->
+      <div class="card" style="margin-bottom:16px;background:rgba(6,214,160,0.06);border:1.5px solid rgba(6,214,160,0.2)">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="font-size:26px">&#x1F517;</div>
+          <div style="flex:1">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:2px">Parent Link Code — share with your parent</div>
+            <div id="home-link-code" style="font-family:monospace;font-size:26px;font-weight:900;letter-spacing:6px;color:var(--sun)">------</div>
+          </div>
+          <button onclick="copyLinkCode()" class="btn btn-xs" style="background:rgba(6,214,160,0.15);border:1px solid var(--mint);color:var(--mint);border-radius:8px;padding:6px 14px">Copy</button>
+        </div>
+      </div>
+
       <!-- Stat Cards — all start at zero for real new users -->
       <div class="g4" style="margin-bottom:20px">
         <div class="card card-sun">
@@ -1904,8 +1916,20 @@ body{
         </div>
       </div>
 
-      <div class="sec-head">
-        <div class="sec-title">🔥 Players You Can Challenge</div>
+      <!-- FIFA-STYLE LIVE LOBBY -->
+      <div class="sec-head" style="margin-bottom:12px">
+        <div class="sec-title">🟢 Online Players — Challenge Anyone Live</div>
+        <div id="online-count" style="font-size:12px;color:var(--mint);font-weight:700">Connecting...</div>
+      </div>
+      <div id="live-players-list" style="margin-bottom:20px">
+        <div style="text-align:center;padding:24px;color:var(--text2)">
+          <div style="font-size:32px;margin-bottom:8px">🌐</div>
+          Connecting to live server...
+        </div>
+      </div>
+
+      <div class="sec-head" style="margin-top:8px">
+        <div class="sec-title">📋 Demo Players — Practice Anytime</div>
         <div style="display:flex;gap:6px" id="grade-filter-btns">
           <span class="badge b-sky" style="cursor:pointer;border:2px solid var(--sky)" id="filter-same" onclick="filterOpponents('same',this)">Same Grade</span>
           <span class="badge b-coral" style="cursor:pointer" id="filter-higher" onclick="filterOpponents('higher',this)">Higher Grade</span>
@@ -2057,7 +2081,7 @@ body{
       <div class="page-sub">Who's ruling the math arena this week?</div>
 
       <div class="lb-tabs">
-        <button class="lb-tab on" onclick="setLBTab('grade',this)">🏫 My Grade (7th)</button>
+        <button class="lb-tab on" id="lb-grade-btn" onclick="setLBTab('grade',this)">🏫 My Grade</button>
         <button class="lb-tab" onclick="setLBTab('school',this)">🏠 All Grades</button>
         <button class="lb-tab" onclick="setLBTab('national',this)">🌎 National</button>
         <button class="lb-tab" onclick="setLBTab('weekly',this)">📅 Weekly</button>
@@ -2274,37 +2298,10 @@ var ONLINE_PLAYERS = {}; // uid -> {name, grade, lastSeen, status}
 var MY_PRESENCE_INTERVAL = null;
 
 function initPresence(){
-  if(!window.auth || !window.auth.currentUser) return;
-  var uid = window.auth.currentUser.uid;
-  var presenceKey = "mc_presence_" + uid;
-  // Use var expression (not declaration) to avoid browser strict-mode issues
-  var heartbeat = function(){
-    try{
-      var online = {name:S.name, grade:S.gradeNum, status:"online", lastSeen:Date.now()};
-      localStorage.setItem(presenceKey, JSON.stringify(online));
-      ONLINE_PLAYERS = {};
-      var cutoff = Date.now() - 90000;
-      for(var pi=0; pi<localStorage.length; pi++){
-        var pkey=localStorage.key(pi);
-        if(pkey&&pkey.indexOf("mc_presence_")===0 && pkey!==presenceKey){
-          try{
-            var pp=JSON.parse(localStorage.getItem(pkey));
-            if(pp&&pp.lastSeen>cutoff) ONLINE_PLAYERS[pkey.replace("mc_presence_","")] = pp;
-          }catch(pe){}
-        }
-      }
-    }catch(e){}
-  };
-  heartbeat();
-  clearInterval(MY_PRESENCE_INTERVAL);
-  MY_PRESENCE_INTERVAL = setInterval(heartbeat, 30000);
-  window.addEventListener("beforeunload", function(){
-    try{
-      var d=JSON.parse(localStorage.getItem(presenceKey)||"{}");
-      d.status="offline"; d.lastSeen=Date.now()-200000;
-      localStorage.setItem(presenceKey,JSON.stringify(d));
-    }catch(e){}
-  });
+  // Use Firestore-based presence for real cross-device visibility
+  if(window.startPresence){
+    window.startPresence();
+  }
 }
 
 function isPlayerOnline(playerName){
@@ -2848,8 +2845,7 @@ async function forgotPassword(role){
   if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email address first!"); return; }
   if(window.auth){
     try{
-      var {sendPasswordResetEmail} = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-      await sendPasswordResetEmail(window.auth, email);
+      await window.firebaseResetPassword(email);
       showToast("Password reset email sent to "+email+"! Check your inbox. 📧",4000);
     }catch(e){
       var msg=e.message||"";
@@ -2900,9 +2896,15 @@ function enterApp(name, grade, gradeNum, isPreview){
   var app=$$("s-app"); if(app) app.classList.add("active");
   showMobNav(true);
   showMusicBtn(true);
+  window.currentLBTab="grade";
+  var gb=document.getElementById("lb-grade-btn");
+  if(gb) gb.textContent="\u{1F3EB} My Grade ("+(gradeNum||7)+"th)";
   renderHome();
   // Start online presence tracking
-  setTimeout(initPresence, 2000);
+  setTimeout(function(){
+    initPresence();
+    if(window.startPresence) window.startPresence();
+  }, 2000);
 }
 
 async function signupStudent(){
@@ -3092,6 +3094,8 @@ function logout(){
 
 // ── HOME ───────────────────────────────────────────────
 function renderHome(){
+  var hCode=$$("home-link-code");
+  if(hCode) hCode.textContent=S.linkCode||"------";
   var ff=$$("fun-fact");
   if(ff) ff.textContent = FUN_FACTS[Math.floor(Math.random()*FUN_FACTS.length)];
   var gs=$$("getting-started-card");
@@ -3384,8 +3388,320 @@ function sendChallengeInvite(name,emoji,bg,winRate){
   },1000);
 }
 
+
+// ═══ REAL-TIME MULTIPLAYER SYSTEM ════════════════════════════
+
+window.LIVE_PLAYERS = [];
+window.currentBattleId = null;
+window.currentBattleRole = null;
+window.roundStartTime = null;
+window.botBattleActive = false;
+
+// Pick a question for the battle
+window.pickBattleQuestion = function(){
+  var band = QUESTION_BANK[gradeBand(S.gradeNum)];
+  var topics = Object.keys(band);
+  var topic = topics[Math.floor(Math.random()*topics.length)];
+  var pool = band[topic];
+  var q = pool[Math.floor(Math.random()*pool.length)];
+  return { q: q.q, opts: q.opts, a: q.a };
+};
+
+// Render live players in Challenge Arena
+window.renderLivePlayers = function(players){
+  var el = document.getElementById("live-players-list");
+  if(!el) return;
+  var html = "";
+
+  // Bot card — always first
+  var botCard = document.createElement("div");
+  botCard.className = "opp-card";
+  botCard.style.cssText = "border-color:rgba(255,217,61,0.3);background:rgba(255,217,61,0.06)";
+  botCard.innerHTML = "<div class='opp-left'>"
+    + "<div class='opp-ava' style='background:linear-gradient(135deg,#FFD93D,#E8B800);color:#080F1E;font-weight:900'>&#x1F916;</div>"
+    + "<div><div class='opp-name'>Axiom Bot</div>"
+    + "<div class='opp-grade'>AI Opponent · Any Grade</div></div></div>"
+    + "<div class='opp-right'>"
+    + "<span style='color:var(--mint);font-size:11px;font-weight:700;display:block;margin-bottom:6px'>&#x25CF; ALWAYS ONLINE</span>"
+    + "<button class='btn btn-xs btn-sun' onclick='window.startBotBattle()'>Battle Bot &#x2694;&#xFE0F;</button>"
+    + "</div>";
+  el.innerHTML = "";
+  el.appendChild(botCard);
+
+  // Update online count
+  var countEl = document.getElementById("online-count");
+  if(countEl) countEl.textContent = players.length + " student" + (players.length===1?"":"s") + " online now";
+
+  if(players.length === 0){
+    var empty = document.createElement("div");
+    empty.style.cssText = "text-align:center;padding:28px;color:var(--text2);font-size:14px";
+    empty.innerHTML = "<div style='font-size:36px;margin-bottom:8px'>&#x1F310;</div>"
+      + "No other students online right now.<br>"
+      + "<span style='font-size:12px'>Share MathCrown with friends to battle them!</span>";
+    el.appendChild(empty);
+  } else {
+    players.forEach(function(p){
+      var card = document.createElement("div");
+      card.className = "opp-card";
+      if(p.inBattle) card.style.opacity = "0.55";
+      var gradeLabel = p.grade ? p.grade + "th Grade" : "K-12";
+      var rightHtml = p.inBattle
+        ? "<span style='color:var(--coral);font-size:11px;font-weight:700'>IN BATTLE</span>"
+        : "<button class='btn btn-xs btn-coral challenge-btn'>Challenge &#x2694;&#xFE0F;</button>";
+      card.innerHTML = "<div class='opp-left'>"
+        + "<div style='position:relative'>"
+        + "<div class='opp-ava' style='background:linear-gradient(135deg,#1C3A6E,#06D6A0);color:#fff;font-weight:900'>"
+        + (p.avatar || (p.name ? p.name[0] : "?")) + "</div>"
+        + "<div style='position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;"
+        + "background:var(--mint);border:2px solid var(--dark2)'></div></div>"
+        + "<div><div class='opp-name'>" + p.name + "</div>"
+        + "<div class='opp-grade'>" + gradeLabel + (p.inBattle ? " · In Battle" : "") + "</div></div></div>"
+        + "<div class='opp-right'>" + rightHtml + "</div>";
+      // Attach click handler safely — no inline eval
+      if(!p.inBattle){
+        var btn = card.querySelector(".challenge-btn");
+        if(btn){
+          (function(uid, name){
+            btn.addEventListener("click", function(){ window.challengeRealPlayer(uid, name); });
+          })(p.uid, p.name);
+        }
+      }
+      el.appendChild(card);
+    });
+  }
+};
+// Challenge a real online player
+window.challengeRealPlayer = function(toUid, toName){
+  if(!window.sendChallengeTo){ showToast("Connecting..."); return; }
+  // Show FIFA-style sending overlay
+  var overlay = document.createElement("div");
+  overlay.id = "challenge-sending-overlay";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:999;display:flex;align-items:center;justify-content:center";
+  overlay.innerHTML = "<div style='background:linear-gradient(135deg,var(--dark2),var(--dark3));border:2px solid var(--sun);border-radius:24px;padding:32px;max-width:360px;width:90%;text-align:center'>"
+    + "<div style='font-size:56px;margin-bottom:12px'>⚔️</div>"
+    + "<div style='font-family:Fredoka One,cursive;font-size:22px;color:var(--sun);margin-bottom:8px'>Challenge Sent!</div>"
+    + "<div style='font-size:14px;color:var(--text2);margin-bottom:20px'>Waiting for <strong style='color:var(--mint)'>"+toName+"</strong> to accept...<br><span style='font-size:12px'>(30 seconds)</span></div>"
+    + "<div style='background:rgba(255,255,255,0.08);border-radius:100px;height:6px;overflow:hidden;margin-bottom:20px'>"
+    + "<div id='challenge-progress-bar' style='width:100%;height:100%;background:linear-gradient(90deg,var(--sun),var(--mint));transition:width 30s linear'></div></div>"
+    + "<button onclick='cancelChallenge()' class='btn btn-ghost btn-sm'>Cancel</button>"
+    + "</div>";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ var b=document.getElementById("challenge-progress-bar"); if(b) b.style.width="0%"; }, 100);
+  window.sendChallengeTo(toUid, toName);
+  window.waitForAcceptance(toUid, toName);
+};
+
+window.cancelChallenge = function(){
+  var o=document.getElementById("challenge-sending-overlay");
+  if(o) o.remove();
+  showToast("Challenge cancelled.");
+};
+
+// Show incoming challenge popup (FIFA-style)
+window.showIncomingChallenge = function(fromUid, fromName, fromGrade, callback){
+  // Remove any existing
+  var ex = document.getElementById("incoming-challenge-overlay");
+  if(ex) ex.remove();
+  var overlay = document.createElement("div");
+  overlay.id = "incoming-challenge-overlay";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center";
+  var countdown = 20;
+  overlay.innerHTML = "<div style='background:linear-gradient(135deg,#1C3A6E,#0D1F3C);border:2px solid var(--sun);border-radius:24px;padding:32px;max-width:380px;width:90%;text-align:center'>"
+    + "<div style='font-size:16px;letter-spacing:2px;color:var(--mint);font-weight:700;margin-bottom:8px'>INCOMING CHALLENGE</div>"
+    + "<div style='font-size:52px;margin-bottom:12px'>⚔️</div>"
+    + "<div style='font-family:Fredoka One,cursive;font-size:24px;color:var(--sun);margin-bottom:4px'>"+fromName+"</div>"
+    + "<div style='font-size:13px;color:var(--text2);margin-bottom:4px'>"+(fromGrade ? fromGrade+"th Grade" : "")+" · wants to battle you!</div>"
+    + "<div style='font-size:28px;font-weight:900;color:var(--sun);margin:16px 0' id='challenge-countdown'>"+countdown+"</div>"
+    + "<div style='background:rgba(255,255,255,0.08);border-radius:100px;height:5px;overflow:hidden;margin-bottom:20px'>"
+    + "<div id='incoming-prog' style='width:100%;height:100%;background:linear-gradient(90deg,var(--mint),var(--sun));transition:width 20s linear'></div></div>"
+    + "<div style='display:flex;gap:10px;justify-content:center'>"
+    + "<button onclick='acceptIncoming()' class='btn btn-sun' style='min-width:120px;font-size:16px'>Accept ⚔️</button>"
+    + "<button onclick='declineIncoming()' class='btn btn-ghost' style='min-width:100px'>Decline</button>"
+    + "</div></div>";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ var b=document.getElementById("incoming-prog"); if(b) b.style.width="0%"; }, 100);
+
+  var timer = setInterval(function(){
+    countdown--;
+    var el=document.getElementById("challenge-countdown");
+    if(el) el.textContent=countdown;
+    if(countdown<=0){
+      clearInterval(timer);
+      overlay.remove();
+      callback(false);
+    }
+  }, 1000);
+
+  window.acceptIncoming = function(){
+    clearInterval(timer);
+    overlay.remove();
+    callback(true);
+  };
+  window.declineIncoming = function(){
+    clearInterval(timer);
+    overlay.remove();
+    callback(false);
+  };
+};
+
+// Enter the REAL-TIME battle room
+window.enterRealBattle = function(battleId, role, oppName){
+  window.currentBattleId = battleId;
+  window.currentBattleRole = role;
+  var ba=document.getElementById("battle-arena");
+  if(!ba) return;
+  ba.style.display="block";
+  ba.scrollIntoView({behavior:"smooth",block:"start"});
+  var myName = S.name.split(" ")[0];
+  var setEl=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  setEl("b-my-name", role==="p1"? myName : myName);
+  setEl("b-opp-name", oppName);
+  setEl("b-my-score","0"); setEl("b-opp-score","0");
+  var myAva=document.getElementById("b-my-ava");
+  if(myAva){ myAva.textContent=myName[0]; myAva.style.background="linear-gradient(135deg,#1C3A6E,#06D6A0)"; }
+  var oppAva=document.getElementById("b-opp-ava");
+  if(oppAva){ oppAva.textContent=oppName[0]||"?"; oppAva.style.background="linear-gradient(135deg,#FFD93D,#E8B800)"; }
+  var wrap=document.getElementById("battle-q-wrap");
+  if(wrap) wrap.innerHTML="<div style='text-align:center;padding:32px;color:var(--text2)'><div style='font-size:36px;margin-bottom:8px'>⚔️</div>Waiting for battle to start...</div>";
+  showToast("⚔️ Battle room joined! Get ready!");
+};
+
+// Update battle UI from Firestore snapshot
+window.updateBattleState = function(data, battleId, role){
+  if(!data) return;
+  var myScore = role==="p1" ? data.p1Score : data.p2Score;
+  var oppScore = role==="p1" ? data.p2Score : data.p1Score;
+  var setEl=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  setEl("b-my-score", myScore||0);
+  setEl("b-opp-score", oppScore||0);
+  setEl("b-round-num", data.round||1);
+
+  if(data.status==="finished"){
+    window.endRealBattle(data, role);
+    return;
+  }
+
+  // Check if both answered — if so, advance round (p1 is host)
+  var bothAnswered = data.p1Answer != null && data.p2Answer != null;
+      if(bothAnswered && role==="p1" && data.status==="active"){
+    var p1correct = data.p1Answer===data.answer;
+    var p2correct = data.p2Answer===data.answer;
+    var newP1 = (data.p1Score||0) + (p1correct?1:0);
+    var newP2 = (data.p2Score||0) + (p2correct?1:0);
+    var nextData = {round:data.round,totalRounds:data.totalRounds,p1Score:newP1,p2Score:newP2};
+    setTimeout(function(){ window.advanceBattleRound(battleId, nextData); }, 1500);
+  }
+
+  // Show the question if not yet answered by me
+  var myAnswer = role==="p1" ? data.p1Answer : data.p2Answer;
+  if(data.question && myAnswer==null){
+    window.showBattleQuestion(data, battleId, role);
+  } else if(myAnswer!=null && !bothAnswered){
+    var wrap=document.getElementById("battle-q-wrap");
+    if(wrap) wrap.innerHTML="<div style='text-align:center;padding:20px;color:var(--mint);font-size:16px;font-weight:700'>✅ Answer submitted! Waiting for opponent...</div>";
+  }
+};
+
+// Show battle question
+window.showBattleQuestion = function(data, battleId, role){
+  window.roundStartTime = Date.now();
+  var wrap=document.getElementById("battle-q-wrap");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  var roundLabel = document.createElement("div");
+  roundLabel.style.cssText = "text-align:center;margin-bottom:12px;font-size:12px;color:var(--text2);letter-spacing:1px";
+  roundLabel.textContent = "ROUND " + data.round + " OF " + data.totalRounds;
+  wrap.appendChild(roundLabel);
+  var qEl = document.createElement("div");
+  qEl.style.cssText = "font-size:18px;font-weight:800;text-align:center;margin-bottom:20px;line-height:1.4;color:var(--text)";
+  qEl.textContent = data.question;
+  wrap.appendChild(qEl);
+  var grid = document.createElement("div");
+  grid.className = "opts-grid";
+  (data.options||[]).forEach(function(opt){
+    var btn = document.createElement("button");
+    btn.className = "q-opt";
+    btn.style.cssText = "font-size:15px;padding:14px;font-weight:700";
+    btn.textContent = opt;
+    (function(answer){
+      btn.addEventListener("click", function(){
+        window.submitRealAnswer(battleId, role, answer);
+      });
+    })(opt);
+    grid.appendChild(btn);
+  });
+  wrap.appendChild(grid);
+  var hint = document.createElement("div");
+  hint.style.cssText = "text-align:center;margin-top:12px;font-size:12px;color:var(--text2)";
+  hint.textContent = "⚡ Answer fast for Speed Bonus!";
+  wrap.appendChild(hint);
+};
+// Submit answer to Firestore
+window.submitRealAnswer = function(battleId, role, answer){
+  var timeTaken = window.roundStartTime ? (Date.now()-window.roundStartTime)/1000 : 15;
+  // Disable all buttons
+  document.querySelectorAll(".q-opt").forEach(function(b){ b.disabled=true; b.style.opacity="0.5"; });
+  if(window.submitBattleAnswer) window.submitBattleAnswer(battleId, role, answer, timeTaken);
+};
+
+// End battle
+window.endRealBattle = function(data, role){
+  var myScore = role==="p1" ? data.p1Score||0 : data.p2Score||0;
+  var oppScore = role==="p1" ? data.p2Score||0 : data.p1Score||0;
+  var oppName = role==="p1" ? data.p2Name : data.p1Name;
+  var won = myScore > oppScore;
+  var tied = myScore === oppScore;
+  var wrap=document.getElementById("battle-q-wrap");
+  if(wrap){
+    wrap.innerHTML="<div style='text-align:center;padding:24px'>"
+      +"<div style='font-size:64px;margin-bottom:12px'>"+(won?"👑":tied?"🤝":"💪")+"</div>"
+      +"<div style='font-family:Fredoka One,cursive;font-size:28px;color:"+(won?"var(--sun)":tied?"var(--sky)":"var(--coral)")+";margin-bottom:8px'>"
+      +(won?"You Win!":tied?"It's a Tie!":"Good Fight!")+"</div>"
+      +"<div style='font-size:16px;color:var(--text2);margin-bottom:20px'>"+myScore+" – "+oppScore+" vs "+oppName+"</div>"
+      +"<button class='btn btn-sun' onclick='window.endRealBattleCleanup()'>Continue 🎉</button>"
+      +"</div>";
+  }
+  // Award XP and coins
+  var xpGain = won?120:tied?60:30;
+  var coinGain = won?50:tied?20:10;
+  S.xp += xpGain; S.coins += coinGain;
+  if(won) S.wins = (S.wins||0)+1;
+  saveSession();
+  showToast((won?"🏆 Won! ":"")+"+" + xpGain + " XP, +" + coinGain + " coins!");
+  // Update presence — no longer in battle
+  if(window.auth && window.auth.currentUser && window.db){
+    // presence update handled via startPresence
+  }
+};
+
+window.endRealBattleCleanup = function(){
+  var ba=document.getElementById("battle-arena");
+  if(ba) ba.style.display="none";
+  window.currentBattleId=null; window.currentBattleRole=null;
+  // Remove sending overlay if it's there
+  var o=document.getElementById("challenge-sending-overlay");
+  if(o) o.remove();
+};
+
+// BOT BATTLE — always available, uses existing AI logic
+window.startBotBattle = function(){
+  var bots = [
+    {name:"Axiom Bot",emoji:"🤖",bg:"linear-gradient(135deg,#FFD93D,#E8B800)",winRate:0.65},
+    {name:"Archimedes",emoji:"📐",bg:"linear-gradient(135deg,#06D6A0,#0D9B70)",winRate:0.75},
+    {name:"Euler",emoji:"🔢",bg:"linear-gradient(135deg,#3D8BFF,#1C3A6E)",winRate:0.55}
+  ];
+  var bot = bots[Math.floor(Math.random()*bots.length)];
+  showToast("⚔️ Starting battle vs " + bot.name + "!");
+  if(window.startBattleWith) startBattleWith(bot.name, bot.emoji, bot.bg, bot.winRate);
+};
+
+// Update renderChallenge to show live players
 function renderChallenge(){
   CHALLENGE_FILTER="same";
+  // Render live players if available
+  if(window.LIVE_PLAYERS !== undefined){
+    window.renderLivePlayers(window.LIVE_PLAYERS);
+  }
   renderOppList();
   var hist=$$("battle-hist"); if(!hist) return;
   var histData=[
@@ -3567,16 +3883,63 @@ function sendDirectChallenge(){
 function setLBTab(tab,btn){
   document.querySelectorAll(".lb-tab").forEach(function(t){ t.classList.remove("on"); });
   if(btn) btn.classList.add("on");
+  window.currentLBTab = tab;
+  var gb=document.getElementById("lb-grade-btn");
+  if(gb) gb.textContent="\u{1F3EB} My Grade ("+(S.gradeNum||7)+"th)";
   renderLeaderboard();
 }
 
 function renderLeaderboard(){
+  var tab=window.currentLBTab||"grade";
+  var gn=S.gradeNum||7;
+  var gl=gn+"th";
+  var BASE=[
+    {n:"Jordan K.",g:gl,  pts:5820,e:"J",chg:"+2",up:true},
+    {n:"Sam P.",   g:gl,  pts:5410,e:"S",chg:"+1",up:true},
+    {n:"Riley M.", g:gl,  pts:5200,e:"R",chg:"0", up:false},
+    {n:"Alex J.",  g:gl,  pts:3240,e:"A",chg:"+3",up:true},
+    {n:"Casey T.", g:gl,  pts:3100,e:"C",chg:"-1",up:false},
+    {n:"Morgan L.",g:gl,  pts:2980,e:"M",chg:"+4",up:true},
+    {n:"Taylor B.",g:gl,  pts:2750,e:"T",chg:"-2",up:false},
+    {n:"Drew K.",  g:gl,  pts:2640,e:"D",chg:"+5",up:true}
+  ];
+  var ALL=[
+    {n:"Priya S.", g:"11th",pts:8200,e:"P",chg:"+3",up:true},
+    {n:"Sam P.",   g:"7th", pts:7500,e:"S",chg:"+1",up:true},
+    {n:"Jordan K.",g:"5th", pts:6800,e:"J",chg:"+2",up:true},
+    {n:"Riley M.", g:"9th", pts:5200,e:"R",chg:"0", up:false},
+    {n:"Alex J.",  g:"11th",pts:4800,e:"A",chg:"+4",up:true},
+    {n:"Casey T.", g:"3rd", pts:4100,e:"C",chg:"-1",up:false},
+    {n:"Morgan L.",g:"6th", pts:3900,e:"M",chg:"+2",up:true},
+    {n:"Taylor B.",g:"10th",pts:3200,e:"T",chg:"-2",up:false}
+  ];
+  var NAT=[
+    {n:"Mathew K.",g:"12th",pts:18200,e:"M",chg:"+1",up:true},
+    {n:"Priya S.", g:"11th",pts:15800,e:"P",chg:"+2",up:true},
+    {n:"Jordan K.",g:"5th", pts:14200,e:"J",chg:"+3",up:true},
+    {n:"Devon R.", g:"9th", pts:11900,e:"D",chg:"0", up:false},
+    {n:"Sam P.",   g:"7th", pts:10500,e:"S",chg:"+1",up:true},
+    {n:"Riley M.", g:"8th", pts:9800, e:"R",chg:"-1",up:false},
+    {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"+2",up:true},
+    {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"+1",up:true}
+  ];
+  var WK=[
+    {n:"Taylor B.",g:"10th",pts:980, e:"T",chg:"+5",up:true},
+    {n:"Casey T.", g:"3rd", pts:840, e:"C",chg:"+3",up:true},
+    {n:"Jordan K.",g:"5th", pts:720, e:"J",chg:"-1",up:false},
+    {n:"Morgan L.",g:"6th", pts:680, e:"M",chg:"+2",up:true},
+    {n:"Sam P.",   g:"7th", pts:590, e:"S",chg:"0", up:false},
+    {n:"Alex J.",  g:"11th",pts:510, e:"A",chg:"+4",up:true},
+    {n:"Drew K.",  g:"8th", pts:480, e:"D",chg:"-2",up:false},
+    {n:"Riley M.", g:"9th", pts:420, e:"R",chg:"+1",up:true}
+  ];
+  var DATA=tab==="national"?NAT:tab==="school"?ALL:tab==="weekly"?WK:BASE;
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
   var pod=$$("lb-podium");
   if(pod){
     var order=[1,0,2], html="";
     order.forEach(function(i){
-      var p=LB_DATA[i];
+      var p=DATA[i];
       html+="<div class='podium-place'>"
         +"<div class='pod-crown'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
         +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+p.e+"</div>"
@@ -3590,7 +3953,7 @@ function renderLeaderboard(){
   var full=$$("lb-full");
   if(full){
     var fhtml="";
-    LB_DATA.forEach(function(p,i){
+    DATA.forEach(function(p,i){
       var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
       fhtml+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
         +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
@@ -3804,7 +4167,18 @@ function renderSkills(){
 }
 
 // ── PROFILE ────────────────────────────────────────────
+function copyLinkCode(){
+  var code=S.linkCode||"N/A";
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(code).then(function(){
+      showToast("Code copied! Share with your parent.");
+    });
+  } else { showToast("Your link code: "+code); }
+}
+
 function renderProfile(){
+  var codeEl=$$("profile-link-code");
+  if(codeEl) codeEl.textContent=S.linkCode||"------";
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   setEl("prof-ava", S.name?S.name[0].toUpperCase():"?");
   setEl("prof-name", S.name||"Sign up to create your profile");
@@ -4246,7 +4620,8 @@ document.addEventListener("DOMContentLoaded",function(){
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, orderBy, limit, onSnapshot }
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc,
+           collection, query, orderBy, limit, onSnapshot, where, getDocs, serverTimestamp, addDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -4309,16 +4684,291 @@ document.addEventListener("DOMContentLoaded",function(){
     });
   };
 
+  // ── REAL-TIME PRESENCE ──────────────────────────────────────
+  let presenceInterval = null;
+  let challengeListener = null;
+  let battleListener = null;
+
+  window.startPresence = async function() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const uid = user.uid;
+    const presRef = doc(db, "presence", uid);
+
+    const writePresence = async () => {
+      try {
+        await setDoc(presRef, {
+          uid,
+          name: window.S ? window.S.name : "Player",
+          grade: window.S ? window.S.gradeNum : 0,
+          avatar: window.S ? (window.S.name||"P")[0].toUpperCase() : "P",
+          status: "online",
+          inBattle: false,
+          lastSeen: serverTimestamp()
+        }, { merge: true });
+      } catch(e) {}
+    };
+
+    await writePresence();
+    clearInterval(presenceInterval);
+    presenceInterval = setInterval(writePresence, 25000);
+
+    window.addEventListener("beforeunload", () => {
+      try {
+        setDoc(presRef, { status: "offline", lastSeen: serverTimestamp() }, { merge: true });
+      } catch(e) {}
+    });
+
+    window.listenOnlinePlayers();
+    window.listenForChallenges();
+  };
+
+  window.stopPresence = async function() {
+    const user = auth.currentUser;
+    if (!user) return;
+    clearInterval(presenceInterval);
+    try {
+      await setDoc(doc(db, "presence", user.uid), { status: "offline" }, { merge: true });
+    } catch(e) {}
+  };
+
+  // ── ONLINE PLAYERS LISTENER ──────────────────────────────────
+  window.listenOnlinePlayers = function() {
+    const q = query(collection(db, "presence"),
+      where("status", "==", "online"));
+    onSnapshot(q, snapshot => {
+      const uid = auth.currentUser ? auth.currentUser.uid : null;
+      const players = [];
+      snapshot.docs.forEach(d => {
+        if (d.id !== uid) {
+          const data = d.data();
+          // Check lastSeen within 2 minutes
+          const lastSeen = data.lastSeen ? data.lastSeen.toMillis() : 0;
+          if (Date.now() - lastSeen < 120000) {
+            players.push({ uid: d.id, ...data });
+          }
+        }
+      });
+      window.LIVE_PLAYERS = players;
+      if (window.renderLivePlayers) window.renderLivePlayers(players);
+      // Update room badge
+      const badge = document.getElementById("room-badge");
+      if (badge) {
+        badge.textContent = players.length;
+        badge.style.display = players.length > 0 ? "flex" : "none";
+      }
+    });
+  };
+
+  // ── SEND CHALLENGE ────────────────────────────────────────────
+  window.sendChallengeTo = async function(toUid, toName) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const challengeRef = doc(db, "challenges", toUid);
+    await setDoc(challengeRef, {
+      fromUid: user.uid,
+      fromName: window.S ? window.S.name : "Challenger",
+      fromGrade: window.S ? window.S.gradeNum : 0,
+      toUid,
+      toName,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+    showToast("⚔️ Challenge sent to " + toName + "! Waiting...");
+    // Auto-cancel after 30s if not accepted
+    setTimeout(async () => {
+      try {
+        const snap = await getDoc(challengeRef);
+        if (snap.exists() && snap.data().status === "pending") {
+          await deleteDoc(challengeRef);
+          showToast(toName + " didn't respond. Starting bot battle...");
+          if (window.startBotBattle) window.startBotBattle();
+        }
+      } catch(e) {}
+    }, 30000);
+  };
+
+  // ── LISTEN FOR INCOMING CHALLENGES ───────────────────────────
+  window.listenForChallenges = function() {
+    const user = auth.currentUser;
+    if (!user) return;
+    if (challengeListener) challengeListener();
+    const ref = doc(db, "challenges", user.uid);
+    challengeListener = onSnapshot(ref, async snap => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (data.status !== "pending") return;
+      // Show incoming challenge popup
+      if (window.showIncomingChallenge) {
+        window.showIncomingChallenge(data.fromUid, data.fromName, data.fromGrade, async accepted => {
+          if (accepted) {
+            await updateDoc(ref, { status: "accepted" });
+            // Create shared battle room
+            const battleId = data.fromUid + "_" + user.uid + "_" + Date.now();
+            const q = window.pickBattleQuestion();
+            await setDoc(doc(db, "battles", battleId), {
+              p1: data.fromUid, p1Name: data.fromName, p1Score: 0, p1Time: 0,
+              p2: user.uid, p2Name: window.S.name, p2Score: 0, p2Time: 0,
+              round: 1, totalRounds: 5,
+              question: q.q, options: q.opts, answer: q.a,
+              status: "active",
+              createdAt: serverTimestamp()
+            });
+            await deleteDoc(ref);
+            if (window.joinBattleRoom) window.joinBattleRoom(battleId, "p2", data.fromName);
+          } else {
+            await deleteDoc(ref);
+            showToast("Challenge declined.");
+          }
+        });
+      }
+    });
+  };
+
+  // ── ACCEPT CHALLENGE & START BATTLE ROOM ─────────────────────
+  window.acceptChallengeAndStart = async function(fromUid, fromName) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const battleId = fromUid + "_" + user.uid + "_" + Date.now();
+    const q = window.pickBattleQuestion ? window.pickBattleQuestion() : { q: "2 + 2 = ?", opts: ["3","4","5","6"], a: "4" };
+    await setDoc(doc(db, "battles", battleId), {
+      p1: fromUid, p1Name: fromName, p1Score: 0, p1Time: 0,
+      p2: user.uid, p2Name: window.S.name, p2Score: 0, p2Time: 0,
+      round: 1, totalRounds: 5,
+      question: q.q, options: q.opts, answer: q.a,
+      status: "active",
+      createdAt: serverTimestamp()
+    });
+    if (window.joinBattleRoom) window.joinBattleRoom(battleId, "p2", fromName);
+  };
+
+  // ── CHALLENGER: WATCH FOR ACCEPTANCE ─────────────────────────
+  window.waitForAcceptance = function(toUid, toName) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const challengeRef = doc(db, "challenges", toUid);
+    const unsub = onSnapshot(challengeRef, snap => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (data.status === "accepted") {
+        unsub();
+        // Find the battle room — look for battles with my uid
+        const battlesQuery = query(collection(db, "battles"),
+          where("p1", "==", user.uid));
+        getDocs(battlesQuery).then(snaps => {
+          if (!snaps.empty) {
+            const battleDoc = snaps.docs[0];
+            if (window.joinBattleRoom) window.joinBattleRoom(battleDoc.id, "p1", toName);
+          }
+        });
+      }
+    });
+  };
+
+  // ── BATTLE ROOM LISTENER ──────────────────────────────────────
+  window.joinBattleRoom = function(battleId, role, oppName) {
+    if (battleListener) battleListener();
+    showToast("⚔️ Battle starting with " + oppName + "!");
+    // Set in-battle status
+    const user = auth.currentUser;
+    if (user) {
+      setDoc(doc(db, "presence", user.uid), { inBattle: true }, { merge: true });
+    }
+    if (window.enterRealBattle) window.enterRealBattle(battleId, role, oppName);
+    battleListener = onSnapshot(doc(db, "battles", battleId), snap => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (window.updateBattleState) window.updateBattleState(data, battleId, role);
+    });
+  };
+
+  // ── SUBMIT ANSWER TO BATTLE ───────────────────────────────────
+  window.submitBattleAnswer = async function(battleId, role, answer, timeTaken) {
+    const field = role === "p1" ? "p1Answer" : "p2Answer";
+    const timeField = role === "p1" ? "p1Time" : "p2Time";
+    await updateDoc(doc(db, "battles", battleId), {
+      [field]: answer,
+      [timeField]: timeTaken
+    });
+  };
+
+  // ── ADVANCE TO NEXT ROUND ─────────────────────────────────────
+  window.advanceBattleRound = async function(battleId, currentData) {
+    const nextRound = (currentData.round || 1) + 1;
+    if (nextRound > (currentData.totalRounds || 5)) {
+      await updateDoc(doc(db, "battles", battleId), { status: "finished" });
+      return;
+    }
+    const q = window.pickBattleQuestion ? window.pickBattleQuestion() : { q: "3+3=?", opts: ["5","6","7","8"], a: "6" };
+    await updateDoc(doc(db, "battles", battleId), {
+      round: nextRound,
+      question: q.q, options: q.opts, answer: q.a,
+      p1Answer: null, p2Answer: null,
+      p1Time: 0, p2Time: 0
+    });
+  };
+
+  // ── EXISTING FUNCTIONS ────────────────────────────────────────
+  window.firebaseSignUp = async function(email, password, displayName, role, grade) {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", cred.user.uid), {
+      name: displayName, displayName, email, role,
+      grade: grade || "",
+      xp: 0, coins: 0, level: 1, streak: 0,
+      createdAt: serverTimestamp()
+    });
+    return cred.user;
+  };
+
+  window.firebaseLogin = async function(email, password) {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    return cred.user;
+  };
+
+  window.firebaseLogout = function() { return signOut(auth); };
+
+  window.saveProgress = async function(xp, coins, level, streak) {
+    const user = auth.currentUser;
+    if (!user) return;
+    await updateDoc(doc(db, "users", user.uid), { xp, coins, level, streak });
+  };
+
+  window.loadProgress = async function() {
+    const user = auth.currentUser;
+    if (!user) return null;
+    const snap = await getDoc(doc(db, "users", user.uid));
+    return snap.exists() ? snap.data() : null;
+  };
+
+  window.startLeaderboard = function(callback) {
+    const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
+    return onSnapshot(q, snapshot => {
+      const leaders = snapshot.docs.map((d, i) => ({
+        rank: i+1, name: d.data().displayName,
+        xp: d.data().xp, level: d.data().level,
+        grade: d.data().grade
+      }));
+      callback(leaders);
+    });
+  };
+
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const data = await loadProgress();
-      if (data) console.log("✅ User logged in:", data.displayName);
-    } else {
-      console.log("No user logged in");
+      window.auth = auth;
+      const data = await window.loadProgress();
+      if (data) console.log("✅ User:", data.displayName);
     }
   });
 
-  console.log("✅ Firebase loaded successfully");
+  // Expose password reset
+  window.firebaseResetPassword = async function(email) {
+    const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    await sendPasswordResetEmail(auth, email);
+  };
+
+  window.auth = auth;
+  window.db = db;
+  console.log("✅ MathCrown Firebase + Multiplayer loaded");
 </script>
 
 
@@ -4343,7 +4993,7 @@ document.addEventListener("DOMContentLoaded",function(){
       <p style="margin-bottom:8px">MathCrown complies fully with the Children's Online Privacy Protection Act (COPPA). For children under 13:</p>
       <ul style="margin:0 0 20px 20px">
         <li>We require verifiable parental consent before collecting personal information.</li>
-        <li>Parents may review, edit, or delete their child's data at any time by emailing support@mymathcrown.com.</li>
+        <li>Parents may review, edit, or delete their child's data at any time by emailing <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4b383e3b3b24393f0b2632262a3f232839243c2565282426">[email&#160;protected]</a>.</li>
         <li>We do not serve behavioral advertising to children under 13.</li>
         <li>We never sell, rent, or share children's personal data with third parties for commercial purposes.</li>
         <li>Children's accounts are linked to a parent account for oversight and prize redemption.</li>
@@ -4371,9 +5021,9 @@ document.addEventListener("DOMContentLoaded",function(){
         <li><strong style="color:#FFD93D">Deletion:</strong> Request account and data deletion within 30 days</li>
         <li><strong style="color:#FFD93D">Opt-out:</strong> Withdraw consent at any time</li>
       </ul>
-      <p style="margin-bottom:20px">To exercise any right, email <strong style="color:#FFD93D">support@mymathcrown.com</strong>. We respond within 5 business days.</p>
+      <p style="margin-bottom:20px">To exercise any right, email <strong style="color:#FFD93D"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d1a2a4a1a1bea3a591bca8bcb0a5b9b2a3bea6bfffb2bebc">[email&#160;protected]</a></strong>. We respond within 5 business days.</p>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">8. Contact Us</p>
-      <p>MathCrown Privacy Team — <strong style="color:#FFD93D">support@mymathcrown.com</strong></p>
+      <p>MathCrown Privacy Team — <strong style="color:#FFD93D"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1e6d6b6e6e716c6a5e7367737f6a767d6c716970307d7173">[email&#160;protected]</a></strong></p>
     </div>
     <div style="padding:20px 32px;border-top:1px solid rgba(255,217,61,0.1);text-align:center">
       <button onclick="document.getElementById('modal-privacy').style.display='none'" style="background:linear-gradient(135deg,#FFD93D,#E8B800);color:#080F1E;border:none;padding:12px 40px;border-radius:50px;font-weight:700;font-size:14px;cursor:pointer">I Understand</button>
@@ -4400,7 +5050,7 @@ document.addEventListener("DOMContentLoaded",function(){
         <li>You are responsible for maintaining the confidentiality of your password.</li>
         <li>You must provide accurate information when creating your account.</li>
         <li>You may not share your account or create multiple accounts.</li>
-        <li>Notify us immediately at support@mymathcrown.com if you suspect unauthorized access.</li>
+        <li>Notify us immediately at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d9aaaca9a9b6abad99b4a0b4b8adb1baabb6aeb7f7bab6b4">[email&#160;protected]</a> if you suspect unauthorized access.</li>
       </ul>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">4. Acceptable Use</p>
       <p style="margin-bottom:8px">You agree NOT to:</p>
@@ -4427,16 +5077,6 @@ document.addEventListener("DOMContentLoaded",function(){
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">9. Disclaimers</p>
       <p style="margin-bottom:20px">MathCrown is provided as-is. We do not guarantee uninterrupted access or specific educational outcomes. MathCrown is a supplemental learning tool, not a substitute for formal education.</p>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">10. Termination</p>
-      <p style="margin-bottom:20px">We may suspend accounts that violate these Terms. You may delete your account at any time by emailing support@mymathcrown.com. Your data is deleted within 30 days.</p>
+      <p style="margin-bottom:20px">We may suspend accounts that violate these Terms. You may delete your account at any time by emailing <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3744424747584543775a4e5a56435f54455840591954585a">[email&#160;protected]</a>. Your data is deleted within 30 days.</p>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">11. Governing Law</p>
-      <p style="margin-bottom:20px">These Terms are governed by the laws of the United States. Any disputes shall be resolved through binding arbitration under American Arbitration Association rules.</p>
-      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">12. Contact</p>
-      <p>MathCrown Legal — <strong style="color:#FFD93D">support@mymathcrown.com</strong></p>
-    </div>
-    <div style="padding:20px 32px;border-top:1px solid rgba(255,217,61,0.1);text-align:center">
-      <button onclick="document.getElementById('modal-terms').style.display='none'" style="background:linear-gradient(135deg,#FFD93D,#E8B800);color:#080F1E;border:none;padding:12px 40px;border-radius:50px;font-weight:700;font-size:14px;cursor:pointer">I Agree</button>
-    </div>
-  </div>
-</div>
-</body>
-</html>
+      <p style="margin-bottom:20px">These Terms are governed by the laws of the United States. Any disputes shall be resolved through binding arbitration under American A

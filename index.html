@@ -3830,38 +3830,110 @@ function endBattle(bs){
 }
 
 // ── SEARCH ─────────────────────────────────────────────
-function searchPlayers(query){
+function searchPlayers(queryStr){
   var resultsEl=$$("player-search-results"); if(!resultsEl) return;
-  if(!query||query.length<2){ resultsEl.innerHTML=""; return; }
-  query=query.toLowerCase();
-  var allPlayers=SESSION_PLAYERS.concat([
-    {name:"Jordan K.",grade:"7",wins:89,level:7,online:true},
-    {name:"Sam P.",grade:"7",wins:74,level:6,online:true},
-    {name:"Chris W.",grade:"8",wins:102,level:8,online:false},
-    {name:"Dana R.",grade:"9",wins:145,level:10,online:true},
-    {name:"Riley M.",grade:"7",wins:52,level:5,online:false},
-    {name:"Morgan L.",grade:"7",wins:43,level:4,online:true},
-    {name:"Taylor B.",grade:"6",wins:31,level:3,online:false}
-  ]);
-  var matches=allPlayers.filter(function(p){ return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name; });
-  resultsEl.innerHTML="";
-  if(matches.length===0){
-    var d=document.createElement("div"); d.style.cssText="color:var(--text2);font-size:13px;padding:8px;text-align:center";
-    d.textContent="No players found for: "+query;
-    resultsEl.appendChild(d); return;
+  if(!queryStr||queryStr.length<2){
+    resultsEl.innerHTML=""; return;
   }
-  matches.slice(0,5).forEach(function(p){
-    var row=document.createElement("div");
-    row.style.cssText="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;cursor:pointer";
-    row.setAttribute("data-pname",p.name);
-    row.addEventListener("click",function(){ selectPlayerChallenge(this.getAttribute("data-pname")); });
-    var dotColor=p.online?"var(--mint)":"var(--text2)";
-    row.innerHTML="<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1C3A6E,#06D6A0);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
-      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.name+"</div>"
-      +"<div style='font-size:12px;color:var(--text2)'><span style='display:inline-block;width:8px;height:8px;background:"+dotColor+";border-radius:50%;margin-right:4px'></span>Grade "+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
-      +"<button class='btn btn-coral btn-xs'>Challenge</button>";
-    resultsEl.appendChild(row);
-  });
+  // Show loading state
+  resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:10px;text-align:center'>Searching...</div>";
+
+  if(window.searchRegisteredUsers){
+    // Search Firestore — all registered students
+    window.searchRegisteredUsers(queryStr).then(function(matches){
+      resultsEl.innerHTML="";
+      if(matches.length===0){
+        var d=document.createElement("div");
+        d.style.cssText="color:var(--text2);font-size:13px;padding:12px;text-align:center";
+        d.innerHTML="<div style='font-size:24px;margin-bottom:6px'>&#x1F50D;</div>No registered students found for <strong>"+queryStr+"</strong><br><span style='font-size:11px'>Only MathCrown members appear in search</span>";
+        resultsEl.appendChild(d);
+        return;
+      }
+      matches.slice(0,8).forEach(function(p){
+        var row=document.createElement("div");
+        var isOnline=p.online && !p.inBattle;
+        var isBusy=p.online && p.inBattle;
+        var borderColor=isOnline?"rgba(6,214,160,0.3)":"rgba(255,255,255,0.08)";
+        var bgColor=isOnline?"rgba(6,214,160,0.05)":"rgba(255,255,255,0.03)";
+        var gradeLabel=p.grade?p.grade+"th Grade":"K-12";
+        var statusDot=isOnline
+          ?"<span style='display:inline-block;width:8px;height:8px;background:var(--mint);border-radius:50%;margin-right:4px'></span><span style='color:var(--mint);font-weight:700'>Online now</span>"
+          :isBusy
+          ?"<span style='display:inline-block;width:8px;height:8px;background:var(--coral);border-radius:50%;margin-right:4px'></span><span style='color:var(--coral)'>In battle</span>"
+          :"<span style='display:inline-block;width:8px;height:8px;background:var(--text2);border-radius:50%;margin-right:4px'></span><span style='color:var(--text2)'>Offline</span>";
+        var btnLabel=isOnline?"Challenge &#x2694;&#xFE0F;":isBusy?"Busy":"Practice";
+        var btnClass=isOnline?"btn btn-coral btn-xs":"btn btn-ghost btn-xs";
+        row.style.cssText="display:flex;align-items:center;gap:10px;padding:10px 12px;"
+          +"background:"+bgColor+";border:1px solid "+borderColor+";"
+          +"border-radius:12px;margin-bottom:6px;cursor:pointer";
+        row.innerHTML="<div style='position:relative'>"
+          +"<div style='width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1C3A6E,#06D6A0);"
+          +"display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:15px'>"
+          +p.avatar+"</div>"
+          +(p.online?"<div style='position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:"+(isBusy?"var(--coral)":"var(--mint)")+";border:2px solid var(--dark2)'></div>":"")
+          +"</div>"
+          +"<div style='flex:1;min-width:0'>"
+          +"<div style='font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>"+p.name+"</div>"
+          +"<div style='font-size:11px;margin-top:2px'>"+statusDot+" &middot; "+gradeLabel+" &middot; Level "+p.level+"</div>"
+          +"</div>"
+          +"<button class='"+btnClass+"' "+(isBusy?"disabled":"")
+          +" style='flex-shrink:0'>"+btnLabel+"</button>";
+        var btn=row.querySelector("button");
+        if(btn && !isBusy){
+          (function(uid,name,online){
+            var handler=function(e){
+              e.stopPropagation();
+              if(online){
+                window.challengeRealPlayer(uid,name);
+              } else {
+                showToast(name+" is offline — starting a practice battle!");
+                window.startBotBattle();
+              }
+            };
+            btn.addEventListener("click",handler);
+            row.addEventListener("click",handler);
+          })(p.uid,p.name,isOnline);
+        }
+        resultsEl.appendChild(row);
+      });
+    }).catch(function(){
+      // Firestore unavailable — fall back to live players only
+      resultsEl.innerHTML="";
+      var q2=queryStr.toLowerCase();
+      var liveOnly=(window.LIVE_PLAYERS||[]).filter(function(p){
+        return p.name && p.name.toLowerCase().indexOf(q2)>-1 && p.name!==S.name;
+      });
+      if(liveOnly.length===0){
+        resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:10px;text-align:center'>No results found</div>";
+      } else {
+        liveOnly.forEach(function(p){
+          var d=document.createElement("div");
+          d.style.cssText="padding:10px;background:rgba(6,214,160,0.05);border-radius:10px;margin-bottom:6px;cursor:pointer";
+          d.textContent=p.name+" (online)";
+          d.addEventListener("click",function(){ window.challengeRealPlayer(p.uid,p.name); });
+          resultsEl.appendChild(d);
+        });
+      }
+    });
+  } else {
+    // Module not ready yet — search live players only
+    resultsEl.innerHTML="";
+    var qFb=queryStr.toLowerCase();
+    var fb=(window.LIVE_PLAYERS||[]).filter(function(p){
+      return p.name && p.name.toLowerCase().indexOf(qFb)>-1 && p.name!==S.name;
+    });
+    if(fb.length===0){
+      resultsEl.innerHTML="<div style='color:var(--text2);font-size:13px;padding:10px;text-align:center'>Connecting to server...</div>";
+    } else {
+      fb.forEach(function(p){
+        var d=document.createElement("div");
+        d.style.cssText="padding:10px;background:rgba(6,214,160,0.05);border-radius:10px;margin-bottom:6px;cursor:pointer";
+        d.textContent=p.name+" (online)";
+        d.addEventListener("click",function(){ window.challengeRealPlayer(p.uid,p.name); });
+        resultsEl.appendChild(d);
+      });
+    }
+  }
 }
 
 function selectPlayerChallenge(name){
@@ -3876,7 +3948,16 @@ function selectPlayerChallenge(name){
 function sendDirectChallenge(){
   var input=$$("search-player-input"); var name=input?input.value.trim():"";
   if(!name){ showToast("Type a student name to challenge!"); return; }
-  selectPlayerChallenge(name);
+  // Check if typed name matches a real live player
+  var liveMatch = window.LIVE_PLAYERS && window.LIVE_PLAYERS.find(function(p){
+    return p.name && p.name.toLowerCase()===name.toLowerCase();
+  });
+  if(liveMatch){
+    window.challengeRealPlayer(liveMatch.uid, liveMatch.name);
+  } else {
+    showToast(name+" is not online right now. Starting practice battle!");
+    window.startBotBattle();
+  }
 }
 
 // ── LEADERBOARD ────────────────────────────────────────
@@ -4776,11 +4857,13 @@ document.addEventListener("DOMContentLoaded",function(){
     });
     showToast("⚔️ Challenge sent to " + toName + "! Waiting...");
     // Auto-cancel after 30s if not accepted
-    setTimeout(async () => {
+    window._challengeTimer = setTimeout(async () => {
       try {
         const snap = await getDoc(challengeRef);
         if (snap.exists() && snap.data().status === "pending") {
           await deleteDoc(challengeRef);
+          const overlay = document.getElementById("challenge-sending-overlay");
+          if (overlay) overlay.remove();
           showToast(toName + " didn't respond. Starting bot battle...");
           if (window.startBotBattle) window.startBotBattle();
         }
@@ -4797,28 +4880,37 @@ document.addEventListener("DOMContentLoaded",function(){
     challengeListener = onSnapshot(ref, async snap => {
       if (!snap.exists()) return;
       const data = snap.data();
+      // Skip if already processed
       if (data.status !== "pending") return;
-      // Show incoming challenge popup
       if (window.showIncomingChallenge) {
         window.showIncomingChallenge(data.fromUid, data.fromName, data.fromGrade, async accepted => {
           if (accepted) {
-            await updateDoc(ref, { status: "accepted" });
-            // Create shared battle room
+            // 1. Create the battle room first
             const battleId = data.fromUid + "_" + user.uid + "_" + Date.now();
-            const q = window.pickBattleQuestion();
+            const q = window.pickBattleQuestion ? window.pickBattleQuestion()
+              : { q:"2+2=?", opts:["3","4","5","6"], a:"4" };
             await setDoc(doc(db, "battles", battleId), {
               p1: data.fromUid, p1Name: data.fromName, p1Score: 0, p1Time: 0,
-              p2: user.uid, p2Name: window.S.name, p2Score: 0, p2Time: 0,
+              p2: user.uid, p2Name: window.S ? window.S.name : "Player 2",
+              p2Score: 0, p2Time: 0,
               round: 1, totalRounds: 5,
               question: q.q, options: q.opts, answer: q.a,
               status: "active",
               createdAt: serverTimestamp()
             });
-            await deleteDoc(ref);
+            // 2. Update challenge doc with battleId so challenger can find it — don't delete yet
+            await updateDoc(ref, { status: "accepted", battleId: battleId });
+            // 3. Give challenger 2 seconds to read the battleId, then delete
+            setTimeout(async () => {
+              try { await deleteDoc(ref); } catch(e) {}
+            }, 3000);
+            // 4. Acceptor (p2) enters battle room immediately
             if (window.joinBattleRoom) window.joinBattleRoom(battleId, "p2", data.fromName);
           } else {
-            await deleteDoc(ref);
-            showToast("Challenge declined.");
+            await updateDoc(ref, { status: "declined" });
+            setTimeout(async () => {
+              try { await deleteDoc(ref); } catch(e) {}
+            }, 1000);
           }
         });
       }
@@ -4850,17 +4942,18 @@ document.addEventListener("DOMContentLoaded",function(){
     const unsub = onSnapshot(challengeRef, snap => {
       if (!snap.exists()) return;
       const data = snap.data();
-      if (data.status === "accepted") {
+      if (data.status === "accepted" && data.battleId) {
         unsub();
-        // Find the battle room — look for battles with my uid
-        const battlesQuery = query(collection(db, "battles"),
-          where("p1", "==", user.uid));
-        getDocs(battlesQuery).then(snaps => {
-          if (!snaps.empty) {
-            const battleDoc = snaps.docs[0];
-            if (window.joinBattleRoom) window.joinBattleRoom(battleDoc.id, "p1", toName);
-          }
-        });
+        // Remove the sending overlay immediately
+        const overlay = document.getElementById("challenge-sending-overlay");
+        if (overlay) overlay.remove();
+        // Enter battle room as p1 using the battleId the acceptor created
+        if (window.joinBattleRoom) window.joinBattleRoom(data.battleId, "p1", toName);
+      } else if (data.status === "declined") {
+        unsub();
+        const overlay = document.getElementById("challenge-sending-overlay");
+        if (overlay) overlay.remove();
+        showToast(toName + " declined the challenge. Try the bot!");
       }
     });
   };
@@ -4868,12 +4961,20 @@ document.addEventListener("DOMContentLoaded",function(){
   // ── BATTLE ROOM LISTENER ──────────────────────────────────────
   window.joinBattleRoom = function(battleId, role, oppName) {
     if (battleListener) battleListener();
-    showToast("⚔️ Battle starting with " + oppName + "!");
-    // Set in-battle status
+    // Clear any pending challenge timer (so 30s doesn't fire after match starts)
+    if (window._challengeTimer) { clearTimeout(window._challengeTimer); window._challengeTimer = null; }
+    // Remove sending overlay if still showing
+    const sendOverlay = document.getElementById("challenge-sending-overlay");
+    if (sendOverlay) sendOverlay.remove();
+    // Remove incoming overlay if still showing
+    const inOverlay = document.getElementById("incoming-challenge-overlay");
+    if (inOverlay) inOverlay.remove();
+    // Set in-battle presence
     const user = auth.currentUser;
     if (user) {
       setDoc(doc(db, "presence", user.uid), { inBattle: true }, { merge: true });
     }
+    showToast("⚔️ Battle starting with " + oppName + "! Get ready!");
     if (window.enterRealBattle) window.enterRealBattle(battleId, role, oppName);
     battleListener = onSnapshot(doc(db, "battles", battleId), snap => {
       if (!snap.exists()) return;
@@ -4964,6 +5065,52 @@ document.addEventListener("DOMContentLoaded",function(){
   window.firebaseResetPassword = async function(email) {
     const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
     await sendPasswordResetEmail(auth, email);
+  };
+
+  // ── SEARCH REGISTERED USERS ─────────────────────────────────
+  window.searchRegisteredUsers = async function(queryStr) {
+    if (!queryStr || queryStr.length < 2) return [];
+    const results = [];
+    const q = queryStr.toLowerCase();
+    try {
+      // Firestore doesn't support full-text search natively
+      // We query all users (limit 200) and filter client-side by name prefix
+      // This works fine at small scale — upgrade to Algolia when 10k+ users
+      const snap = await getDocs(query(
+        collection(db, "users"),
+        orderBy("name"),
+        limit(200)
+      ));
+      const myUid = auth.currentUser ? auth.currentUser.uid : null;
+      snap.docs.forEach(d => {
+        if (d.id === myUid) return; // skip self
+        const data = d.data();
+        const name = (data.name || data.displayName || "").toLowerCase();
+        if (name.indexOf(q) > -1) {
+          // Check if they are currently online via LIVE_PLAYERS
+          const isOnline = window.LIVE_PLAYERS &&
+            window.LIVE_PLAYERS.some(p => p.uid === d.id);
+          const liveData = isOnline
+            ? window.LIVE_PLAYERS.find(p => p.uid === d.id)
+            : null;
+          results.push({
+            uid: d.id,
+            name: data.name || data.displayName || "Student",
+            grade: data.grade || "",
+            level: data.level || 1,
+            xp: data.xp || 0,
+            online: isOnline,
+            inBattle: liveData ? liveData.inBattle : false,
+            avatar: (data.name || data.displayName || "S")[0].toUpperCase()
+          });
+        }
+      });
+    } catch(e) {
+      console.log("Search error:", e);
+    }
+    // Sort: online first, then offline
+    results.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
+    return results;
   };
 
   window.auth = auth;

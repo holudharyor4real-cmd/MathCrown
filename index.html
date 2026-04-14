@@ -3494,6 +3494,8 @@ window.challengeRealPlayer = function(toUid, toName){
 window.cancelChallenge = function(){
   var o=document.getElementById("challenge-sending-overlay");
   if(o) o.remove();
+  if(window._challengeTimer){ clearTimeout(window._challengeTimer); window._challengeTimer=null; }
+  if(window._waitUnsubscribe){ window._waitUnsubscribe(); window._waitUnsubscribe=null; }
   showToast("Challenge cancelled.");
 };
 
@@ -4692,12 +4694,7 @@ document.addEventListener("DOMContentLoaded",function(){
     <button onclick="turnMusicOn()" id="music-on-btn" style="width:100%;background:rgba(155,93,229,0.1);border:1px solid rgba(28,58,110,0.4);border-radius:10px;padding:8px;color:var(--purple);font-size:13px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;display:none">
       🎵 Turn Music On
     </button>
-  </div>
-</div>
-
-<!-- Hidden audio element -->
-<audio id="music-audio" preload="none" style="display:none!important;width:0;height:0;position:absolute;left:-9999px"></audio>
-<script type="module">
+  </div
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -4877,18 +4874,19 @@ document.addEventListener("DOMContentLoaded",function(){
     if (!user) return;
     if (challengeListener) challengeListener();
     const ref = doc(db, "challenges", user.uid);
+    let processing = false;
     challengeListener = onSnapshot(ref, async snap => {
-      if (!snap.exists()) return;
+      if (!snap.exists() || processing) return;
       const data = snap.data();
-      // Skip if already processed
       if (data.status !== "pending") return;
+      processing = true;
       if (window.showIncomingChallenge) {
         window.showIncomingChallenge(data.fromUid, data.fromName, data.fromGrade, async accepted => {
           if (accepted) {
-            // 1. Create the battle room first
             const battleId = data.fromUid + "_" + user.uid + "_" + Date.now();
             const q = window.pickBattleQuestion ? window.pickBattleQuestion()
               : { q:"2+2=?", opts:["3","4","5","6"], a:"4" };
+            // Step 1: Create battle document
             await setDoc(doc(db, "battles", battleId), {
               p1: data.fromUid, p1Name: data.fromName, p1Score: 0, p1Time: 0,
               p2: user.uid, p2Name: window.S ? window.S.name : "Player 2",
@@ -4898,19 +4896,20 @@ document.addEventListener("DOMContentLoaded",function(){
               status: "active",
               createdAt: serverTimestamp()
             });
-            // 2. Update challenge doc with battleId so challenger can find it — don't delete yet
-            await updateDoc(ref, { status: "accepted", battleId: battleId });
-            // 3. Give challenger 2 seconds to read the battleId, then delete
-            setTimeout(async () => {
-              try { await deleteDoc(ref); } catch(e) {}
-            }, 3000);
-            // 4. Acceptor (p2) enters battle room immediately
+            // Step 2: Write battleId to challenger's OWN notify doc (they own it = no permission issue)
+            await setDoc(doc(db, "challenges", data.fromUid + "_notify"), {
+              battleId: battleId,
+              forUid: data.fromUid,
+              status: "ready",
+              createdAt: serverTimestamp()
+            });
+            // Step 3: Delete the incoming challenge doc
+            try { await deleteDoc(ref); } catch(e) {}
+            // Step 4: Acceptor enters battle
             if (window.joinBattleRoom) window.joinBattleRoom(battleId, "p2", data.fromName);
           } else {
-            await updateDoc(ref, { status: "declined" });
-            setTimeout(async () => {
-              try { await deleteDoc(ref); } catch(e) {}
-            }, 1000);
+            try { await deleteDoc(ref); } catch(e) {}
+            processing = false;
           }
         });
       }
@@ -4938,24 +4937,24 @@ document.addEventListener("DOMContentLoaded",function(){
   window.waitForAcceptance = function(toUid, toName) {
     const user = auth.currentUser;
     if (!user) return;
-    const challengeRef = doc(db, "challenges", toUid);
-    const unsub = onSnapshot(challengeRef, snap => {
+    // Watch OWN notify doc — challenger owns {myUid}_notify so no permission issues
+    const notifyRef = doc(db, "challenges", user.uid + "_notify");
+    const unsub = onSnapshot(notifyRef, snap => {
       if (!snap.exists()) return;
       const data = snap.data();
-      if (data.status === "accepted" && data.battleId) {
+      if (data.status === "ready" && data.battleId && data.forUid === user.uid) {
         unsub();
-        // Remove the sending overlay immediately
+        if (window._challengeTimer) { clearTimeout(window._challengeTimer); window._challengeTimer = null; }
         const overlay = document.getElementById("challenge-sending-overlay");
         if (overlay) overlay.remove();
-        // Enter battle room as p1 using the battleId the acceptor created
+        // Clean up notify doc
+        deleteDoc(notifyRef).catch(()=>{});
+        // Enter battle as p1
         if (window.joinBattleRoom) window.joinBattleRoom(data.battleId, "p1", toName);
-      } else if (data.status === "declined") {
-        unsub();
-        const overlay = document.getElementById("challenge-sending-overlay");
-        if (overlay) overlay.remove();
-        showToast(toName + " declined the challenge. Try the bot!");
       }
     });
+    // Store unsub so cancel can clean it up
+    window._waitUnsubscribe = unsub;
   };
 
   // ── BATTLE ROOM LISTENER ──────────────────────────────────────
@@ -5072,22 +5071,40 @@ document.addEventListener("DOMContentLoaded",function(){
     if (!queryStr || queryStr.length < 2) return [];
     const results = [];
     const q = queryStr.toLowerCase();
+    const myUid = auth.currentUser ? auth.currentUser.uid : null;
+
+    // Step 1: Always include matching LIVE_PLAYERS immediately (no Firestore needed)
+    if (window.LIVE_PLAYERS) {
+      window.LIVE_PLAYERS.forEach(p => {
+        if (p.uid === myUid) return;
+        const name = (p.name || "").toLowerCase();
+        if (name.indexOf(q) > -1) {
+          results.push({
+            uid: p.uid,
+            name: p.name,
+            grade: p.grade || "",
+            level: 1,
+            online: true,
+            inBattle: p.inBattle || false,
+            avatar: (p.name || "S")[0].toUpperCase()
+          });
+        }
+      });
+    }
+
+    // Step 2: Query Firestore users — NO orderBy to avoid index requirement
     try {
-      // Firestore doesn't support full-text search natively
-      // We query all users (limit 200) and filter client-side by name prefix
-      // This works fine at small scale — upgrade to Algolia when 10k+ users
       const snap = await getDocs(query(
         collection(db, "users"),
-        orderBy("name"),
-        limit(200)
+        limit(300)
       ));
-      const myUid = auth.currentUser ? auth.currentUser.uid : null;
       snap.docs.forEach(d => {
-        if (d.id === myUid) return; // skip self
+        if (d.id === myUid) return;
+        // Skip if already in results from LIVE_PLAYERS
+        if (results.some(r => r.uid === d.id)) return;
         const data = d.data();
         const name = (data.name || data.displayName || "").toLowerCase();
         if (name.indexOf(q) > -1) {
-          // Check if they are currently online via LIVE_PLAYERS
           const isOnline = window.LIVE_PLAYERS &&
             window.LIVE_PLAYERS.some(p => p.uid === d.id);
           const liveData = isOnline
@@ -5106,10 +5123,19 @@ document.addEventListener("DOMContentLoaded",function(){
         }
       });
     } catch(e) {
-      console.log("Search error:", e);
+      console.log("Firestore search error:", e.message);
+      // LIVE_PLAYERS results above are still returned
     }
-    // Sort: online first, then offline
+
+    // Online players first
     results.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
+    return results;
+  };
+
+  window.auth = auth;
+  window.db = db;
+  console.log("✅ MathCrown Firebase + Multiplayer loaded");
+sults.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
     return results;
   };
 

@@ -24,6 +24,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // A verified parent<->child link exists (see parent_links/{parentUid}
+    // below) — declared up top since both topic_stats and
+    // redemption_requests read this.
+    function isLinkedParentOf(childUid) {
+      return exists(/databases/$(database)/documents/parent_links/$(request.auth.uid)/children/$(childUid));
+    }
+
     // Private account data: owner only, always.
     match /users/{uid} {
       allow read, write: if signedIn() && request.auth.uid == uid;
@@ -94,6 +101,7 @@ service cloud.firestore {
     match /topic_stats/{uid} {
       allow read: if signedIn() && (
         request.auth.uid == uid ||
+        isLinkedParentOf(uid) ||
         (resource.data.classCode != null &&
          get(/databases/$(database)/documents/classrooms/$(resource.data.classCode)).data.teacherUid == request.auth.uid)
       );
@@ -102,17 +110,58 @@ service cloud.firestore {
 
     // Prize Store redemption requests. This app has no backend to
     // automate a real gift-card/529 payout yet, so a "redeem" click logs
-    // a request here instead of pretending to fulfill it — whoever runs
-    // the business fulfills it out-of-band and updates status directly in
-    // the Firebase Console (which, as project owner, bypasses these rules
-    // entirely — no client write path is needed for that). A student can
-    // create and read only their own requests; nobody can update or
-    // delete one through the app, so a student can never self-mark a
-    // request fulfilled or read another student's redemption history.
+    // a request here instead of pretending to fulfill it. A student can
+    // create and read only their own requests; a linked parent (see
+    // parent_links below) can also read and can move a pending request to
+    // approved/denied — that's parental authorization, not fulfillment.
+    // Actually fulfilling it (buying/sending the real card) and marking a
+    // request "fulfilled" happens out-of-band, by whoever runs the
+    // business, directly in the Firebase Console (which, as project
+    // owner, bypasses these rules entirely) — never through the app, so
+    // no one can self-mark a request fulfilled.
     match /redemption_requests/{reqId} {
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
-      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isLinkedParentOf(resource.data.uid));
+      allow update: if signedIn() && isLinkedParentOf(resource.data.uid)
+        && resource.data.status == "pending"
+        && request.resource.data.status in ["approved", "denied"]
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "respondedAt"]);
+      allow delete: if false;
+    }
+
+    // Parent <-> child linking. `link_codes/{code}` is a code -> uid
+    // lookup a student creates for themselves at signup (mirrors the
+    // classrooms/{classCode} pattern above) so a parent who only has the
+    // 6-digit code can resolve it to a uid without ever needing read
+    // access to the student's private users/{uid} doc. It's never
+    // updated or deleted — a stale/reused code is a one-way lookup, not a
+    // live grant.
+    match /link_codes/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.studentUid == request.auth.uid;
       allow update, delete: if false;
+    }
+
+    // A parent's own linked-children list — entirely parent-owned (the
+    // parent writes it after resolving a link_codes entry themselves), so
+    // no write path on the student's side is needed at all. This doc's
+    // existence is also what isLinkedParentOf() above checks to grant a
+    // parent cross-account read on their child's redemption requests.
+    match /parent_links/{parentUid}/children/{childUid} {
+      allow read, write: if signedIn() && request.auth.uid == parentUid;
+    }
+
+    // Tournament registration (real, replaces a fabricated "1,240
+    // registered" counter that used to sit here). One doc per
+    // student+tournament; a student can only create/delete their own.
+    // Read is open to any signed-in user, same baseline as
+    // crown_holders/classrooms above, since the only thing read from it
+    // in bulk is a registrant COUNT, not anyone's individual data.
+    match /tournament_registrations/{regId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
     }
   }
 }

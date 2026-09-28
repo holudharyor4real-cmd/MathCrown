@@ -310,7 +310,7 @@ function showCheckoutSuccess(planKey) {
       var pKey = "mc_parent_" + PARENT.email.toLowerCase().replace(/[^a-z0-9]/g, "");
       var existing = JSON.parse(localStorage.getItem(pKey) || "{}");
       existing.name = PARENT.name; existing.email = PARENT.email;
-      existing.plan = planKey; existing.children = PARENT.children || [];
+      existing.plan = planKey;
       localStorage.setItem(pKey, JSON.stringify(existing));
     } catch (e) {}
   }
@@ -1720,25 +1720,19 @@ body{
     <div class="price-note">🔒 <strong>All prizes go to verified parent accounts only.</strong> Students never handle money directly. COPPA compliant. No ads targeted at children. No data sold. Cancel anytime — no questions asked.</div>
   </div>
 
-  <!-- TESTIMONIALS -->
+  <!-- WHY FAMILIES WILL LOVE IT -->
   <div class="land-section-dark">
     <div class="land-section" style="padding:0">
-      <div class="land-section-title">💬 What Families Are Saying</div>
+      <div class="land-section-title">💬 Built for Families Like Yours</div>
       <div class="test-grid">
         <div class="test-card">
-          <div class="test-stars">⭐⭐⭐⭐⭐</div>
-          <div class="test-quote">"My daughter used to dread math homework. Now she asks to practice before dinner! She won 3 gift cards this month."</div>
-          <div class="test-author">— Sarah M., Mom of a 4th grader, Texas</div>
+          <div class="test-quote">Kids who dread math homework tend to lean into a leaderboard, a streak, and MathCoins to earn instead.</div>
         </div>
         <div class="test-card">
-          <div class="test-stars">⭐⭐⭐⭐⭐</div>
-          <div class="test-quote">"My son went from a C to a B+ in Algebra. The AI tutor Axiom explains things better than his teacher — and he actually listens!"</div>
-          <div class="test-author">— Marcus T., Dad of an 8th grader, Florida</div>
+          <div class="test-quote">Axiom, our AI tutor, walks through a stuck problem a different way instead of just marking it wrong.</div>
         </div>
         <div class="test-card">
-          <div class="test-stars">⭐⭐⭐⭐⭐</div>
-          <div class="test-quote">"Three kids on one family plan. They literally compete against each other every night. Best $14.99 I've ever spent."</div>
-          <div class="test-author">— Jennifer R., Mom of 3, California</div>
+          <div class="test-quote">One Family plan covers up to 4 kids, so siblings compete against each other, not just strangers online.</div>
         </div>
       </div>
     </div>
@@ -1943,33 +1937,13 @@ body{
   <div class="modal">
     <button class="modal-close" onclick="closeLinkChildModal()">✕</button>
     <div class="modal-title">Link a Child Account 👦</div>
-    <div class="modal-sub">Connect your child's MathCrown profile to your parent dashboard</div>
+    <div class="modal-sub">Ask your child to open "My Profile" and read you their 6-digit Parent Link Code.</div>
     <div class="form-group">
-      <label class="form-label">Child's First Name</label>
-      <input class="form-input" type="text" id="lc-fn" placeholder="e.g. Josh">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Child's Last Name</label>
-      <input class="form-input" type="text" id="lc-ln" placeholder="e.g. Johnson">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Child's Grade</label>
-      <select class="form-select" id="lc-grade">
-        <option value="">Select grade...</option>
-        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
-        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
-        <option value="5">5th Grade</option><option value="6">6th Grade</option>
-        <option value="7">7th Grade</option><option value="8">8th Grade</option>
-        <option value="9">9th Grade</option><option value="10">10th Grade</option>
-        <option value="11">11th Grade</option><option value="12">12th Grade</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Child's Date of Birth</label>
-      <input class="form-input" type="date" id="lc-dob">
+      <label class="form-label">Child's Parent Link Code</label>
+      <input class="form-input" type="text" inputmode="numeric" maxlength="6" id="lc-code" placeholder="e.g. 482913">
     </div>
     <div class="consent">
-      <strong>🔒 Privacy Note:</strong> This links your child's session data to your parent view. Full persistent linking requires Firebase (coming soon). For now this creates a local profile you can monitor this session.
+      <strong>🔒 Privacy Note:</strong> This links your account to your child's real MathCrown profile — their XP, coins, wins, and any prize requests will show up here, kept private to just you.
     </div>
     <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
       ✅ Link Child Account
@@ -2511,7 +2485,7 @@ body{
         <div class="feat-bg">🏆</div>
         <div class="feat-badge">
           <span class="badge b-red">🔴 REGISTERING NOW</span>
-          <span class="badge b-sun" style="margin-left:6px">📅 April 1, 2026</span>
+          <span class="badge b-sun" style="margin-left:6px" id="feat-tourn-date">📅 TBD</span>
         </div>
         <div class="feat-title">🥇 National Algebra Championship</div>
         <div class="feat-desc">Compete against 7th & 8th graders nationwide in a 3-round elimination tournament. Questions drawn from our full hybrid bank (AI + SAT/AP/STAAR). Top 10 win real prizes.</div>
@@ -2534,9 +2508,9 @@ body{
           </div>
         </div>
         <div class="tourn-meta">
-          <span style="font-size:13px;color:var(--text2)">👥 1,240 registered</span>
+          <span style="font-size:13px;color:var(--text2)" id="feat-tourn-registered">👥 —</span>
           <span style="font-size:13px;color:var(--text2)">🏫 Open to all 7th–8th graders</span>
-          <button class="btn btn-sun btn-sm" onclick="showToast('✅ Registered! Good luck! 🏆')">Register Free →</button>
+          <button class="btn btn-sun btn-sm" id="feat-tourn-register-btn" onclick="registerForFeaturedTournament()">Register Free →</button>
         </div>
       </div>
 
@@ -2618,6 +2592,7 @@ body{
 
       <!-- Podium -->
       <div class="lb-podium" id="lb-podium"></div>
+      <div id="lb-sample-note" style="display:none;font-size:12px;color:var(--text2);text-align:center;margin:-10px 0 12px">📋 Sample rankings shown until enough real students join this view — invite friends to fill it in!</div>
 
       <!-- Full list -->
       <div class="card" id="lb-full"></div>
@@ -2799,37 +2774,15 @@ body{
         <!-- Populated by renderParentDash() -->
       </div>
 
-      <!-- Teen Wallet Policy -->
+      <!-- Prize Request Policy -->
       <div class="teen-wallet-card">
         <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:10px">
-          💜 Teen Wallet — Ages 16-17
+          🎁 How Prize Requests Work
         </div>
         <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px">
-          Teens aged <strong style="color:var(--purple)">16 and 17</strong> can request gift cards directly — but only with <strong style="color:var(--mint)">your email approval</strong> as their parent or guardian.<br><br>
-          When your teen requests a prize, you receive an email with an <strong>Approve</strong> or <strong>Deny</strong> button. If you approve, the gift card is emailed to your teen within 24 hours.<br><br>
-          <strong style="color:var(--coral)">Under 16:</strong> All prizes go to the parent account only — no exceptions. This keeps younger children fully protected and COPPA compliant.
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 16px;flex:1;min-width:140px">
-            <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:4px">UNDER 13</div>
-            <div style="font-size:13px;font-weight:700">Parent only 🔒</div>
-            <div style="font-size:11px;color:var(--text2)">COPPA protected</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 16px;flex:1;min-width:140px">
-            <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:4px">AGES 13-15</div>
-            <div style="font-size:13px;font-weight:700">Parent only 🔒</div>
-            <div style="font-size:11px;color:var(--text2)">Parent manages rewards</div>
-          </div>
-          <div style="background:rgba(155,93,229,0.15);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;border:1px solid rgba(155,93,229,0.3)">
-            <div style="font-size:12px;font-weight:800;color:var(--purple);margin-bottom:4px">AGES 16-17</div>
-            <div style="font-size:13px;font-weight:700">Teen Wallet 💜</div>
-            <div style="font-size:11px;color:var(--text2)">Parent email approval</div>
-          </div>
-          <div style="background:rgba(6,214,160,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;border:1px solid rgba(6,214,160,0.2)">
-            <div style="font-size:12px;font-weight:800;color:var(--mint);margin-bottom:4px">AGE 18+</div>
-            <div style="font-size:13px;font-weight:700">Direct access ✅</div>
-            <div style="font-size:11px;color:var(--text2)">Full autonomy</div>
-          </div>
+          When your child redeems MathCoins for a prize, it shows up right here in your <strong style="color:var(--mint)">Prize Requests</strong> queue below — you <strong>Approve</strong> or <strong>Deny</strong> it in the app, no email needed.<br><br>
+          Approving doesn't charge anything automatically: it authorizes us to fulfill the request, which we then do by hand (buying and sending the real gift card, or making the 529 contribution) and mark it sent once it's on its way.<br><br>
+          <strong style="color:var(--coral)">Privacy:</strong> a prize request only ever reaches the parent account your child's Link Code connects to — never any other account.
         </div>
       </div>
 
@@ -2990,7 +2943,7 @@ var S = {
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:"",
   coinCapDate:"", coinCapEarned:0, coinCapNotified:false,
-  myRedemptions:[]
+  myRedemptions:[], recentEarnings:[]
 };
 
 // ═══ AXIOM ACCESS CONTROL ═══
@@ -3039,7 +2992,13 @@ function coinDailyCap(){ return isPaidPlan() ? COIN_DAILY_CAP_PAID : COIN_DAILY_
 // actually credited (0..amount) after the daily cap. Always use this to
 // credit coins — never add to S.coins directly — so no earning path can
 // bypass the cap.
-function awardCoins(amount){
+function logEarning(label, amount){
+  S.recentEarnings = S.recentEarnings || [];
+  S.recentEarnings.unshift({label:label, amount:amount, ts:Date.now()});
+  if(S.recentEarnings.length>10) S.recentEarnings.length=10;
+}
+
+function awardCoins(amount, reason){
   amount = amount||0;
   if(amount<=0) return 0;
   var today=axiomToday();
@@ -3048,6 +3007,7 @@ function awardCoins(amount){
   var granted=Math.min(amount, remaining);
   S.coins=(S.coins||0)+granted;
   S.coinCapEarned=(S.coinCapEarned||0)+granted;
+  if(granted>0) logEarning(reason||"MathCoins earned", granted);
   if(granted<amount && !S.coinCapNotified){
     S.coinCapNotified=true;
     showToast("🪙 Daily MathCoins limit reached ("+coinDailyCap()+")! More tomorrow — great playing today!");
@@ -3095,7 +3055,7 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-23-capitalize-plan-label";
+var MC_BUILD = "2026-09-28-investor-ready-cleanup";
 console.log("%c MathCrown build: 2026-08-23-capitalize-plan-label ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
@@ -3161,17 +3121,51 @@ var LB_DATA = [
   {n:"Drew K.",   g:"7th", pts:2640, e:"D", chg:"+5", up:true}
 ];
 
+// Mastery % used to be hardcoded (95, 90, 62...) for every single account,
+// including a brand-new signup with zero questions answered. These map
+// each display skill to the real QUESTION_BANK topic keys behind it (keys
+// vary by grade band — see recordTopicAnswer/S.topicStats) so mastery is
+// computed from what THIS student has actually answered.
+var SKILL_TOPIC_KEYS = {
+  "Number Sense":  ["PlaceValue","NumberTheory","NumberTheoryII"],
+  "Arithmetic":    ["Addition","Subtraction","Multiplication","Division","Addition3Digit","Subtraction3Digit","MultiplicationDivision","OrderOfOperations","Integers"],
+  "Fractions":     ["FractionsIntro","FractionsII","Fractions","FractionsOperations"],
+  "Algebra":       ["Algebra","LinearEquations","LinearEquationsII","QuadraticEquations","QuadraticsFull","SystemsInequalities","Functions","FunctionsFull","Polynomials"],
+  "Geometry":      ["Geometry","GeometryII","CoordinateGeometry"],
+  "Statistics":    ["Statistics","APStatistics","APStatisticsProblems"],
+  "Trigonometry":  ["Trigonometry","TrigonometryFull"],
+  "Pre-Calculus":  ["PreCalculus"],
+  "Calculus":      ["Derivatives","Integrals","Limits","DerivativesPowerRule","IntegralsPowerRule","LimitsEvaluation"]
+};
+
 var SKILLS_DATA = [
-  {n:"Number Sense", i:"N", m:95, unlocked:true},
-  {n:"Arithmetic",   i:"A", m:90, unlocked:true},
-  {n:"Fractions",    i:"F", m:62, unlocked:true},
-  {n:"Algebra",      i:"AL",m:88, unlocked:true},
-  {n:"Geometry",     i:"G", m:80, unlocked:true},
-  {n:"Statistics",   i:"S", m:74, unlocked:true},
-  {n:"Trigonometry", i:"T", m:45, unlocked:true},
-  {n:"Pre-Calculus", i:"PC",m:0,  unlocked:false},
-  {n:"Calculus",     i:"C", m:0,  unlocked:false}
+  {n:"Number Sense", i:"N", unlocked:true},
+  {n:"Arithmetic",   i:"A", unlocked:true},
+  {n:"Fractions",    i:"F", unlocked:true},
+  {n:"Algebra",      i:"AL",unlocked:true},
+  {n:"Geometry",     i:"G", unlocked:true},
+  {n:"Statistics",   i:"S", unlocked:true},
+  {n:"Trigonometry", i:"T", unlocked:true},
+  {n:"Pre-Calculus", i:"PC",unlocked:false},
+  {n:"Calculus",     i:"C", unlocked:false}
 ];
+
+// Sums correct/attempted across every real topic key mapped to this
+// skill; 0% (not "Not started" — attempted:0 divides safely to 0) until
+// the student has actually answered something in it.
+function skillMastery(skillName){
+  var keys=SKILL_TOPIC_KEYS[skillName]||[];
+  var correct=0, attempted=0;
+  keys.forEach(function(k){
+    var t=(S.topicStats||{})[k];
+    if(t){ correct+=t.correct||0; attempted+=t.attempted||0; }
+  });
+  return attempted ? Math.round(correct/attempted*100) : 0;
+}
+
+function computeSkills(){
+  return SKILLS_DATA.map(function(s){ return {n:s.n, i:s.i, unlocked:s.unlocked, m:skillMastery(s.n)}; });
+}
 
 var PRIZES = [
   {n:"Amazon Gift Card", e:"$5",  cost:500,  val:"$5 value"},
@@ -3182,13 +3176,6 @@ var PRIZES = [
   {n:"Math Merch",       e:"Merch",cost:1500,val:"$15 value"}
 ];
 
-var EARNINGS_LOG = [
-  {d:"Won challenge",        a:"+15 coins", date:"Today",   color:"var(--mint)", i:"W"},
-  {d:"Daily trivia perfect", a:"+25 coins", date:"Today",   color:"var(--mint)", i:"T"},
-  {d:"Tournament win",       a:"+100 coins",date:"Mar 20",  color:"var(--mint)", i:"TR"},
-  {d:"7-day streak bonus",   a:"+50 coins", date:"Mar 18",  color:"var(--mint)", i:"S"},
-  {d:"Redeemed Amazon Card", a:"-500 coins",date:"Mar 15",  color:"var(--coral)",i:"R"}
-];
 
 var COIN_GUIDE = [
   {a:"Daily trivia (3 questions)", c:"10-25 coins", i:"Q"},
@@ -3200,12 +3187,13 @@ var COIN_GUIDE = [
   {a:"Tournament win",             c:"100-500 coins",i:"TW"}
 ];
 
+var FEATURED_TOURNAMENT = {id:"algebra-champ-2026", n:"National Algebra Championship", date:"November 15, 2026"};
 var TOURNAMENTS = [
-  {n:"5th Grade Arithmetic Cup",    date:"March 30, 2026", prize:"$200",  spots:"428/500", color:"card-mint",   grades:"Grades 4-5"},
-  {n:"Middle School Geometry Bowl", date:"April 15, 2026", prize:"$350",  spots:"211/300", color:"card-sky",    grades:"Grades 6-8"},
-  {n:"High School Pre-Calc Sprint", date:"May 1, 2026",    prize:"$750",  spots:"89/200",  color:"card-purple", grades:"Grades 9-12"},
-  {n:"Elementary Fun Math Blitz",   date:"May 15, 2026",   prize:"$150",  spots:"320/400", color:"card-sun",    grades:"Grades 1-3"},
-  {n:"National Calculus Challenge", date:"June 1, 2026",   prize:"$1000", spots:"45/100",  color:"card-coral",  grades:"Grades 11-12"}
+  {id:"arith-cup-2026",      n:"5th Grade Arithmetic Cup",    date:"December 6, 2026",  prize:"$200",  capacity:500, color:"card-mint",   grades:"Grades 4-5"},
+  {id:"geo-bowl-2027",       n:"Middle School Geometry Bowl", date:"January 17, 2027",  prize:"$350",  capacity:300, color:"card-sky",    grades:"Grades 6-8"},
+  {id:"precalc-sprint-2027", n:"High School Pre-Calc Sprint", date:"February 7, 2027",  prize:"$750",  capacity:200, color:"card-purple", grades:"Grades 9-12"},
+  {id:"fun-blitz-2027",      n:"Elementary Fun Math Blitz",   date:"March 14, 2027",    prize:"$150",  capacity:400, color:"card-sun",    grades:"Grades 1-3"},
+  {id:"calc-challenge-2027", n:"National Calculus Challenge", date:"April 4, 2027",     prize:"$1000", capacity:100, color:"card-coral",  grades:"Grades 11-12"}
 ];
 
 var QUICK_PROMPTS = [
@@ -3217,14 +3205,25 @@ var QUICK_PROMPTS = [
   {t:"Solve word problems",   emoji:"W"}
 ];
 
+// Static unlocked flags removed — every one of these used to read
+// unlocked:true for every account, including a brand-new signup with zero
+// wins. computeAchievements() below fills `unlocked` in from real S state
+// each time it's rendered. "Top 10%" has no reliable real signal yet (that
+// needs a real grade-wide percentile, not just the ≤20-row sample the
+// leaderboard fetches) so it stays locked until that's built, same as the
+// Weekly/School leaderboard tabs staying sample data for the same reason.
 var ACHIEVEMENTS_DATA = [
-  {n:"First Win",    d:"Won your first challenge",     i:"W",  bg:"rgba(255,217,61,0.15)",  unlocked:true},
-  {n:"Streak Master",d:"5-day login streak",           i:"S",  bg:"rgba(255,107,107,0.15)", unlocked:true},
-  {n:"Top 10%",      d:"Ranked in top 10% of grade",  i:"T",  bg:"rgba(6,214,160,0.15)",   unlocked:true},
-  {n:"Speed Demon",  d:"Answer in under 5 seconds",   i:"Sp", bg:"rgba(78,205,196,0.15)",  unlocked:false},
-  {n:"Giant Slayer", d:"Beat a Diamond tier player",  i:"G",  bg:"rgba(255,107,107,0.15)", unlocked:false},
-  {n:"Math Scholar", d:"Complete 500 questions",      i:"M",  bg:"rgba(155,93,229,0.15)",  unlocked:false}
+  {n:"First Win",    d:"Won your first challenge",     i:"W",  bg:"rgba(255,217,61,0.15)",  check:function(){ return (S.wins||0)>0; }},
+  {n:"Streak Master",d:"5-day login streak",           i:"S",  bg:"rgba(255,107,107,0.15)", check:function(){ return (S.streak||0)>=5; }},
+  {n:"Top 10%",      d:"Ranked in top 10% of grade",  i:"T",  bg:"rgba(6,214,160,0.15)",   check:function(){ return false; }},
+  {n:"Speed Demon",  d:"Answer in under 5 seconds",   i:"Sp", bg:"rgba(78,205,196,0.15)",  check:function(){ return false; }},
+  {n:"Giant Slayer", d:"Beat a Diamond tier player",  i:"G",  bg:"rgba(255,107,107,0.15)", check:function(){ return false; }},
+  {n:"Math Scholar", d:"Complete 500 questions",      i:"M",  bg:"rgba(155,93,229,0.15)",  check:function(){ return (S.problemsSolved||0)>=500; }}
 ];
+
+function computeAchievements(){
+  return ACHIEVEMENTS_DATA.map(function(a){ return {n:a.n, d:a.d, i:a.i, bg:a.bg, unlocked:a.check()}; });
+}
 
 // ── AVATAR CATALOG ──────────────────────────────────────
 // Selectable profile avatars — no photo uploads needed. Some are free
@@ -3660,7 +3659,7 @@ function saveSession(){
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
       problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null, topicStats:S.topicStats||{},
       name:S.name, grade:S.grade, gradeNum:S.gradeNum,
-      coinCapDate:S.coinCapDate||"", coinCapEarned:S.coinCapEarned||0
+      coinCapDate:S.coinCapDate||"", coinCapEarned:S.coinCapEarned||0, recentEarnings:S.recentEarnings||[]
     }));
   }catch(e){}
   // Mirror to the real backend too, so MathCoins/XP/wins are a genuine
@@ -3896,7 +3895,7 @@ async function loginParent(){
       try{
         var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
         var saved=localStorage.getItem(pKey);
-        if(saved){ var d=JSON.parse(saved); PARENT.plan=d.plan||"Free"; PARENT.children=d.children||[]; PARENT.name=d.name||fn; }
+        if(saved){ var d=JSON.parse(saved); PARENT.plan=d.plan||"Free"; PARENT.name=d.name||fn; }
       }catch(e){}
       var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
       closeLoginModal();
@@ -3920,7 +3919,7 @@ async function loginParent(){
   try{
     var pKey2="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
     var saved2=localStorage.getItem(pKey2);
-    if(saved2){ var d2=JSON.parse(saved2); PARENT.plan=d2.plan||"Free"; PARENT.children=d2.children||[]; PARENT.name=d2.name||fn2; }
+    if(saved2){ var d2=JSON.parse(saved2); PARENT.plan=d2.plan||"Free"; PARENT.name=d2.name||fn2; }
   }catch(e){}
   var nav2=$$("nav-parent-dash"); if(nav2) nav2.style.display="flex";
   closeLoginModal();
@@ -3954,16 +3953,19 @@ async function loginStudent(){
         S.classCode=data.classCode||""; S.vault=data.vault||null; S.topicStats=data.topicStats||{};
         S.plan=data.plan||"free";
         S.coinCapDate=data.coinCapDate||""; S.coinCapEarned=data.coinCapEarned||0;
+        S.recentEarnings=data.recentEarnings||[];
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
         // Restore linkCode from Firestore
         if(data.linkCode){
           S.linkCode=data.linkCode;
+          if(window.ensureLinkCode && window.auth && window.auth.currentUser) window.ensureLinkCode(data.linkCode, window.auth.currentUser.uid);
         } else {
           // Existing users: generate and save linkCode now
           var newCode=Math.floor(100000+Math.random()*900000).toString();
           S.linkCode=newCode;
           try{ await window.saveProgress(S.xp,S.coins,S.level,S.streak,newCode); }catch(e){}
+          if(window.ensureLinkCode && window.auth && window.auth.currentUser) window.ensureLinkCode(newCode, window.auth.currentUser.uid);
         }
       }
       closeLoginModal();
@@ -3996,7 +3998,7 @@ async function loginStudent(){
 function logout(){
   saveSession();
   // Reset student state
-  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[];
+  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[]; S.recentEarnings=[];
   document.body.removeAttribute("data-tier");
   // Reset parent state
   PARENT.isLoggedIn=false;
@@ -4181,7 +4183,7 @@ function claimPiggyBank(){
   if(Date.now() < S.vault.unlockAt){ showToast("Not ready yet — keep waiting!"); return; }
   var bonus=Math.round(S.vault.amount*S.vault.bonusPct);
   S.coins += S.vault.amount; // returning your own locked-away coins, not new earnings
-  var bonusGranted=awardCoins(bonus); // interest IS new coins, so it still counts against today's cap
+  var bonusGranted=awardCoins(bonus, "Piggy Bank bonus"); // interest IS new coins, so it still counts against today's cap
   showToast("🎉 Piggy Bank matured! +"+S.vault.amount+" coins + "+bonusGranted+" bonus!");
   S.vault=null;
   saveSession();
@@ -4421,7 +4423,7 @@ function endK5CrownClash(bs){
   clearInterval(bs.timer); clearInterval(bs.oppTimer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?220:tie?110:60, coins=win?170:tie?85:30;
-  S.xp+=xp; coins=awardCoins(coins); if(win) S.wins=(S.wins||0)+1; saveSession();
+  S.xp+=xp; coins=awardCoins(coins, "Crown Clash "+(win?"win":tie?"tie":"battle")); if(win) S.wins=(S.wins||0)+1; saveSession();
   renderK5Rewards();
 
   var becameChamp=false;
@@ -4582,7 +4584,7 @@ function answerQ(sel,correct,btn){
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
   recordTopicAnswer(session.qs[session.idx] && session.qs[session.idx].topic, right);
-  if(right){ btn.classList.add("correct"); session.correct++; var qCoins=awardCoins(10); S.xp+=50; session.coinsEarned=(session.coinsEarned||0)+qCoins; session.xpEarned=(session.xpEarned||0)+50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +"+qCoins+" MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  if(right){ btn.classList.add("correct"); session.correct++; var qCoins=awardCoins(10, "Daily Trivia — correct answer"); S.xp+=50; session.coinsEarned=(session.coinsEarned||0)+qCoins; session.xpEarned=(session.xpEarned||0)+50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +"+qCoins+" MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
   if(q.explanation){
@@ -4600,7 +4602,7 @@ function showTriviaResult(){
   var t=session.qs.length, c=session.correct, pct=Math.round(c/t*100);
   // Per-question coins/XP were already credited in answerQ (through the
   // daily cap) as each answer landed — only the perfect-score bonus is new.
-  var perfectBonus = c===t ? awardCoins(25) : 0;
+  var perfectBonus = c===t ? awardCoins(25, "Daily Trivia — perfect score bonus") : 0;
   var coinsEarned=(session.coinsEarned||0)+perfectBonus, xpEarned=(session.xpEarned||0)+(c===t?100:0);
   S.xp+=(c===t?100:0);
   saveSession();
@@ -5034,7 +5036,7 @@ window.endRealBattle = function(data, role){
   if(won) sndWin(); else if(!tied) sndLose();
   var xpGain = won?120:tied?60:30;
   var coinGain = won?50:tied?20:10;
-  S.xp += xpGain; coinGain = awardCoins(coinGain);
+  S.xp += xpGain; coinGain = awardCoins(coinGain, "Real Battle "+(won?"win":tied?"tie":"loss"));
   if(won) S.wins = (S.wins||0)+1;
   saveSession();
   showToast((won?"🏆 Won! ":"")+"+" + xpGain + " XP, +" + coinGain + " coins!");
@@ -5191,7 +5193,7 @@ function endBattle(bs){
   clearInterval(bs.timer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?200:tie?100:50, coins=win?150:tie?75:25;
-  S.xp+=xp; coins=awardCoins(coins); saveSession();
+  S.xp+=xp; coins=awardCoins(coins, "Practice Battle "+(win?"win":tie?"tie":"loss")); saveSession();
   if(S.tier==="k5") renderK5Rewards();
   var wrap=$$("battle-q-wrap"); if(!wrap) return;
   var msg=win?"Victory!":tie?"Draw!":"Keep Training!";
@@ -5413,11 +5415,11 @@ function renderLeaderboard(){
   // leaderboard. "Weekly" and "School" stay sample data for now — there's
   // no weekly-reset or school/roster data model yet to make them real.
   if(tab!=="grade" && tab!=="national"){
-    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
     return;
   }
   if(!window.fetchLeaderboard){
-    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
     return;
   }
   var gradeFilter = tab==="grade" ? gn : null;
@@ -5427,17 +5429,18 @@ function renderLeaderboard(){
     if(real && real.length){
       renderLeaderboardRows(real.map(function(p){
         return {n:p.name, g:(p.grade||gn)+"th", pts:p.xp||0, e:(p.name||"?")[0].toUpperCase(), chg:"", up:true};
-      }));
+      }), false);
     } else {
-      renderLeaderboardRows(leaderboardSampleData(tab, gn));
+      renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
     }
   }).catch(function(){
     if(window.currentLBTab!==requestedTab) return;
-    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
   });
 }
 
-function renderLeaderboardRows(DATA){
+function renderLeaderboardRows(DATA, isSample){
+  var note=$$("lb-sample-note"); if(note) note.style.display=isSample?"block":"none";
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
   var pod=$$("lb-podium");
   if(pod && DATA.length>=3){
@@ -5473,15 +5476,70 @@ function renderLeaderboardRows(DATA){
 
 // ── TOURNAMENTS ────────────────────────────────────────
 function renderTournaments(){
+  renderFeaturedTournament();
   var el=$$("tourn-list"); if(!el) return;
-  var html="";
+  el.innerHTML="";
   TOURNAMENTS.forEach(function(t){
-    html+="<div class='t-card "+t.color+"'><div class='t-card-row'>"
-      +"<div><div class='t-name'>"+t.n+"</div><div class='t-meta'>"+t.date+" - "+t.spots+" - "+t.grades+"</div></div>"
+    var card=document.createElement("div"); card.className="t-card "+t.color;
+    card.innerHTML="<div class='t-card-row'>"
+      +"<div><div class='t-name'>"+t.n+"</div><div class='t-meta'>"+t.date+" · Up to "+t.capacity+" spots · "+t.grades+"</div></div>"
       +"<div><div class='t-prize'>"+t.prize+"</div><div class='t-pplace'>1st place</div></div>"
-      +"</div></div>";
+      +"</div><div style='margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap'>"
+      +"<span class='t-registered-count' style='font-size:12px;color:var(--text2)'>Loading registrations…</span>"
+      +"<button class='btn btn-ghost btn-xs t-register-btn'>Register Free</button></div>";
+    el.appendChild(card);
+    var countEl=card.querySelector(".t-registered-count"), btn=card.querySelector(".t-register-btn");
+    btn.addEventListener("click",function(){ handleTournamentRegister(t.id, btn, countEl, t.capacity); });
+    refreshTournamentCard(t.id, countEl, btn, t.capacity);
   });
-  el.innerHTML=html;
+}
+
+function renderFeaturedTournament(){
+  var dateEl=$$("feat-tourn-date"); if(dateEl) dateEl.textContent="📅 "+FEATURED_TOURNAMENT.date;
+  var countEl=$$("feat-tourn-registered"), btn=$$("feat-tourn-register-btn");
+  if(countEl) countEl.textContent="👥 Loading…";
+  refreshTournamentCard(FEATURED_TOURNAMENT.id, countEl, btn, null);
+}
+
+function refreshTournamentCard(tournamentId, countEl, btn, capacity){
+  if(window.tournamentRegistrationCount){
+    window.tournamentRegistrationCount(tournamentId).then(function(n){
+      if(!countEl) return;
+      countEl.textContent = n===null ? "👥 —" : "👥 "+n.toLocaleString()+(capacity?" / "+capacity+" registered":" registered");
+    });
+  }
+  if(window.isRegisteredForTournament && btn){
+    window.isRegisteredForTournament(tournamentId).then(function(already){
+      if(already) markTournamentButtonRegistered(btn);
+    });
+  }
+}
+
+function markTournamentButtonRegistered(btn){
+  btn.textContent="✅ Registered";
+  btn.disabled=true;
+  btn.classList.remove("btn-sun","btn-ghost");
+  btn.classList.add("btn-mint");
+}
+
+function handleTournamentRegister(tournamentId, btn, countEl, capacity){
+  if(!S.name){ showToast("Sign in to register for tournaments!"); return; }
+  if(!window.registerForTournament){ showToast("Registration isn't available right now — try again soon."); return; }
+  btn.disabled=true; btn.textContent="Registering...";
+  window.registerForTournament(tournamentId).then(function(res){
+    if(res.ok){
+      markTournamentButtonRegistered(btn);
+      showToast("✅ Registered! Good luck! 🏆");
+      refreshTournamentCard(tournamentId, countEl, null, capacity);
+    } else {
+      btn.disabled=false; btn.textContent="Register Free";
+      showToast(res.error||"Could not register — please try again.");
+    }
+  });
+}
+
+function registerForFeaturedTournament(){
+  handleTournamentRegister(FEATURED_TOURNAMENT.id, $$("feat-tourn-register-btn"), $$("feat-tourn-registered"), null);
 }
 
 // ── AI TUTOR ───────────────────────────────────────────
@@ -5675,7 +5733,7 @@ function answerPractice(sel,correct,btn){
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
   recordTopicAnswer(practiceSession.qs[practiceSession.idx] && practiceSession.qs[practiceSession.idx].topic, right);
-  if(right){ btn.classList.add("correct"); practiceSession.correct++; var qCoins=awardCoins(8); practiceSession.coinsEarned=(practiceSession.coinsEarned||0)+qCoins; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +"+qCoins+" MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; var qCoins=awardCoins(8, "Practice Mode — correct answer"); practiceSession.coinsEarned=(practiceSession.coinsEarned||0)+qCoins; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +"+qCoins+" MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
 }
@@ -5747,18 +5805,22 @@ function renderWallet(){
   }
   var eg=$$("earnings");
   if(eg){
-    var ehtml="";
-    EARNINGS_LOG.forEach(function(e){
-      ehtml+="<div class='earn-row'><div class='earn-icon' style='background:rgba(255,255,255,0.06)'>"+e.i+"</div>"
-        +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+e.d+"</div><div style='font-size:12px;color:var(--text2)'>"+e.date+"</div></div>"
-        +"<div style='font-size:16px;font-weight:800;color:"+e.color+"'>"+e.a+"</div></div>";
-    });
-    eg.innerHTML=ehtml;
+    var log=S.recentEarnings||[];
+    if(!log.length){
+      eg.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:12px'>No earnings yet — answer a few questions to get started!</div>";
+    } else {
+      eg.innerHTML=log.map(function(e){
+        var d=e.ts?new Date(e.ts).toLocaleDateString():"";
+        return "<div class='earn-row'><div class='earn-icon' style='background:rgba(255,255,255,0.06)'>🪙</div>"
+          +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+e.label+"</div><div style='font-size:12px;color:var(--text2)'>"+d+"</div></div>"
+          +"<div style='font-size:16px;font-weight:800;color:var(--mint)'>+"+e.amount+"</div></div>";
+      }).join("");
+    }
   }
 }
 
 function pendingRedemptionFor(prizeName){
-  return (S.myRedemptions||[]).some(function(r){ return r.prizeName===prizeName && r.status==="pending"; });
+  return (S.myRedemptions||[]).some(function(r){ return r.prizeName===prizeName && (r.status==="pending"||r.status==="approved"); });
 }
 
 function renderPrizeGrid(){
@@ -5810,8 +5872,8 @@ function renderRedemptionHistory(){
   var list=S.myRedemptions||[];
   if(!list.length){ wrap.style.display="none"; return; }
   wrap.style.display="block";
-  var STATUS_LABEL={pending:"⏳ Pending",fulfilled:"✅ Fulfilled",denied:"❌ Denied"};
-  var STATUS_COLOR={pending:"var(--sun)",fulfilled:"var(--mint)",denied:"var(--coral)"};
+  var STATUS_LABEL={pending:"⏳ Pending",approved:"👍 Approved — awaiting fulfillment",fulfilled:"✅ Fulfilled",denied:"❌ Denied"};
+  var STATUS_COLOR={pending:"var(--sun)",approved:"var(--sky)",fulfilled:"var(--mint)",denied:"var(--coral)"};
   box.innerHTML=list.map(function(r){
     var d=(r.requestedAt&&r.requestedAt.seconds)?new Date(r.requestedAt.seconds*1000).toLocaleDateString():"";
     return "<div class='earn-row'><div style='flex:1'><div style='font-size:14px;font-weight:800'>"+r.prizeName+"</div>"
@@ -5824,7 +5886,7 @@ function renderRedemptionHistory(){
 function renderSkills(){
   var el=$$("skills-grid"); if(!el) return;
   el.innerHTML="";
-  SKILLS_DATA.forEach(function(s){
+  computeSkills().forEach(function(s){
     var card=document.createElement("div");
     card.className="card skill-card"+(s.unlocked?"":" skill-locked");
     card.style.cursor=s.unlocked?"pointer":"default";
@@ -5879,7 +5941,7 @@ function renderProfile(){
   var achs=$$("achievements");
   if(achs){
     var ahtml="";
-    ACHIEVEMENTS_DATA.forEach(function(a){
+    computeAchievements().forEach(function(a){
       ahtml+="<div class='ach-row "+(a.unlocked?"":"ach-locked")+"'>"
         +"<div class='ach-icon' style='background:"+a.bg+"'>"+a.i+"</div>"
         +"<div style='flex:1'><div class='ach-name'>"+a.n+"</div><div class='ach-desc'>"+a.d+"</div></div>"
@@ -5896,90 +5958,124 @@ function renderParentDash(){
   setEl("p-dash-name",PARENT.name||"Parent Account");
   setEl("p-dash-plan","Plan: "+planLabel(PARENT.plan));
   var pa=$$("p-dash-avatar"); if(pa) pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
+  renderChildrenList();
+  refreshParentChildren();
+}
+
+function renderChildrenList(){
   var cb=$$("p-dash-children-badge"); if(cb) cb.textContent=PARENT.children.length+" Children Linked";
   var list=$$("p-children-list"); if(!list) return;
-  var demoChild={name:"Your Child",grade:"7th",age:13,level:4,xp:1240,coins:620,streak:3,wins:12,topics_weak:["Fractions","Word Problems"],topics_strong:["Algebra","Geometry"],activity:[{txt:"Answered 12 trivia questions",time:"Today",color:"var(--mint)"},{txt:"Won challenge vs Jordan K.",time:"Today",color:"var(--mint)"},{txt:"Asked Axiom about fractions",time:"Yesterday",color:"var(--sky)"}]};
-  var children=PARENT.children.length>0?PARENT.children:[demoChild];
   list.innerHTML="";
+  var linkBox=document.createElement("div"); linkBox.className="link-child-box";
+  linkBox.innerHTML="<div style='font-size:32px;margin-bottom:10px'>+</div><div style='font-size:15px;font-weight:800;margin-bottom:6px'>"+(PARENT.children.length?"Link Another Child":"Link Your Child Account")+"</div><div style='font-size:13px;color:var(--text2)'>Tap to connect your child to see their real progress</div>";
+  linkBox.addEventListener("click",showLinkChildModal);
+  list.appendChild(linkBox);
   if(PARENT.children.length===0){
-    var linkBox=document.createElement("div"); linkBox.className="link-child-box";
-    linkBox.setAttribute("onclick","showLinkChildModal()");
-    linkBox.innerHTML="<div style='font-size:32px;margin-bottom:10px'>+</div><div style='font-size:15px;font-weight:800;margin-bottom:6px'>Link Your Child Account</div><div style='font-size:13px;color:var(--text2)'>Tap to connect your child to see their real progress</div>";
-    linkBox.addEventListener("click",showLinkChildModal);
-    list.appendChild(linkBox);
-    var previewLabel=document.createElement("div"); previewLabel.style.cssText="font-size:12px;color:var(--text2);margin-bottom:12px;text-align:center"; previewLabel.textContent="Preview below:"; list.appendChild(previewLabel);
+    var empty=document.createElement("div"); empty.style.cssText="font-size:13px;color:var(--text2);margin-top:14px;text-align:center";
+    empty.textContent="No children linked yet — ask your child for their Parent Link Code from their profile page.";
+    list.appendChild(empty);
+  } else {
+    PARENT.children.forEach(function(child){ list.appendChild(buildChildCard(child)); });
   }
-  children.forEach(function(child){ list.appendChild(buildChildCard(child, PARENT.children.length===0)); });
   renderPrizeQueue();
 }
 
-function buildChildCard(child, isDemo){
+// Fetches real linked-children data from Firestore, then re-renders just
+// the children list/prize queue (NOT the whole dashboard — renderParentDash
+// calls this, so re-calling renderParentDash here would loop forever).
+function refreshParentChildren(){
+  if(!window.fetchLinkedChildren) return;
+  window.fetchLinkedChildren().then(function(children){
+    PARENT.children=children||[];
+    renderChildrenList();
+  });
+}
+
+function getStrongTopics(topicStats, minAttempts, max){
+  minAttempts=minAttempts||3; max=max||3;
+  var rows=Object.keys(topicStats||{}).map(function(topic){
+    var t=topicStats[topic];
+    return {topic:topic, attempted:t.attempted, accuracy:t.attempted?t.correct/t.attempted:0};
+  }).filter(function(r){ return r.attempted>=minAttempts; });
+  rows.sort(function(a,b){ return b.accuracy-a.accuracy; });
+  return rows.slice(0,max);
+}
+
+function buildChildCard(child){
   var card=document.createElement("div"); card.className="child-card";
-  var demoTag=isDemo?"<span class='badge b-purple' style='font-size:10px;margin-left:6px'>PREVIEW</span>":"";
-  var ageNote=child.age<13?"<span class='badge b-coral' style='font-size:10px'>COPPA Protected</span>":child.age<16?"<span class='badge b-sky' style='font-size:10px'>Prizes to Parent</span>":"<span class='badge b-purple' style='font-size:10px'>Teen Wallet Eligible</span>";
-  var weakHtml="", strongHtml="";
-  (child.topics_weak||[]).forEach(function(t){ weakHtml+="<span class='badge b-coral' style='font-size:11px;margin-right:4px'>"+t+"</span>"; });
-  (child.topics_strong||[]).forEach(function(t){ strongHtml+="<span class='badge b-mint' style='font-size:11px;margin-right:4px'>"+t+"</span>"; });
-  var actHtml="";
-  (child.activity||[]).forEach(function(a){ actHtml+="<div class='activity-row'><div class='activity-dot' style='background:"+a.color+"'></div><div style='flex:1'>"+a.txt+"</div><div style='font-size:11px;color:var(--text2)'>"+a.time+"</div></div>"; });
+  var weak=getWeakTopics(child.topicStats,3,3), strong=getStrongTopics(child.topicStats,3,3);
+  var weakHtml=weak.length?weak.map(function(t){ return "<span class='badge b-coral' style='font-size:11px;margin-right:4px'>"+t.topic+"</span>"; }).join("")
+    :"<span style='font-size:12px;color:var(--text2)'>Not enough answers yet</span>";
+  var strongHtml=strong.length?strong.map(function(t){ return "<span class='badge b-mint' style='font-size:11px;margin-right:4px'>"+t.topic+"</span>"; }).join("")
+    :"<span style='font-size:12px;color:var(--text2)'>Not enough answers yet</span>";
   card.innerHTML="<div class='child-card-header'>"
     +"<div class='child-ava' style='background:linear-gradient(135deg,#1C3A6E,#06D6A0)'>"+child.name[0]+"</div>"
-    +"<div style='flex:1'><div style='font-size:16px;font-weight:800'>"+child.name+demoTag+"</div>"
-    +"<div style='font-size:12px;color:var(--text2)'>"+child.grade+" - Level "+child.level+" - "+ageNote+"</div></div></div>"
+    +"<div style='flex:1'><div style='font-size:16px;font-weight:800'>"+child.name+"</div>"
+    +"<div style='font-size:12px;color:var(--text2)'>"+(child.grade||"—")+" Grade · Level "+child.level+"</div></div></div>"
     +"<div class='child-stats'>"
     +"<div class='child-stat'><div class='child-stat-val'>"+child.xp.toLocaleString()+"</div><div class='child-stat-lbl'>XP</div></div>"
     +"<div class='child-stat'><div class='child-stat-val'>"+child.coins.toLocaleString()+"</div><div class='child-stat-lbl'>MathCoins</div></div>"
-    +"<div class='child-stat'><div class='child-stat-val'>"+child.wins+"</div><div class='child-stat-lbl'>Wins</div></div>"
-    +"<div class='child-stat'><div class='child-stat-val'>"+child.streak+"d</div><div class='child-stat-lbl'>Streak</div></div></div>"
+    +"<div class='child-stat'><div class='child-stat-val'>"+child.wins+"</div><div class='child-stat-lbl'>Wins</div></div></div>"
     +"<div style='margin-bottom:12px'><div style='font-size:11px;color:var(--text2);font-weight:800;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px'>Needs Practice</div>"+weakHtml
-    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px'>Doing Well In</div>"+strongHtml+"</div>"
-    +"<div style='font-size:13px;font-weight:800;margin-bottom:8px;color:var(--sky)'>Recent Activity</div>"+actHtml;
+    +"<div style='font-size:11px;color:var(--text2);font-weight:800;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px'>Doing Well In</div>"+strongHtml+"</div>";
   return card;
 }
 
 function renderPrizeQueue(){
   var list=$$("prize-approval-list"); if(!list) return;
-  var prizes=[{child:"Your Child",item:"Amazon Gift Card $10",coins:1000,age:14},{child:"Your Child",item:"GameStop Card $25",coins:2500,age:14}];
   list.innerHTML="";
-  prizes.forEach(function(p,i){
+  var pending=[];
+  PARENT.children.forEach(function(child){
+    (child.pendingRedemptions||[]).forEach(function(r){ pending.push({child:child.name, req:r}); });
+  });
+  if(!pending.length){
+    list.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:12px'>No pending prize requests right now.</div>";
+    return;
+  }
+  pending.forEach(function(p){
+    var r=p.req;
     var card=document.createElement("div"); card.className="prize-req-card";
-    var ageBadge=p.age>=16?"<span class='badge b-purple' style='font-size:10px'>Teen Wallet</span>":"<span class='badge b-sky' style='font-size:10px'>To parent</span>";
-    card.innerHTML="<div style='font-size:28px'>Gift</div>"
-      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.child+" wants: "+p.item+"</div>"
-      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+p.coins.toLocaleString()+" MathCoins - "+ageBadge+"</div></div>"
+    card.innerHTML="<div style='font-size:28px'>🎁</div>"
+      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.child+" wants: "+r.prizeName+"</div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+r.prizeCost.toLocaleString()+" MathCoins</div></div>"
       +"<div style='display:flex;gap:6px;flex-direction:column'></div>";
     var appBtn=document.createElement("button"); appBtn.className="btn btn-mint btn-xs"; appBtn.style.color="var(--dark)"; appBtn.textContent="Approve";
-    appBtn.addEventListener("click",function(){ showToast("Prize approved! Gift card coming with Stripe integration!"); card.style.opacity="0.4"; });
+    appBtn.addEventListener("click",function(){
+      appBtn.disabled=true;
+      window.respondToRedemption(r.id,"approved").then(function(res){
+        if(res.ok){ showToast("Approved — you'll fulfill "+r.prizeName+" and mark it sent."); card.style.opacity="0.4"; }
+        else { showToast(res.error||"Could not approve."); appBtn.disabled=false; }
+      });
+    });
     var dnyBtn=document.createElement("button"); dnyBtn.className="btn btn-ghost btn-xs"; dnyBtn.textContent="Deny";
-    dnyBtn.addEventListener("click",function(){ showToast("Prize request denied."); card.remove(); });
+    dnyBtn.addEventListener("click",function(){
+      dnyBtn.disabled=true;
+      window.respondToRedemption(r.id,"denied").then(function(res){
+        if(res.ok){ showToast("Prize request denied."); card.remove(); }
+        else { showToast(res.error||"Could not deny."); dnyBtn.disabled=false; }
+      });
+    });
     var btnCol=card.querySelector("div:last-child"); btnCol.appendChild(appBtn); btnCol.appendChild(dnyBtn);
     list.appendChild(card);
   });
 }
 
 function linkChildAccount(){
-  var fn=$$("lc-fn")?$$("lc-fn").value.trim():"";
-  var gr=$$("lc-grade")?$$("lc-grade").value:"";
-  var dob=$$("lc-dob")?$$("lc-dob").value:"";
-  if(!fn){ showToast("Please enter child first name!"); return; }
-  if(!gr){ showToast("Please select child grade!"); return; }
-  var age=13;
-  if(dob){ var bd=new Date(dob),td=new Date(); age=td.getFullYear()-bd.getFullYear(); }
-  var child={name:fn,grade:gr+"th Grade",age:age,level:1,xp:0,coins:0,streak:0,wins:0,topics_weak:["Starting out"],topics_strong:["Arithmetic"],activity:[{txt:"Account linked by parent",time:"Just now",color:"var(--mint)"}]};
-  PARENT.children.push(child);
-  // Save updated children list
-  try{
-    if(PARENT.email){
-      var pKey="mc_parent_"+PARENT.email.toLowerCase().replace(/[^a-z0-9]/g,"");
-      var saved=localStorage.getItem(pKey);
-      var d=saved?JSON.parse(saved):{};
-      d.children=PARENT.children;
-      localStorage.setItem(pKey,JSON.stringify(d));
+  var codeEl=$$("lc-code");
+  var code=codeEl?codeEl.value.trim():"";
+  if(!/^\d{6}$/.test(code)){ showToast("Please enter your child's 6-digit link code!"); return; }
+  if(!window.linkChildByCode){ showToast("Linking isn't available right now — try again soon."); return; }
+  showToast("Looking up account...");
+  window.linkChildByCode(code).then(function(res){
+    if(res.ok){
+      closeLinkChildModal();
+      if(codeEl) codeEl.value="";
+      renderParentDash();
+      showToast(res.name+" linked to your dashboard!");
+    } else {
+      showToast(res.error||"Could not link that account.");
     }
-  }catch(e){}
-  closeLinkChildModal();
-  renderParentDash();
-  showToast(fn+" linked to your dashboard!");
+  });
 }
 
 // ── PARENT SIGNUP ──────────────────────────────────────
@@ -6357,10 +6453,10 @@ function generateWeeklyReport(){
     report+="XP: "+child.xp.toLocaleString()+NL;
     report+="MathCoins: "+child.coins.toLocaleString()+NL;
     report+="Wins: "+(child.wins||0)+NL;
-    report+="Streak: "+(child.streak||0)+" days"+NL;
     report+="Level: "+(child.level||1)+NL;
-    report+="Needs Practice: "+(child.topics_weak||[]).join(", ")+NL;
-    report+="Doing Well In: "+(child.topics_strong||[]).join(", ")+NL+NL;
+    var weak=getWeakTopics(child.topicStats,3,3), strong=getStrongTopics(child.topicStats,3,3);
+    report+="Needs Practice: "+(weak.length?weak.map(function(t){ return t.topic; }).join(", "):"Not enough answers yet")+NL;
+    report+="Doing Well In: "+(strong.length?strong.map(function(t){ return t.topic; }).join(", "):"Not enough answers yet")+NL+NL;
   });
   var blob=new Blob([report],{type:"text/plain"});
   var url=URL.createObjectURL(blob);
@@ -6859,11 +6955,27 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       await setDoc(doc(db, "public_profiles", cred.user.uid), {
         displayLabel: safeLabel(displayName),
         grade: grade || "",
-        xp: 0, level: 1, wins: 0,
+        xp: 0, level: 1, wins: 0, coins: 0,
         updatedAt: serverTimestamp()
       });
+      // code -> uid lookup so a parent who only has the 6-digit code can
+      // find this account without read access to the private users/{uid}
+      // doc (see link_codes in firestore.rules).
+      await setDoc(doc(db, "link_codes", linkCode), { studentUid: cred.user.uid });
     }
     return cred.user;
+  };
+
+  // Idempotent: only writes if this code has no lookup doc yet, since
+  // link_codes/{code} can only ever be create'd, never updated (see
+  // firestore.rules) — calling this again on every login must never
+  // attempt a second write on the same code.
+  window.ensureLinkCode = async function(code, uid) {
+    try {
+      const ref = doc(db, "link_codes", code);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) await setDoc(ref, { studentUid: uid });
+    } catch (e) { console.log("ensureLinkCode error:", e.message); }
   };
 
   window.firebaseLogin = async function(email, password) {
@@ -6885,12 +6997,13 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     const classCode = window.S ? (window.S.classCode || null) : null;
     const coinCapDate = window.S ? (window.S.coinCapDate || "") : "";
     const coinCapEarned = window.S ? (window.S.coinCapEarned || 0) : 0;
+    const recentEarnings = window.S ? (window.S.recentEarnings || []) : [];
     const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
-    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats, coinCapDate, coinCapEarned };
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats, coinCapDate, coinCapEarned, recentEarnings };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
-      const pub = { xp, level, grade: grade || "", wins: wins || 0, problemsSolved, updatedAt: serverTimestamp() };
+      const pub = { xp, level, grade: grade || "", wins: wins || 0, coins, problemsSolved, updatedAt: serverTimestamp() };
       if (avatarEmoji) pub.avatar = avatarEmoji;
       await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
     } catch(e) {}
@@ -7093,6 +7206,110 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       console.log("fetchMyRedemptions error:", e.message);
       return [];
     }
+  };
+
+  // ── PARENT <-> CHILD LINKING (real, Firestore-backed) ──────────
+  window.linkChildByCode = async function(code) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Not signed in." };
+    code = (code || "").trim();
+    if (!/^\d{6}$/.test(code)) return { ok: false, error: "Link codes are 6 digits." };
+    try {
+      const codeSnap = await getDoc(doc(db, "link_codes", code));
+      if (!codeSnap.exists()) return { ok: false, error: "No account found with that code." };
+      const childUid = codeSnap.data().studentUid;
+      if (childUid === user.uid) return { ok: false, error: "That's your own code, not your child's." };
+      let prof = {};
+      try {
+        const profSnap = await getDoc(doc(db, "public_profiles", childUid));
+        if (profSnap.exists()) prof = profSnap.data();
+      } catch (e) {}
+      await setDoc(doc(db, "parent_links", user.uid, "children", childUid), {
+        name: prof.displayLabel || "Student", grade: prof.grade || "", linkedAt: serverTimestamp()
+      });
+      return { ok: true, uid: childUid, name: prof.displayLabel || "Student", grade: prof.grade || "" };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not link account." };
+    }
+  };
+
+  window.fetchLinkedChildren = async function() {
+    const user = auth.currentUser;
+    if (!user) return [];
+    try {
+      const linksSnap = await getDocs(collection(db, "parent_links", user.uid, "children"));
+      return await Promise.all(linksSnap.docs.map(async d => {
+        const childUid = d.id, link = d.data();
+        let prof = {};
+        try {
+          const profSnap = await getDoc(doc(db, "public_profiles", childUid));
+          if (profSnap.exists()) prof = profSnap.data();
+        } catch (e) {}
+        let pending = [];
+        try {
+          const reqSnap = await getDocs(query(collection(db, "redemption_requests"), where("uid", "==", childUid), where("status", "==", "pending")));
+          pending = reqSnap.docs.map(r => ({ id: r.id, ...r.data() }));
+        } catch (e) {}
+        let topicStats = {};
+        try {
+          const tsSnap = await getDoc(doc(db, "topic_stats", childUid));
+          if (tsSnap.exists()) topicStats = tsSnap.data().topics || {};
+        } catch (e) {}
+        return {
+          uid: childUid,
+          name: prof.displayLabel || link.name || "Student",
+          grade: prof.grade ? (prof.grade + "th") : (link.grade ? link.grade + "th" : ""),
+          xp: prof.xp || 0, level: prof.level || 1, wins: prof.wins || 0, coins: prof.coins || 0,
+          topicStats: topicStats,
+          pendingRedemptions: pending
+        };
+      }));
+    } catch (e) {
+      console.log("fetchLinkedChildren error:", e.message);
+      return [];
+    }
+  };
+
+  // decision is "approved" or "denied" — parental authorization only.
+  // Actually fulfilling a request (and marking it "fulfilled") stays a
+  // Console-only, out-of-band step — see firestore.rules.
+  window.respondToRedemption = async function(reqId, decision) {
+    try {
+      await updateDoc(doc(db, "redemption_requests", reqId), { status: decision, respondedAt: serverTimestamp() });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not update request." };
+    }
+  };
+
+  // ── TOURNAMENT REGISTRATION (real; replaces a fabricated headcount) ──
+  window.registerForTournament = async function(tournamentId) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Sign in to register." };
+    try {
+      await setDoc(doc(db, "tournament_registrations", user.uid + "_" + tournamentId), {
+        uid: user.uid, tournamentId, registeredAt: serverTimestamp()
+      });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not register." };
+    }
+  };
+
+  window.isRegisteredForTournament = async function(tournamentId) {
+    const user = auth.currentUser;
+    if (!user) return false;
+    try {
+      const snap = await getDoc(doc(db, "tournament_registrations", user.uid + "_" + tournamentId));
+      return snap.exists();
+    } catch (e) { return false; }
+  };
+
+  window.tournamentRegistrationCount = async function(tournamentId) {
+    try {
+      const snap = await getDocs(query(collection(db, "tournament_registrations"), where("tournamentId", "==", tournamentId)));
+      return snap.size;
+    } catch (e) { return null; }
   };
 
   window.startLeaderboard = function(callback) {

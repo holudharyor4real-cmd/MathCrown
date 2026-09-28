@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v5 - live Stripe subscriptions)
+ * MathCrown API Worker  (v6 - + Stripe webhook keeps plan in sync server-side)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -19,12 +19,14 @@ const MAX_PROMPT_CHARS = 4000;
 // STRIPE_SECRET_KEY Worker secret (Settings → Variables and Secrets)
 // must also be set to its sk_live_... value, done directly in the
 // Cloudflare dashboard, never checked into this file.
-const STRIPE_PRICE_IDS = new Set([
-  "price_1UKVH7LlOQQZLBNdBThtj49C", // premium
-  "price_1UKVHiLlOQQZLBNdHTvpA3g4", // family
-  "price_1UKVIFLlOQQZLBNdSAoLQpRZ"  // max
-]);
+const PRICE_ID_TO_PLAN = {
+  "price_1UKVH7LlOQQZLBNdBThtj49C": "premium",
+  "price_1UKVHiLlOQQZLBNdHTvpA3g4": "family",
+  "price_1UKVIFLlOQQZLBNdSAoLQpRZ": "max"
+};
+const STRIPE_PRICE_IDS = new Set(Object.keys(PRICE_ID_TO_PLAN));
 const STRIPE_TRIAL_DAYS = 14;
+const FIREBASE_PROJECT_ID = "mathchamp-adbd6";
 
 function corsHeaders(origin) {
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -130,13 +132,17 @@ async function handleSubscribe(request, env, origin) {
       return json({ error: (updated.data.error && updated.data.error.message) || "Could not update customer" }, updated.status, origin);
     }
 
-    // 4. Create the subscription with a 14-day trial
+    // 4. Create the subscription with a 14-day trial. metadata[uid] rides
+    // along on every customer.subscription.* webhook event afterward, so
+    // the webhook handler below can update the right Firestore user
+    // without a second Stripe API round-trip.
     const sub = await stripeRequest(env, "POST", "/subscriptions", {
       customer: customerId,
       "items[0][price]": planId,
       trial_period_days: STRIPE_TRIAL_DAYS,
       payment_behavior: "default_incomplete",
-      "expand[]": "latest_invoice.payment_intent"
+      "expand[]": "latest_invoice.payment_intent",
+      "metadata[uid]": uid || ""
     });
     if (!sub.ok) {
       return json({ error: (sub.data.error && sub.data.error.message) || "Could not create subscription" }, sub.status, origin);
@@ -153,6 +159,153 @@ async function handleSubscribe(request, env, origin) {
   }
 }
 
+// ── STRIPE WEBHOOK ── keeps users/{uid}.plan server-authoritative ───
+// Before this, the client set its own `plan` field the instant checkout
+// looked successful and NOTHING ever corrected it afterward — a failed
+// renewal or a cancellation in Stripe left the account on Premium forever.
+// This endpoint listens for the subscription's real status and writes the
+// correction straight to Firestore, no client involved.
+
+function base64UrlEncode(bytes) {
+  const str = typeof bytes === "string" ? bytes : String.fromCharCode(...new Uint8Array(bytes));
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function pemToArrayBuffer(pem) {
+  const b64 = pem.replace(/-----BEGIN PRIVATE KEY-----/, "").replace(/-----END PRIVATE KEY-----/, "").replace(/\s/g, "");
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+// Verifies Stripe's HMAC-SHA256 webhook signature so this endpoint only
+// ever acts on requests that actually came from Stripe — anyone who found
+// this URL otherwise could set their own account to "max" for free.
+// Format: header is "t=<timestamp>,v1=<hex signature>"; the signed
+// payload is "<timestamp>.<raw body>". Docs: stripe.com/docs/webhooks/signatures
+async function verifyStripeSignature(rawBody, sigHeader, secret) {
+  if (!sigHeader || !secret) return false;
+  const parts = {};
+  sigHeader.split(",").forEach((p) => {
+    const [k, v] = p.split("=");
+    if (k && v) parts[k] = v;
+  });
+  if (!parts.t || !parts.v1) return false;
+  // Reject anything older than 5 minutes to block replayed requests.
+  if (Math.abs(Date.now() / 1000 - Number(parts.t)) > 300) return false;
+
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const sigBuffer = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${parts.t}.${rawBody}`));
+  const expected = [...new Uint8Array(sigBuffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  if (expected.length !== parts.v1.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ parts.v1.charCodeAt(i);
+  return diff === 0;
+}
+
+let _fsTokenCache = { token: null, exp: 0 };
+
+// Mints a short-lived Google OAuth2 access token from the Firebase service
+// account (JWT-bearer flow) so this Worker can write to Firestore with no
+// SDK/build step, same "no dependencies" approach as stripeRequest above.
+async function getFirestoreAccessToken(env) {
+  const now = Math.floor(Date.now() / 1000);
+  if (_fsTokenCache.token && _fsTokenCache.exp > now + 60) return _fsTokenCache.token;
+
+  const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  const header = { alg: "RS256", typ: "JWT" };
+  const claim = {
+    iss: sa.client_email,
+    scope: "https://www.googleapis.com/auth/datastore",
+    aud: sa.token_uri || "https://oauth2.googleapis.com/token",
+    exp: now + 3600,
+    iat: now
+  };
+  const enc = (obj) => base64UrlEncode(JSON.stringify(obj));
+  const unsigned = `${enc(header)}.${enc(claim)}`;
+
+  const cryptoKey = await crypto.subtle.importKey(
+    "pkcs8", pemToArrayBuffer(sa.private_key), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]
+  );
+  const sigBuffer = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, new TextEncoder().encode(unsigned));
+  const jwt = `${unsigned}.${base64UrlEncode(sigBuffer)}`;
+
+  const res = await fetch(sa.token_uri || "https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=${encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer")}&assertion=${jwt}`
+  });
+  const data = await res.json();
+  if (!data.access_token) throw new Error("Firestore auth failed: " + JSON.stringify(data));
+  _fsTokenCache = { token: data.access_token, exp: now + (data.expires_in || 3600) };
+  return data.access_token;
+}
+
+// Partial update — only ever touches the `plan` field on users/{uid},
+// via Firestore's updateMask so nothing else on the document is disturbed.
+async function setUserPlan(env, uid, planKey) {
+  if (!uid) return;
+  const token = await getFirestoreAccessToken(env);
+  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=plan`;
+  await fetch(url, {
+    method: "PATCH",
+    headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: { plan: { stringValue: planKey } } })
+  });
+}
+
+// Subscription states where the account should keep its paid plan —
+// "past_due" is included deliberately: Stripe is still retrying the
+// charge (dunning), so an account isn't cut off the moment one payment
+// attempt fails, only once Stripe gives up (status becomes "canceled" or
+// "unpaid", or a customer.subscription.deleted event arrives).
+const PLAN_RETAINING_STATUSES = new Set(["active", "trialing", "past_due"]);
+
+async function handleStripeWebhook(request, env) {
+  // Signature verification needs the exact raw bytes Stripe signed —
+  // must read as text before any JSON parsing touches the body.
+  const rawBody = await request.text();
+  const sig = request.headers.get("Stripe-Signature");
+  const secret = (env.STRIPE_WEBHOOK_SECRET || "").trim();
+
+  if (!secret) return new Response(JSON.stringify({ error: "Server is missing its webhook secret." }), { status: 500 });
+  const validSig = await verifyStripeSignature(rawBody, sig, secret);
+  if (!validSig) return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 400 });
+
+  let event;
+  try {
+    event = JSON.parse(rawBody);
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
+  }
+
+  try {
+    if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated") {
+      const sub = event.data.object;
+      const uid = sub.metadata && sub.metadata.uid;
+      const priceId = sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price && sub.items.data[0].price.id;
+      const mappedPlan = PRICE_ID_TO_PLAN[priceId] || "free";
+      const plan = PLAN_RETAINING_STATUSES.has(sub.status) ? mappedPlan : "free";
+      if (uid) await setUserPlan(env, uid, plan);
+    } else if (event.type === "customer.subscription.deleted") {
+      const sub = event.data.object;
+      const uid = sub.metadata && sub.metadata.uid;
+      if (uid) await setUserPlan(env, uid, "free");
+    }
+  } catch (err) {
+    // Stripe retries on non-2xx, and a bad retry loop is worse than one
+    // missed update — acknowledge receipt either way, but surface the
+    // failure in the response body for whoever checks the Stripe
+    // Dashboard's webhook delivery log.
+    return new Response(JSON.stringify({ received: true, warning: err.message }), { status: 200 });
+  }
+
+  return new Response(JSON.stringify({ received: true }), { status: 200 });
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -163,7 +316,15 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 4 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 6 }, 200, origin);
+    }
+
+    // Stripe calls this server-to-server — no browser Origin header, so it
+    // must be handled before the ALLOWED_ORIGINS check below rejects it.
+    // Its own HMAC signature check (verifyStripeSignature) is what actually
+    // guards this route, not CORS/origin.
+    if (url.pathname === "/stripe-webhook" && request.method === "POST") {
+      return handleStripeWebhook(request, env);
     }
 
     // ── KEY DIAGNOSTIC ──────────────────────────────────────────

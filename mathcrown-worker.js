@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v4 - + Stripe test-mode subscriptions)
+ * MathCrown API Worker  (v5 - live Stripe subscriptions)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -11,15 +11,18 @@ const ALLOWED_ORIGINS = [
 const MAX_TOKENS_LIMIT = 1200;
 const MAX_PROMPT_CHARS = 4000;
 
-// ── STRIPE ── TEST MODE ─────────────────────────────────────────
-// Same test price IDs as index.html's STRIPE_PLANS. The Worker never
+// ── STRIPE ── LIVE MODE ─────────────────────────────────────────
+// Same live price IDs as index.html's STRIPE_PLANS. The Worker never
 // trusts a client-supplied price for a charge, so a subscription
 // request for anything outside this allowlist is rejected before it
-// ever reaches Stripe.
+// ever reaches Stripe. This list is only half of going live — the
+// STRIPE_SECRET_KEY Worker secret (Settings → Variables and Secrets)
+// must also be set to its sk_live_... value, done directly in the
+// Cloudflare dashboard, never checked into this file.
 const STRIPE_PRICE_IDS = new Set([
-  "price_1U7PzGLlOQQZLBNduz2kfJ8F", // premium
-  "price_1U7PzaLlOQQZLBNdMTucLIPu", // family
-  "price_1U7PztLlOQQZLBNda7f3LkpB"  // max
+  "price_1UKVH7LlOQQZLBNdBThtj49C", // premium
+  "price_1UKVHiLlOQQZLBNdHTvpA3g4", // family
+  "price_1UKVIFLlOQQZLBNdSAoLQpRZ"  // max
 ]);
 const STRIPE_TRIAL_DAYS = 14;
 

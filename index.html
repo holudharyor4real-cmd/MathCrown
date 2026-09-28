@@ -42,32 +42,37 @@
   <script>
 
 // ═══════════════════════════════════════════════════════════════
-// STRIPE PAYMENT INTEGRATION — TEST MODE
+// STRIPE PAYMENT INTEGRATION — LIVE MODE
 //
-// Publishable key + price IDs below are Stripe TEST mode (sandbox) —
-// safe to ship client-side. The secret key is NOT here: it lives only
-// as the STRIPE_SECRET_KEY Worker secret (Cloudflare dashboard →
-// Settings → Variables), used server-side in mathcrown-worker.js.
+// Publishable key + price IDs below are Stripe LIVE mode — safe to ship
+// client-side (a publishable key is meant to be public). The secret key
+// is NOT here: it lives only as the STRIPE_SECRET_KEY Worker secret
+// (Cloudflare dashboard → Settings → Variables), used server-side in
+// mathcrown-worker.js. That secret must ALSO be switched to its live
+// sk_live_... value (done by the account owner directly in Cloudflare) —
+// a live publishable key here paired with a still-test secret key on the
+// Worker will make every checkout fail, since Stripe never lets a
+// test-mode object and a live-mode object interact.
 // ═══════════════════════════════════════════════════════════════
 
-var STRIPE_PUBLISHABLE_KEY = "pk_test_51PhxydLlOQQZLBNdqpRCnKlRUkCaUZwIEtsh9qs5a0aiZLrFxPs3h4Y2xbVwDk2RDN2BDOx4wtIWou7YRLpwUUIM009wwfORLN";
+var STRIPE_PUBLISHABLE_KEY = "pk_live_51PhxydLlOQQZLBNdKWJLaoOjqv5HwGXpsR0CDafldMhCN51ZjNZzhzLbmoviI1i2e7KOXFxuXq3dtVb6UrsAYEjY00X0E7gVCI";
 var STRIPE_PLANS = {
   premium: {
     name: "Premium Plan",
     price: "$9.99/month",
-    priceId: "price_1U7PzGLlOQQZLBNduz2kfJ8F",
+    priceId: "price_1UKVH7LlOQQZLBNdBThtj49C",
     features: "✅ Unlimited challenges · ✅ Prize redemption · ✅ Tournament entry · ✅ Full parent dashboard · ✅ Axiom AI Tutor — 5 questions/day"
   },
   family: {
     name: "Family Plan",
     price: "$14.99/month",
-    priceId: "price_1U7PzaLlOQQZLBNdMTucLIPu",
+    priceId: "price_1UKVHiLlOQQZLBNdHTvpA3g4",
     features: "✅ Everything in Premium · ✅ Up to 4 children · ✅ Family leaderboard · ✅ Shared prize wallet · ✅ Axiom AI Tutor — 5 questions/day"
   },
   max: {
     name: "Max + AI Plan",
     price: "$19.99/month",
-    priceId: "price_1U7PztLlOQQZLBNda7f3LkpB",
+    priceId: "price_1UKVIFLlOQQZLBNdSAoLQpRZ",
     features: "✅ Everything in Family · ✅ Axiom AI Tutor — UNLIMITED · ✅ AI weak-spot detection · ✅ AI-generated practice sets · ✅ Advanced analytics"
   }
 };

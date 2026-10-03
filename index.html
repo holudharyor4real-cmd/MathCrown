@@ -335,6 +335,18 @@ function showCheckoutSuccess(planKey) {
 function upgradeToPlan(planKey) {
   var parentIn = typeof PARENT !== "undefined" && PARENT.isLoggedIn;
   console.log("[Checkout] upgradeToPlan(" + planKey + ") — signed in as:", S.name || (parentIn ? "parent " + PARENT.email : "(nobody)"));
+  if (!S.name && !parentIn && planKey === "family") {
+    // Family covers a parent's linked children, so it has to be bought on
+    // a parent account — on a student account it would cover only that one
+    // student. Parent signup resumes checkout for the selected plan card.
+    openModal("parent");
+    document.querySelectorAll("#tab-parent .plan-card").forEach(function (c) {
+      var n = c.querySelector(".plan-name");
+      if (n && n.textContent.trim() === "Family") selectPlan(c);
+    });
+    showToast("Family plans are set up by a parent — create your parent account, then we'll take you to payment!", 4500);
+    return;
+  }
   if (!S.name && !parentIn) {
     // Not logged in yet — create a free account first, then resume
     // straight into Stripe checkout. No plan is granted here.
@@ -2118,8 +2130,8 @@ body{
     <button class="nav-item" onclick="goPage('profile',this)">
       <span class="nav-icon">👤</span> My Profile
     </button>
-    <button class="nav-item" id="nav-go-premium" onclick="upgradeToPlan('premium')" style="display:none;color:var(--sun)">
-      <span class="nav-icon">⭐</span> Go Premium
+    <button class="nav-item" id="nav-go-premium" onclick="goToUpgradeOptions()" style="display:none;color:var(--sun)">
+      <span class="nav-icon">⭐</span> Upgrade Plan
     </button>
     <button class="nav-item" id="nav-parent-dash" onclick="goPage('parentdash',this)" style="display:none">
       <span class="nav-icon">👨‍👩‍👧</span> Parent Dashboard
@@ -2233,13 +2245,38 @@ body{
 
       <!-- Upgrade nudge — free accounts only, toggled by renderUpgradeNudge() -->
       <div class="card" id="home-upgrade-card" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,rgba(255,217,61,0.12),rgba(155,93,229,0.08));border:1.5px solid rgba(255,217,61,0.35)">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
           <div style="font-size:30px">⭐</div>
-          <div style="flex:1;min-width:200px">
-            <div style="font-size:15px;font-weight:800;margin-bottom:2px">Unlock Premium — ask a grown-up!</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6">Prize redemption, unlimited challenges, tournaments, and 300 MathCoins a day. 14-day free trial. A parent can upgrade right here, or link your account with the code above and upgrade from their Parent Dashboard.</div>
+          <div>
+            <div style="font-size:15px;font-weight:800;margin-bottom:2px">Unlock more — ask a grown-up to pick a plan!</div>
+            <div style="font-size:12px;color:var(--text2)">Every plan starts with a 14-day free trial. Cancel anytime.</div>
           </div>
-          <button class="btn btn-sun btn-sm" onclick="upgradeToPlan('premium')">👨‍👩‍👧 Grown-up: Start Free Trial</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column">
+            <div style="font-weight:800">Premium <span style="color:var(--sun)">$9.99/mo</span></div>
+            <div style="font-size:12px;color:var(--text2);margin:4px 0 10px;flex:1">Prize redemption, unlimited challenges, tournaments, 300 MathCoins a day.</div>
+            <button class="btn btn-sun btn-xs" onclick="upgradeToPlan('premium')">Start free trial</button>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column">
+            <div style="font-weight:800">Max + AI <span style="color:var(--sun)">$19.99/mo</span></div>
+            <div style="font-size:12px;color:var(--text2);margin:4px 0 10px;flex:1">Everything in Premium, plus unlimited questions with the Axiom AI tutor.</div>
+            <button class="btn btn-coral btn-xs" onclick="upgradeToPlan('max')">Start free trial</button>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column">
+            <div style="font-weight:800">Family <span style="color:var(--sun)">$14.99/mo</span></div>
+            <div style="font-size:12px;color:var(--text2);margin:4px 0 10px;flex:1">Premium for up to 4 kids — a parent sets it up from their own account.</div>
+            <button class="btn btn-mint btn-xs" style="color:var(--dark)" onclick="toggleFamilyHowTo()">How it works</button>
+          </div>
+        </div>
+        <!-- Family needs a parent account: only a parent's linked children are
+             known, so a Family plan bought on a student account would cover
+             just that one student. -->
+        <div id="home-family-howto" style="display:none;margin-top:12px;padding:12px;border-radius:12px;background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.25);font-size:13px;line-height:1.8">
+          <strong>Family covers you and up to 3 brothers or sisters.</strong> A parent sets it up:<br>
+          1. They go to mymathcrown.com and sign up as a <strong>Parent</strong>.<br>
+          2. On their Parent Dashboard, they tap <strong>+ Link Child Account</strong> and enter your code: <strong id="home-family-code" style="font-family:monospace;color:var(--sun);letter-spacing:2px">------</strong> (each sibling shares their own code too).<br>
+          3. They choose <strong>Family</strong> — every linked kid gets Premium automatically.
         </div>
       </div>
 
@@ -4081,6 +4118,20 @@ function renderUpgradeNudge(){
   var show = !!S.name && !S.isPreview && !isPaidPlan();
   var card=$$("home-upgrade-card"); if(card) card.style.display = show ? "block" : "none";
   var nav=$$("nav-go-premium"); if(nav) nav.style.display = show ? "flex" : "none";
+  var code=$$("home-family-code"); if(code) code.textContent = S.linkCode || "------";
+}
+
+function toggleFamilyHowTo(){
+  var box=$$("home-family-howto"); if(!box) return;
+  box.style.display = box.style.display==="none" ? "block" : "none";
+}
+
+// Sidebar "Upgrade Plan" — all three plans live on the Home card, so take
+// the student there rather than straight into one plan's checkout.
+function goToUpgradeOptions(){
+  goPage("home", document.querySelector(".nav-item[onclick*=\"goPage('home'\"]"));
+  var card=$$("home-upgrade-card");
+  if(card) card.scrollIntoView({behavior:"smooth", block:"center"});
 }
 
 // ── CLASS SESSION (student side): same questions, own pace ──────

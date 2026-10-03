@@ -1414,13 +1414,18 @@ body{
   white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5);
   display:flex;align-items:center;gap:8px;
   max-width:90vw;
+  /* The slide-down alone left ~16px of the pill peeking up at the bottom
+     of every page while "hidden". */
+  opacity:0;pointer-events:none;
 }
-.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
 
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   .sidebar{display:none;}
-  .mobile-nav{display:block;}
+  /* app-open is set by showMobNav() — without it this bar used to cover
+     the logged-out landing page on every phone. */
+  body.app-open .mobile-nav{display:block;}
   .main{padding:20px 16px 100px;}
   .g4{grid-template-columns:1fr 1fr;}
   .g3{grid-template-columns:1fr 1fr;}
@@ -1598,6 +1603,7 @@ body{
     <div class="cta-row">
       <button class="btn btn-sun" onclick="openModal('student')">🎮 Join Free as Student</button>
       <button class="btn btn-mint" onclick="openModal('parent')">👨‍👩‍👧 Parent Account</button>
+      <button class="btn btn-coral" onclick="openModal('teacher')">🏫 Teacher Account</button>
       <button class="btn btn-ghost" id="preview-btn">👁️ Take a Peek Inside</button>
     </div>
     <div style="margin-top:20px;padding:14px 24px;background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);border-radius:100px;display:inline-flex;align-items:center;gap:8px">
@@ -1607,11 +1613,11 @@ body{
       </button>
     </div>
     <div class="stats-grid">
-      <div class="stat-item"><div class="stat-big">50K+</div><div class="stat-lbl">Active Students</div></div>
-      <div class="stat-item"><div class="stat-big">2M+</div><div class="stat-lbl">Problems Solved</div></div>
-      <div class="stat-item"><div class="stat-big">$120K</div><div class="stat-lbl">Prizes Awarded</div></div>
-      <div class="stat-item"><div class="stat-big">92%</div><div class="stat-lbl">Grade Improvement</div></div>
+      <div class="stat-item"><div class="stat-big">19K+</div><div class="stat-lbl">Practice Questions</div></div>
+      <div class="stat-item"><div class="stat-big">53</div><div class="stat-lbl">Math Topics</div></div>
       <div class="stat-item"><div class="stat-big">K–12</div><div class="stat-lbl">All Grade Levels</div></div>
+      <div class="stat-item"><div class="stat-big">$0</div><div class="stat-lbl">To Start Playing</div></div>
+      <div class="stat-item"><div class="stat-big">14 Days</div><div class="stat-lbl">Free Premium Trial</div></div>
     </div>
   </div>
 
@@ -1802,6 +1808,7 @@ body{
       <a class="footer-link" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a class="footer-link" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Waitlist</a>
       <a class="footer-link" onclick="openModal('student')">Sign Up Free</a>
+      <a class="footer-link" onclick="openModal('teacher')">For Teachers</a>
       <a class="footer-link" onclick="showToast('📧 Contact: support@mymathcrown.com')">Contact Us</a>
       <a class="footer-link" onclick="document.getElementById('modal-privacy').style.display='block'">Privacy Policy</a>
       <a class="footer-link" onclick="document.getElementById('modal-terms').style.display='block'">Terms of Service</a>
@@ -6696,14 +6703,11 @@ function showMusicBtn(show){
   var panel=$$("music-panel"); if(panel&&!show){ panel.classList.remove("open"); MUSIC.panelOpen=false; }
 }
 
+// The bar itself only appears on small screens (CSS media query); this
+// just says whether the user is inside the app. Leaving the screen-size
+// check to CSS also keeps it right when a window is resized.
 function showMobNav(show){
-  var nav=$$("mob-nav"); if(!nav) return;
-  // Only show mobile nav on small screens - never on desktop
-  if(show && window.innerWidth <= 900){
-    nav.style.display="block";
-  } else {
-    nav.style.display="none";
-  }
+  document.body.classList.toggle("app-open", !!show);
 }
 
 // ── COUNTDOWN ──────────────────────────────────────────

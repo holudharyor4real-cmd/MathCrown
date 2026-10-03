@@ -9,7 +9,7 @@
 
 <!-- ── SEO ── -->
 <meta name="description" content="MathCrown — The K-12 competitive math platform. Battle classmates in live math duels, earn your crown, get AI tutoring from Axiom, and climb national rankings. Free to join.">
-<meta name="keywords" content="math app for kids, K-12 math game, competitive math, math learning platform, math prizes, math tutoring, algebra game, Math is Fun">
+<meta name="keywords" content="math app for kids, K-12 math game, competitive math, math learning platform, earn while you learn, math rewards for kids, math tutoring, algebra game, Math is Fun">
 <meta name="author" content="MathCrown">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="google-site-verification" content="KupQxF-fgStEGXGpBPCQCkloZ296A9w8cqdg6iPg_1Y" />
@@ -19,13 +19,13 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.mymathcrown.com">
 <meta property="og:title" content="MathCrown | K-12 Competitive Math — Earn Your Crown">
-<meta property="og:description" content="The competitive math platform for K-12 students. Battle classmates in live math duels, earn prizes, and claim your MathCrown. Free to join.">
+<meta property="og:description" content="The competitive math platform for K-12 students. Earn while you learn: hit weekly math goals, pass Mastery Checks, and earn real rewards like school supplies and gift cards. Free to join.">
 <meta property="og:image" content="https://www.mymathcrown.com/og-image.png">
 
 <!-- ── TWITTER CARD ── -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MathCrown | K-12 Competitive Math — Earn Your Crown">
-<meta name="twitter:description" content="K-12 competitive math platform. Battle friends, earn real prizes, AI tutor Axiom. Earn your MathCrown!">
+<meta name="twitter:description" content="K-12 math game where kids earn while they learn: real rewards for real mastery, live math duels, and AI tutor Axiom.">
 <meta name="twitter:image" content="https://www.mymathcrown.com/og-image.png">
 <meta name="twitter:site" content="@MathCrown">
 
@@ -61,13 +61,13 @@ var STRIPE_PLANS = {
     name: "Premium Plan",
     price: "$9.99/month",
     priceId: "price_1UKVH7LlOQQZLBNdBThtj49C",
-    features: "✅ Unlimited challenges · ✅ Prize redemption · ✅ Tournament entry · ✅ Full parent dashboard · ✅ Axiom AI Tutor — 5 questions/day"
+    features: "✅ Unlimited challenges · ✅ Season Mastery Reward ($5 each season) · ✅ Tournament entry · ✅ Full parent dashboard · ✅ Axiom AI Tutor — 5 questions/day"
   },
   family: {
     name: "Family Plan",
     price: "$14.99/month",
     priceId: "price_1UKVHiLlOQQZLBNdHTvpA3g4",
-    features: "✅ Everything in Premium · ✅ Up to 4 children · ✅ Family leaderboard · ✅ Shared prize wallet · ✅ Axiom AI Tutor — 5 questions/day"
+    features: "✅ Everything in Premium · ✅ Up to 4 children · ✅ Family leaderboard · ✅ 2 Season Rewards per season · ✅ Axiom AI Tutor — 5 questions/day"
   },
   max: {
     name: "Max + AI Plan",
@@ -1492,6 +1492,9 @@ body{
 .child-stat-val{font-size:18px;font-weight:900;color:var(--sun);}
 .child-stat-lbl{font-size:10px;color:var(--text2);font-weight:700;margin-top:2px;}
 .wrong-q-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.15);border-radius:10px;margin-bottom:8px;}
+.mastery-opt.on{background:rgba(255,217,61,0.18);border-color:var(--sun);color:var(--sun);}
+.rules-body h4{font-size:15px;font-weight:900;margin:14px 0 4px;color:var(--sun);}
+.rules-body p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:6px;}
 .prize-req-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.2);border-radius:14px;margin-bottom:10px;}
 .teen-wallet-card{background:linear-gradient(135deg,rgba(28,58,110,0.25),rgba(6,214,160,0.06));border:1px solid rgba(28,58,110,0.4);border-radius:16px;padding:18px;margin-bottom:12px;}
 .link-child-box{background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.15);border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;}
@@ -1622,14 +1625,14 @@ body{
 </div>
     <div class="brand-name">MathCrown</div>
     <div class="brand-motto">👑 Earn Your Crown. ✨</div>
-    <h1 class="land-headline">Win Prizes. Beat Friends.<br><em>Earn Your MathCrown.</em></h1>
-    <p class="land-sub">The K–12 competitive math platform — battle classmates in live math duels, climb national rankings, and earn your MathCrown. Every grade, every topic, free to start.</p>
+    <h1 class="land-headline">Earn While You Learn.<br><em>Claim Your MathCrown.</em></h1>
+    <p class="land-sub">The K–12 math game that makes math fun: battle classmates in live duels, master real skills, and earn real rewards like school supplies and gift cards for the progress you make. Every grade, every topic, free to start.</p>
     <div class="features-row">
       <div class="feat-pill">⚔️ Live PvP Battles</div>
       <div class="feat-pill">🏆 National Tournaments</div>
       <div class="feat-pill">🤖 AI Math Tutor</div>
-      <div class="feat-pill">🎁 Real Prize Rewards</div>
-      <div class="feat-pill">🎓 529 College Savings</div>
+      <div class="feat-pill">🎁 Real Rewards for Real Mastery</div>
+      <div class="feat-pill">✏️ School Supplies &amp; Gift Cards</div>
       <div class="feat-pill">📊 Smart Analytics</div>
       <div class="feat-pill">👨‍👩‍👧 Parent Dashboard</div>
       <div class="feat-pill">🏫 Grades K–12</div>
@@ -1675,10 +1678,34 @@ body{
       <div class="how-card">
         <div class="how-num">3</div>
         <div class="how-icon">🏆</div>
-        <div class="how-title">Win & Earn</div>
-        <div class="how-desc">Climb leaderboards, earn MathCoins, win gift cards and tournament prizes — all while mastering real math skills.</div>
+        <div class="how-title">Learn & Earn</div>
+        <div class="how-desc">Hit your Weekly Goals, pass a Mastery Check, and earn real rewards. Top scorers and most-improved players win every week.</div>
       </div>
     </div>
+  </div>
+
+  <!-- EARN WHILE YOU LEARN -->
+  <div class="land-section" id="rewards">
+    <div class="land-section-title">🎁 Earn While You Learn</div>
+    <div class="land-section-sub">Real rewards for real progress. Earned by learning, never by luck.</div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-icon">🎯</div>
+        <div class="how-title">Season Mastery Reward</div>
+        <div class="how-desc">Meet your Weekly Goal (50 questions at 75%+ accuracy) 8 times in a season, pass a Mastery Check, and choose a $5 reward: a school supplies kit or a gift card. Included with Premium, Family and Max.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-icon">🏆</div>
+        <div class="how-title">Weekly Champions</div>
+        <div class="how-desc">Every week, in each grade division, the Top Scorer and the Most Improved player each win a $5 reward. Free to compete, no purchase necessary, and anyone can win by improving.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-icon">🪙</div>
+        <div class="how-title">MathCoins &amp; Coin Shop</div>
+        <div class="how-desc">Every correct answer earns MathCoins to spend on avatars, titles and Streak Shields. Coins are just for fun: they're never exchanged for money.</div>
+      </div>
+    </div>
+    <div class="price-note">🔒 Rewards go only to a verified parent account, after the parent approves. Students never handle money. <a href="#" onclick="openRewardsRules();return false" style="color:var(--sky)">Read the Official Rewards Rules</a></div>
   </div>
 
   <!-- GRADE LEVELS -->
@@ -1725,7 +1752,8 @@ body{
           <li>✅ Grade leaderboard</li>
           <li>✅ Basic skills tracker</li>
           <li>✅ MathCoins earning (150/day cap)</li>
-          <li>❌ Prize redemption</li>
+          <li>✅ Compete in Weekly Champions</li>
+          <li>❌ Season Mastery Rewards</li>
           <li>❌ Tournament entry</li>
           <li>✅ Axiom AI Tutor — 5 questions/day</li>
         </ul>
@@ -1739,8 +1767,8 @@ body{
         <ul class="price-features">
           <li>✅ Everything in Free</li>
           <li>✅ Unlimited daily challenges</li>
-          <li>✅ Prize redemption (parent)</li>
-          <li>✅ Weekly leaderboard prizes</li>
+          <li>✅ Season Mastery Reward: $5 each season you finish the path (up to $20/yr)</li>
+          <li>✅ Weekly Champions</li>
           <li>✅ Tournament entry included</li>
           <li>✅ Full parent dashboard</li>
           <li>✅ Higher MathCoins cap (300/day)</li>
@@ -1757,6 +1785,7 @@ body{
         <ul class="price-features">
           <li>✅ Everything in Premium</li>
           <li>✅ Up to 4 children</li>
+          <li>✅ 2 Season Rewards per season, shared</li>
           <li>✅ Family leaderboard</li>
           <li>✅ Combined parent dashboard</li>
           <li>✅ Sibling challenge mode</li>
@@ -1777,14 +1806,14 @@ body{
           <li>✅ AI weak spot detection</li>
           <li>✅ Personalized study plans</li>
           <li>✅ AI practice question sets</li>
-          <li>✅ 529 College Savings prizes</li>
+          <li>✅ 2 Season Rewards per season, shared</li>
           <li>✅ Early feature access</li>
           <li>✅ VIP tournament seeding</li>
         </ul>
         <button class="btn btn-coral" style="width:100%" onclick="upgradeToPlan('max')">Get Max + AI</button>
       </div>
     </div>
-    <div class="price-note">🔒 <strong>All prizes go to verified parent accounts only.</strong> Students never handle money directly. COPPA compliant. No ads targeted at children. No data sold. Cancel anytime — no questions asked.</div>
+    <div class="price-note">🔒 <strong>All rewards go to verified parent accounts only.</strong> Students never handle money. Rewards are earned by mastery, not luck: see the <a href="#" onclick="openRewardsRules();return false" style="color:var(--sky)">Official Rewards Rules</a>. COPPA compliant. No ads targeted at children. No data sold. Cancel anytime — no questions asked.</div>
   </div>
 
   <!-- WHY FAMILIES WILL LOVE IT -->
@@ -1843,13 +1872,14 @@ body{
       <a class="footer-link" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Waitlist</a>
       <a class="footer-link" onclick="openModal('student')">Sign Up Free</a>
       <a class="footer-link" onclick="openModal('teacher')">For Teachers</a>
+      <a class="footer-link" onclick="openRewardsRules()">Rewards Rules</a>
       <a class="footer-link" onclick="showToast('📧 Contact: support@mymathcrown.com')">Contact Us</a>
       <a class="footer-link" onclick="document.getElementById('modal-privacy').style.display='block'">Privacy Policy</a>
       <a class="footer-link" onclick="document.getElementById('modal-terms').style.display='block'">Terms of Service</a>
     </div>
     <div class="footer-legal">
       © 2026 MathCrown™. All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
-      All prizes delivered to verified parent accounts only. Students never handle money directly.<br>
+      Rewards delivered to verified parent accounts only, after parent approval. Students never handle money. MathCoins have no cash value.<br>
       Questions sourced from Khan Academy, OpenStax, Illustrative Mathematics, SAT/ACT/AP released exams, STAAR, and Claude AI.
     </div>
   </footer>
@@ -1903,14 +1933,14 @@ body{
         <input class="form-input" type="password" id="s-password" placeholder="Minimum 6 characters">
       </div>
       <div class="consent">
-        <strong>👋 Parents!</strong> By signing up, you confirm a parent or guardian has approved this account. A parent account is needed to manage prizes and privacy settings. We comply with COPPA — no data is ever sold.
+        <strong>👋 Parents!</strong> By signing up, you confirm a parent or guardian has approved this account. A parent account is needed to approve rewards and manage privacy settings. We comply with COPPA — no data is ever sold.
       </div>
       <button class="btn btn-sun" style="width:100%" onclick="signupStudent()">🚀 Create My Profile — Free!</button>
     </div>
 
     <div id="tab-parent" style="display:none">
       <div class="modal-title">Parent Account 🛡️</div>
-      <div class="modal-sub">Manage your child's learning, prizes & safety</div>
+      <div class="modal-sub">Manage your child's learning, rewards & safety</div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">First Name</label>
@@ -1944,7 +1974,7 @@ body{
           <div class="plan-card" onclick="selectPlan(this)">
             <div class="plan-price">$9.99</div>
             <div class="plan-name">Premium</div>
-            <div class="plan-desc">Unlimited + prize eligibility</div>
+            <div class="plan-desc">Unlimited + Season Rewards</div>
           </div>
           <div class="plan-card" onclick="selectPlan(this)">
             <div class="plan-price">$14.99</div>
@@ -1959,7 +1989,7 @@ body{
         </div>
       </div>
       <div class="consent">
-        <strong>🔒 COPPA Compliant.</strong> You control all data. Prizes are delivered to your account only. Students never handle money directly. Cancel anytime.
+        <strong>🔒 COPPA Compliant.</strong> You control all data. Rewards are delivered to your account only, after you approve them. Students never handle money directly. Cancel anytime.
       </div>
       <button class="btn btn-mint" style="width:100%" onclick="submitParentSignup()">✅ Create Parent Account</button>
     </div>
@@ -2011,11 +2041,44 @@ body{
       <input class="form-input" type="text" inputmode="numeric" maxlength="6" id="lc-code" placeholder="e.g. 482913">
     </div>
     <div class="consent">
-      <strong>🔒 Privacy Note:</strong> This links your account to your child's real MathCrown profile — their XP, coins, wins, and any prize requests will show up here, kept private to just you.
+      <strong>🔒 Privacy Note:</strong> This links your account to your child's real MathCrown profile — their XP, coins, wins, and any reward claims will show up here, kept private to just you.
     </div>
     <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
       ✅ Link Child Account
     </button>
+  </div>
+</div>
+
+<!-- ═══════════════ MASTERY CHECK / REWARD CLAIM MODAL ═══════════════ -->
+<div class="modal-overlay" id="reward-modal">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="closeRewardModal()">✕</button>
+    <div id="reward-modal-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ OFFICIAL REWARDS RULES ═══════════════ -->
+<div class="modal-overlay" id="rules-modal">
+  <div class="modal rules-body" style="max-width:640px">
+    <button class="modal-close" onclick="closeRewardsRules()">✕</button>
+    <div class="modal-title">📋 Official Rewards Rules</div>
+    <div class="modal-sub" style="margin-bottom:16px">Earn While You Learn: real rewards for real mastery. Never luck, never a lottery.</div>
+    <h4>1. No chance, no cash value</h4>
+    <p>Every real reward is earned by meeting a published learning goal or by skill in a weekly competition. Nothing is ever decided by luck, drawings, spins or random selection. <strong>MathCoins</strong> are virtual points with no cash value: they can't be exchanged for money, gift cards or prizes, sold or transferred. They're only spent in the Coin Shop.</p>
+    <h4>2. Who can take part</h4>
+    <p>Students with a MathCrown account who live in the United States. Rewards are delivered only to the student's linked parent or guardian account, and only after that parent approves the request. Void where prohibited.</p>
+    <h4>3. Season Mastery Reward (Premium, Family &amp; Max plans)</h4>
+    <p>Seasons follow the calendar quarter; Season 1 runs Monday, Oct 5, 2026 to Sunday, Jan 3, 2027. Weeks run Monday to Sunday, US Eastern time. A <strong>Weekly Goal</strong> is 50 questions in a week at 75% accuracy or better. Complete <strong>8 Weekly Goals</strong> in a season, then pass a <strong>Mastery Check</strong> (10 new questions at your grade level, 8 correct to pass, 15 minutes, up to 3 tries a day) to claim one reward worth $5: a school supplies kit, a $5 Target eGift Card or a $5 Amazon eGift Card.</p>
+    <p>Limits: one Season Reward per student per season (up to $20 a year), and per subscription per season: Premium 1, Family 2, Max 2 (shared among the plan's children, first claimed first served). Claim before the season ends. Season Rewards are a thank-you for learning, not a refund, rebate or return on your subscription.</p>
+    <h4>4. Weekly Champions (free, no purchase necessary)</h4>
+    <p>Free and paid players compete equally in three divisions: Grades K–5, 6–8 and 9–12. Each week, in each division, two players win a reward worth $5: the <strong>Top Scorer</strong> (highest Weekly Score = correct answers × accuracy, with at least 30 questions at 60%+ accuracy) and the <strong>Most Improved</strong> (biggest accuracy gain over their own earlier accuracy, at least 30 questions that week and 30 before it). One prize per player per week; ties go to higher accuracy. That's at most 6 prizes ($30) a week. Winners verify with a Mastery Check and claim by the following Sunday; unclaimed prizes aren't re-awarded. Prizes start with the week of Oct 5, 2026.</p>
+    <h4>5. Delivery</h4>
+    <p>After parent approval, eGift Cards are emailed to the parent and supplies kits are mailed to a US address the parent provides, usually within 14 days. Target and Amazon are not sponsors of MathCrown; their names and marks belong to their owners.</p>
+    <h4>6. Fair play</h4>
+    <p>Rewards are for the student's own work. Using scripts, extra accounts, or someone else answering makes an account ineligible. We review play data before sending rewards and may withhold a reward that doesn't look like genuine play.</p>
+    <h4>7. Changes</h4>
+    <p>We may change or end the rewards program by posting updated rules here. Rewards already earned under the rules in effect at the time will be honored. Questions: support@mymathcrown.com.</p>
+    <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeRewardsRules()">Close</button>
   </div>
 </div>
 
@@ -2235,7 +2298,7 @@ body{
             <span class="k5-map-emoji">🧙</span>
             <span class="k5-map-label">Wizard's Tower</span>
           </button>
-          <button class="k5-map-node" style="left:56%;top:62%;background:linear-gradient(135deg,#d17d00,#ffb100)" onclick="k5WalkTo('vault',function(){goPage('wallet',null);})" title="Treasure Vault — See your MathCoins &amp; prizes">
+          <button class="k5-map-node" style="left:56%;top:62%;background:linear-gradient(135deg,#d17d00,#ffb100)" onclick="k5WalkTo('vault',function(){goPage('wallet',null);})" title="Treasure Vault — See your MathCoins &amp; rewards">
             <span class="k5-map-emoji">💰</span>
             <span class="k5-map-label">Treasure Vault</span>
           </button>
@@ -2284,6 +2347,9 @@ body{
         </div>
       </div>
 
+      <!-- Season Mastery Path summary — filled by renderSeasonCards() -->
+      <div class="card card-mint" id="home-season-card" style="display:none;margin-bottom:16px;padding:18px"></div>
+
       <!-- Upgrade nudge — free accounts only, toggled by renderUpgradeNudge() -->
       <div class="card" id="home-upgrade-card" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,rgba(255,217,61,0.12),rgba(155,93,229,0.08));border:1.5px solid rgba(255,217,61,0.35)">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
@@ -2296,7 +2362,7 @@ body{
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
           <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column">
             <div style="font-weight:800">Premium <span style="color:var(--sun)">$9.99/mo</span></div>
-            <div style="font-size:12px;color:var(--text2);margin:4px 0 10px;flex:1">Prize redemption, unlimited challenges, tournaments, 300 MathCoins a day.</div>
+            <div style="font-size:12px;color:var(--text2);margin:4px 0 10px;flex:1">Season Mastery Rewards, unlimited challenges, tournaments, 300 MathCoins a day.</div>
             <button class="btn btn-sun btn-xs" onclick="upgradeToPlan('premium')">Start free trial</button>
           </div>
           <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column">
@@ -2587,7 +2653,7 @@ body{
     <!-- ════ TOURNAMENTS ════ -->
     <div class="page" id="p-tournament">
       <div class="page-title">🏆 Tournaments</div>
-      <div class="page-sub">Compete nationally · Win real prizes funded by sponsors · Grades 1–12</div>
+      <div class="page-sub">Compete nationally · Earn medals, certificates &amp; exclusive avatars · Grades 1–12</div>
 
       <div class="featured-tournament">
         <div class="feat-bg">🏆</div>
@@ -2596,23 +2662,19 @@ body{
           <span class="badge b-sun" style="margin-left:6px" id="feat-tourn-date">📅 TBD</span>
         </div>
         <div class="feat-title">🥇 National Algebra Championship</div>
-        <div class="feat-desc">Compete against 7th & 8th graders nationwide in a 3-round elimination tournament. Questions drawn from our full hybrid bank (AI + SAT/AP/STAAR). Top 10 win real prizes.</div>
+        <div class="feat-desc">Compete against 7th & 8th graders nationwide in a 3-round elimination tournament. Questions drawn from our full hybrid bank (AI + SAT/AP/STAAR). Top 10 earn certificates and an exclusive Champion avatar.</div>
         <div class="prize-row">
           <div class="prize-box">
-            <div class="prize-amt" style="color:var(--sun)">$500</div>
-            <div class="prize-place">🥇 1st Place Gift Card</div>
+            <div class="prize-amt" style="color:var(--sun)">🥇</div>
+            <div class="prize-place">Champion Crown + Certificate</div>
           </div>
           <div class="prize-box">
-            <div class="prize-amt" style="color:#c0c0c0">$250</div>
-            <div class="prize-place">🥈 2nd Place</div>
+            <div class="prize-amt" style="color:#c0c0c0">📜</div>
+            <div class="prize-place">Top 10 Certificates</div>
           </div>
           <div class="prize-box">
-            <div class="prize-amt" style="color:#cd7f32">$100</div>
-            <div class="prize-place">🥉 3rd Place</div>
-          </div>
-          <div class="prize-box">
-            <div class="prize-amt" style="color:var(--sky)">529</div>
-            <div class="prize-place">🎓 College Savings Option</div>
+            <div class="prize-amt" style="color:var(--sky)">🎁</div>
+            <div class="prize-place">Sponsor prizes announced before registration closes</div>
           </div>
         </div>
         <div class="tourn-meta">
@@ -2624,12 +2686,13 @@ body{
 
       <!-- Reward structure info -->
       <div class="card card-mint" style="margin-bottom:20px;padding:20px">
-        <div class="sec-title" style="margin-bottom:10px">🎁 How Prize Rewards Work</div>
+        <div class="sec-title" style="margin-bottom:10px">🎁 How Rewards Work</div>
         <div style="font-size:13px;color:var(--text2);line-height:1.8">
-          🪙 <strong style="color:var(--sun)">MathCoins</strong> — Earned daily by everyone, redeemed by parents for gift cards, supplies & 529 contributions<br>
-          🎁 <strong style="color:var(--mint)">Weekly Prizes</strong> — Top 3 per grade get gift cards every Friday, funded by subscriptions<br>
-          🏆 <strong style="color:var(--coral)">Tournament Prizes</strong> — Sponsor-funded cash prizes for national events, delivered to parent accounts<br>
-          🎓 <strong style="color:var(--sky)">529 College Savings</strong> — High school winners can choose college savings contributions instead of gift cards
+          🎯 <strong style="color:var(--mint)">Season Mastery Reward</strong>: finish 8 Weekly Goals and pass a Mastery Check for a $5 reward (Premium, Family &amp; Max)<br>
+          🏆 <strong style="color:var(--sun)">Weekly Champions</strong>: Top Scorer + Most Improved in each division win a $5 reward every week. Free to enter<br>
+          🎁 <strong style="color:var(--coral)">Tournament Prizes</strong>: certificates and avatars for every event; sponsor prizes are only listed once a sponsor confirms them<br>
+          🪙 <strong style="color:var(--sky)">MathCoins</strong>: just for fun, spent in the Coin Shop, never exchanged for money ·
+          <a href="#" onclick="openRewardsRules();return false" style="color:var(--sky)">Official Rules</a>
         </div>
       </div>
 
@@ -2695,7 +2758,7 @@ body{
         <button class="lb-tab on" id="lb-grade-btn" onclick="setLBTab('grade',this)">🏫 My Grade</button>
         <button class="lb-tab" onclick="setLBTab('school',this)">🏠 All Grades</button>
         <button class="lb-tab" onclick="setLBTab('national',this)">🌎 National</button>
-        <button class="lb-tab" onclick="setLBTab('weekly',this)">📅 Weekly</button>
+        <button class="lb-tab" id="lb-weekly-btn" onclick="setLBTab('weekly',this)">🏆 This Week</button>
       </div>
 
       <!-- Podium -->
@@ -2708,26 +2771,30 @@ body{
 
     <!-- ════ WALLET ════ -->
     <div class="page" id="p-wallet">
-      <div class="page-title">💰 Rewards Wallet</div>
-      <div class="page-sub">Earn MathCoins · Parents redeem prizes · 100% legal & safe</div>
+      <div class="page-title">💰 Rewards</div>
+      <div class="page-sub">Earn While You Learn · Real rewards for real mastery · <a href="#" onclick="openRewardsRules();return false" style="color:var(--sky)">Official Rules</a></div>
 
       <div class="wallet-hero">
         <div class="wallet-bg">💰</div>
         <div style="font-size:11px;letter-spacing:1px;color:rgba(255,217,61,0.7);margin-bottom:4px" id="wallet-plan-badge">FREE PLAN</div>
         <div class="wallet-label">MathCoins Balance</div>
         <div class="wallet-bal" id="wallet-coins">0</div>
-        <div class="wallet-sub" id="wallet-sub">Earn MathCoins by playing! · Parent-managed · Never expires</div>
+        <div class="wallet-sub" id="wallet-sub">MathCoins are for fun: spend them in the Coin Shop. They're never exchanged for money.</div>
         <div id="wallet-upgrade-cta" style="margin-top:10px">
-          <button onclick="upgradeToPlan('premium')" class="btn btn-sun btn-sm" style="border-radius:50px;padding:8px 20px">
-            ⭐ Upgrade to Premium — Redeem Prizes
+          <button onclick="goToUpgradeOptions()" class="btn btn-sun btn-sm" style="border-radius:50px;padding:8px 20px">
+            ⭐ Upgrade to unlock Season Rewards
           </button>
         </div>
         <div class="wallet-actions">
-          <button class="btn btn-sun btn-sm" onclick="openPrizeStore()">🎁 Redeem Prizes</button>
-          <button class="btn btn-ghost btn-sm" onclick="showToast('📊 Earnings history...')">📜 History</button>
-          <button class="btn btn-mint btn-sm" onclick="open529Option()">🎓 529 Option</button>
+          <button class="btn btn-sun btn-sm" onclick="var g=document.getElementById('coin-shop');if(g)g.scrollIntoView({behavior:'smooth',block:'center'})">🛍️ Coin Shop</button>
+          <button class="btn btn-ghost btn-sm" onclick="var g=document.getElementById('earnings');if(g)g.scrollIntoView({behavior:'smooth',block:'center'})">📜 History</button>
+          <button class="btn btn-mint btn-sm" onclick="openRewardsRules()">📋 Rules</button>
         </div>
       </div>
+
+      <!-- Real rewards: Season Mastery Path + Weekly Champions -->
+      <div class="card card-mint" id="season-card" style="margin-bottom:20px;padding:20px"></div>
+      <div class="card card-sky" id="weekly-card" style="margin-bottom:20px;padding:20px"></div>
 
       <!-- Piggy Bank Vault (Junior League only) -->
       <div class="card tier-k5-only" id="k5-piggybank-card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(255,201,60,0.10),rgba(255,107,107,0.06));border:1.5px solid rgba(255,201,60,0.3)">
@@ -2771,14 +2838,14 @@ body{
         <div id="coin-guide"></div>
       </div>
 
-      <!-- Prize Store -->
-      <div class="sec-title" style="margin-bottom:14px">🎁 Prize Store (Parent Redeems)</div>
-      <div class="prize-grid" id="prize-store"></div>
-      <div style="font-size:11px;color:var(--text2);margin:-6px 0 20px">Redeeming submits a request — we fulfill real gift cards and 529 contributions by hand, so it may take a few days.</div>
+      <!-- Coin Shop: where MathCoins are spent (cosmetics and power-ups only) -->
+      <div class="sec-title" style="margin-bottom:14px">🛍️ Coin Shop</div>
+      <div class="prize-grid" id="coin-shop"></div>
+      <div style="font-size:11px;color:var(--text2);margin:-6px 0 20px">Spend MathCoins on avatars, titles and Streak Shields. Real rewards come from the Season Mastery Path and Weekly Champions above.</div>
 
-      <!-- Real redemption request history (Firestore-backed, not demo data) -->
+      <!-- Real reward claims (Firestore-backed) -->
       <div id="redemption-history-wrap" style="display:none;margin-bottom:20px">
-        <div class="sec-title" style="margin-bottom:14px">📦 Your Redemption Requests</div>
+        <div class="sec-title" style="margin-bottom:14px">📦 Your Real Rewards</div>
         <div class="card" id="redemption-history"></div>
       </div>
 
@@ -2843,7 +2910,7 @@ body{
     <!-- ════ PARENT DASHBOARD ════ -->
     <div class="page" id="p-parentdash">
       <div class="page-title">👨‍👩‍👧 Parent Dashboard</div>
-      <div class="page-sub" id="parent-dash-sub">Manage your children's learning, prizes and rewards</div>
+      <div class="page-sub" id="parent-dash-sub">Manage your children's learning and rewards</div>
 
 
       <!-- Parent Hero -->
@@ -2853,7 +2920,7 @@ body{
           <div style="font-size:20px;font-weight:800;margin-bottom:4px" id="p-dash-name">Parent Account</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="p-dash-plan">Plan: Free</div>
           <div id="p-dash-upgrade" style="display:none;margin-bottom:12px">
-            <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Upgrade to unlock prize redemption and Premium for your linked children. 14-day free trial, cancel anytime.</div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Upgrade to unlock Season Mastery Rewards and Premium for your linked children. 14-day free trial, cancel anytime.</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
               <button class="btn btn-sun btn-xs" onclick="upgradeToPlan('premium')">Premium $9.99/mo · 1 child</button>
               <button class="btn btn-mint btn-xs" style="color:var(--dark)" onclick="upgradeToPlan('family')">Family $14.99/mo · up to 4</button>
@@ -2883,7 +2950,7 @@ body{
 
       <!-- Prize Approval Queue -->
       <div class="sec-head" style="margin-top:8px">
-        <div class="sec-title">🎁 Prize Approval Queue</div>
+        <div class="sec-title">🎁 Reward Approval Queue</div>
         <span class="badge b-coral" id="prize-pending-badge" style="display:none">Pending</span>
       </div>
       <div id="prize-approval-list">
@@ -2893,12 +2960,13 @@ body{
       <!-- Prize Request Policy -->
       <div class="teen-wallet-card">
         <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:10px">
-          🎁 How Prize Requests Work
+          🎁 How Rewards Work
         </div>
         <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px">
-          When your child redeems MathCoins for a prize, it shows up right here in your <strong style="color:var(--mint)">Prize Requests</strong> queue below — you <strong>Approve</strong> or <strong>Deny</strong> it in the app, no email needed.<br><br>
-          Approving doesn't charge anything automatically: it authorizes us to fulfill the request, which we then do by hand (buying and sending the real gift card, or making the 529 contribution) and mark it sent once it's on its way.<br><br>
-          <strong style="color:var(--coral)">Privacy:</strong> a prize request only ever reaches the parent account your child's Link Code connects to — never any other account.
+          Your child earns real rewards by learning, never by luck: a <strong style="color:var(--mint)">Season Mastery Reward</strong> (8 Weekly Goals + a passed Mastery Check, included with paid plans) or a <strong style="color:var(--sun)">Weekly Champions</strong> prize (Top Scorer or Most Improved in their division, free to enter). Each reward is worth $5: a school supplies kit or a Target/Amazon eGift Card.<br><br>
+          When your child claims one, it shows up in the queue above. <strong>Approve</strong> or <strong>Deny</strong> it here. Approving never charges you anything: we send eGift Cards to your account email, or contact you for a mailing address for supplies, usually within 14 days.<br><br>
+          MathCoins are just for fun and never turn into money. <a href="#" onclick="openRewardsRules();return false" style="color:var(--sky)">Official Rewards Rules</a><br><br>
+          <strong style="color:var(--coral)">Privacy:</strong> a reward claim only ever reaches the parent account your child's Link Code connects to, never any other account.
         </div>
       </div>
 
@@ -2906,7 +2974,7 @@ body{
       <div class="card" style="margin-top:16px">
         <div class="sec-title" style="margin-bottom:14px">📊 Weekly Progress Report Preview</div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">
-          When weekly reports are enabled, you will receive an email every Sunday showing each child's activity, improvement areas, and prize balance. Here is a preview of what it looks like:
+          When weekly reports are enabled, you will receive an email every Sunday showing each child's activity, improvement areas, and Season Mastery Path progress. Here is a preview of what it looks like:
         </div>
         <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:16px;border:1px solid var(--border)">
           <div style="font-size:14px;font-weight:800;margin-bottom:10px;color:var(--sun)">📧 Sample Weekly Report — Week of March 24</div>
@@ -2916,7 +2984,7 @@ body{
             <div class="activity-row"><div class="activity-dot" style="background:var(--sky)"></div><span>Challenges won: <strong>8 of 12</strong> — 67% win rate</span></div>
             <div class="activity-row"><div class="activity-dot" style="background:var(--coral)"></div><span>Weak area detected: <strong>Fractions</strong> — 45% accuracy</span></div>
             <div class="activity-row"><div class="activity-dot" style="background:var(--purple)"></div><span>AI Tutor sessions: <strong>3 sessions</strong> with Axiom</span></div>
-            <div class="activity-row" style="border:none"><div class="activity-dot" style="background:var(--mint)"></div><span>Current balance: <strong>2,450 MathCoins</strong> = $24.50 prize value</span></div>
+            <div class="activity-row" style="border:none"><div class="activity-dot" style="background:var(--mint)"></div><span>Season Mastery Path: <strong>5 of 8</strong> Weekly Goals complete</span></div>
           </div>
           <div style="margin-top:14px;font-size:12px;color:var(--text2)">
             📧 Weekly reports will be sent to your registered email. 
@@ -3059,7 +3127,8 @@ var S = {
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:"",
   coinCapDate:"", coinCapEarned:0, coinCapNotified:false,
-  myRedemptions:[], recentEarnings:[]
+  myRedemptions:[], recentEarnings:[],
+  week:null, prevWeek:null, seasonProgress:null, lastPlayDay:"", streakShields:0, owned:[], titleId:"", lastMasteryPassMs:0
 };
 
 // ═══ AXIOM ACCESS CONTROL ═══
@@ -3093,11 +3162,9 @@ function axiomRemaining(){
 }
 
 // ═══ MATHCOINS DAILY CAP ═══
-// Coins are the one thing that turns into real money in the Prize Store,
-// unlike XP (levels only) — so unlike Axiom's access model above, paid
-// plans get a HIGHER daily ceiling here, never an unlimited one. Without
-// this, per-account payout cost scales with how long a kid plays in a day,
-// which doesn't bound the business's redemption liability.
+// MathCoins never turn into money (see EARN WHILE YOU LEARN below) — the
+// daily ceiling just keeps the Coin Shop economy from being trivial to
+// max out. Paid plans get a higher ceiling, never an unlimited one.
 var COIN_DAILY_CAP_FREE = 150;
 var COIN_DAILY_CAP_PAID = 300;
 
@@ -3130,6 +3197,416 @@ function awardCoins(amount, reason){
   }
   return granted;
 }
+
+// ═══ EARN WHILE YOU LEARN ═══
+// MathCoins are for fun only: they're spent in the Coin Shop and never
+// turn into money. Real rewards come from verified learning, and every
+// cap below is enforced again by the Worker (mathcrown-worker.js), which
+// is the source of truth — keep these numbers in sync with it.
+//   • Weekly Goal: WEEKLY_GOAL_ANSWERS questions at WEEKLY_GOAL_ACCURACY+.
+//   • Season Reward (paid plans): SEASON_WEEKS_REQUIRED Weekly Goals in a
+//     season + a passed Mastery Check → one $5 reward, capped per plan.
+//   • Weekly Champions (everyone, no purchase necessary): per division,
+//     a Top Scorer and a Most Improved win a $5 reward each week.
+var REWARDS_START_WEEK = "2026-10-05";
+var WEEKLY_GOAL_ANSWERS = 50;
+var WEEKLY_GOAL_ACCURACY = 0.75;
+var SEASON_WEEKS_REQUIRED = 8;
+var SEASON_REWARD_SLOTS = { premium:1, family:2, max:2 };
+var WEEKLY_MIN_ANSWERS = 30;
+var WEEKLY_MIN_ACCURACY = 0.6;
+var WEEKLY_MAX_ANSWERS = 3000;
+var WEEKLY_MIN_GAIN = 0.05;
+var REWARD_CHOICES = [
+  {k:"supplies", e:"✏️", n:"School Supplies Kit",  d:"Pencils, notebook, eraser & more, mailed to your parent"},
+  {k:"target",   e:"🎯", n:"$5 Target eGift Card", d:"Emailed to your parent"},
+  {k:"amazon",   e:"📦", n:"$5 Amazon eGift Card", d:"Emailed to your parent"}
+];
+var DIVISION_LABEL = { k5:"Grades K–5", "68":"Grades 6–8", "912":"Grades 9–12" };
+
+function escHtml(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; });
+}
+
+// Weeks run Monday–Sunday on a fixed US Eastern (UTC-5) clock, seasons
+// are calendar quarters (by each week's Monday) — the Worker does the
+// identical math, so "this week" means the same thing on both sides.
+var MC_TZ_OFFSET_MS = -5*3600*1000;
+function mcDayId(ms){ return new Date((ms===undefined?Date.now():ms)+MC_TZ_OFFSET_MS).toISOString().slice(0,10); }
+function mcWeekId(ms){
+  var d=new Date((ms===undefined?Date.now():ms)+MC_TZ_OFFSET_MS);
+  var back=(d.getUTCDay()+6)%7;
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()-back)).toISOString().slice(0,10);
+}
+function mcPrevWeekId(w){ return new Date(Date.parse(w+"T00:00:00Z")-7*864e5).toISOString().slice(0,10); }
+function mcSeasonId(w){ var p=w.split("-"); return p[0]+"-Q"+(Math.floor((parseInt(p[1],10)-1)/3)+1); }
+function mcSeasonLabel(sid){
+  var q=parseInt(sid.split("Q")[1],10), y=sid.slice(0,4);
+  return ["Winter","Spring","Summer","Fall"][q-1]+" Season "+y;
+}
+// Sunday of the season's last week, e.g. "Jan 3".
+function mcSeasonEnds(sid){
+  var w=mcWeekId();
+  while(mcSeasonId(new Date(Date.parse(w+"T00:00:00Z")+7*864e5).toISOString().slice(0,10))===sid){
+    w=new Date(Date.parse(w+"T00:00:00Z")+7*864e5).toISOString().slice(0,10);
+  }
+  return new Date(Date.parse(w+"T12:00:00Z")+6*864e5).toLocaleDateString(undefined,{month:"short",day:"numeric",timeZone:"UTC"});
+}
+function mcShortDate(w){ return new Date(Date.parse(w+"T12:00:00Z")).toLocaleDateString(undefined,{month:"short",day:"numeric",timeZone:"UTC"}); }
+function mcDivision(grade){
+  var g=String(grade==null?"":grade).trim().toUpperCase();
+  if(g==="K") return "k5";
+  var n=parseInt(g,10);
+  if(isNaN(n)) return "";
+  return n<=5?"k5":n<=8?"68":"912";
+}
+function rewardsLive(){ return mcWeekId()>=REWARDS_START_WEEK; }
+
+function resetLearningState(){
+  S.week=null; S.prevWeek=null; S.seasonProgress=null; S.lastPlayDay=""; S.streakShields=0;
+  S.owned=[]; S.titleId=""; S.lastMasteryPassMs=0;
+}
+function restoreLearningState(d){
+  d=d||{};
+  S.week=d.week||null; S.prevWeek=d.prevWeek||null; S.seasonProgress=d.seasonProgress||null;
+  S.lastPlayDay=d.lastPlayDay||""; S.streakShields=d.streakShields||0;
+  S.owned=Array.isArray(d.owned)?d.owned:[]; S.titleId=d.titleId||""; S.lastMasteryPassMs=d.lastMasteryPassMs||0;
+  // Avatars used to unlock by coin BALANCE; they're bought now. Keep
+  // whatever was already equipped.
+  var eq=AVATAR_CATALOG.find(function(a){ return a.id===S.avatarId; });
+  if(eq && eq.req.type==="shop" && S.owned.indexOf("av_"+eq.id)<0) S.owned.push("av_"+eq.id);
+  // A streak only survives if the last play day was today or yesterday
+  // (or the day before, with a Streak Shield in hand).
+  var today=mcDayId(), y=mcDayId(Date.now()-864e5), y2=mcDayId(Date.now()-2*864e5);
+  if(S.lastPlayDay!==today && S.lastPlayDay!==y && !(S.lastPlayDay===y2 && S.streakShields>0)) S.streak=0;
+}
+function learningStateForSave(){
+  return { week:S.week||null, prevWeek:S.prevWeek||null, seasonProgress:S.seasonProgress||null,
+    lastPlayDay:S.lastPlayDay||"", streakShields:S.streakShields||0, owned:S.owned||[], titleId:S.titleId||"",
+    lastMasteryPassMs:S.lastMasteryPassMs||0 };
+}
+
+function allTimeTotals(){
+  var c=0, a=0;
+  Object.keys(S.topicStats||{}).forEach(function(k){ var t=S.topicStats[k]; c+=t.correct||0; a+=t.attempted||0; });
+  return {correct:c, attempted:a};
+}
+// Rolls S.week over when a new week starts. The all-time accuracy BEFORE
+// the week (baseAcc) is what "Most Improved" is measured against.
+function currentWeek(){
+  var wk=mcWeekId();
+  if(S.week && S.week.id===wk) return S.week;
+  if(S.week && S.week.id) S.prevWeek=S.week;
+  var t=allTimeTotals();
+  S.week={id:wk, answered:0, correct:0, baseAcc:t.attempted?Math.round(t.correct/t.attempted*1000)/1000:0, baseN:t.attempted, goalMet:false};
+  return S.week;
+}
+function weekView(){
+  var wk=mcWeekId();
+  return (S.week && S.week.id===wk) ? S.week : {id:wk, answered:0, correct:0, baseAcc:0, baseN:0, goalMet:false};
+}
+function weeklyGoalMet(w){ return w.answered>=WEEKLY_GOAL_ANSWERS && w.correct/w.answered>=WEEKLY_GOAL_ACCURACY; }
+function seasonWeeksDone(){
+  var sid=mcSeasonId(mcWeekId());
+  if(!S.seasonProgress || S.seasonProgress.id!==sid) return 0;
+  return (S.seasonProgress.weeks||[]).filter(function(w){ return w>=REWARDS_START_WEEK; }).length;
+}
+function weeklyScore(w){ return w.answered ? Math.round(w.correct*(w.correct/w.answered)) : 0; }
+
+function updateStreak(){
+  var today=mcDayId();
+  if(S.lastPlayDay===today) return;
+  var y=mcDayId(Date.now()-864e5), y2=mcDayId(Date.now()-2*864e5);
+  if(S.lastPlayDay===y) S.streak=(S.streak||0)+1;
+  else if(S.lastPlayDay===y2 && (S.streakShields||0)>0 && (S.streak||0)>0){
+    S.streakShields--; S.streak++;
+    showToast("🛡️ Your Streak Shield saved your "+S.streak+"-day streak!");
+  } else S.streak=1;
+  S.lastPlayDay=today;
+  if(S.streak%7===0) awardCoins(50, S.streak+"-day streak bonus");
+}
+
+// Called on every answered question (from recordTopicAnswer).
+function trackLearningProgress(correct){
+  if(!S.name || S.isPreview) return;
+  updateStreak();
+  var w=currentWeek();
+  w.answered++; if(correct) w.correct++;
+  if(!w.goalMet && weeklyGoalMet(w)){
+    w.goalMet=true;
+    var sid=mcSeasonId(w.id);
+    if(!S.seasonProgress || S.seasonProgress.id!==sid) S.seasonProgress={id:sid, weeks:[]};
+    if(S.seasonProgress.weeks.indexOf(w.id)<0) S.seasonProgress.weeks.push(w.id);
+    awardCoins(40, "Weekly Goal complete");
+    showToast("🎯 Weekly Goal complete!"+(rewardsLive()?" That's "+seasonWeeksDone()+"/"+SEASON_WEEKS_REQUIRED+" for this season.":""));
+  }
+}
+
+// ── COIN SHOP ── (coins are spent here; nothing in it is real money)
+var SHOP_EXTRAS = [
+  {id:"shield",     kind:"power", e:"🛡️", n:"Streak Shield",    cost:200,  d:"Saves your streak if you miss a day. Hold up to 2."},
+  {id:"t_fraction", kind:"title", e:"🍕", n:"Fraction Fighter", cost:250,  d:"Profile title"},
+  {id:"t_algebra",  kind:"title", e:"🧮", n:"Algebra Ace",      cost:400,  d:"Profile title"},
+  {id:"t_ninja",    kind:"title", e:"⚡", n:"Number Ninja",     cost:500,  d:"Profile title"},
+  {id:"t_royal",    kind:"title", e:"👑", n:"Math Royalty",     cost:1200, d:"Profile title"}
+];
+function shopItems(){
+  var avs=AVATAR_CATALOG.filter(function(a){ return a.req.type==="shop"; }).map(function(a){
+    return {id:"av_"+a.id, kind:"avatar", e:a.emoji, n:a.name, cost:a.req.cost, d:"Avatar", avatarId:a.id};
+  });
+  return avs.concat(SHOP_EXTRAS);
+}
+function ownsItem(id){ return (S.owned||[]).indexOf(id)>-1; }
+function myTitle(){
+  var t=SHOP_EXTRAS.find(function(x){ return x.id===S.titleId; });
+  return (t && ownsItem(t.id)) ? t.n : "";
+}
+function buyShopItem(id){
+  if(!S.name || S.isPreview){ showToast("Sign up free to spend MathCoins!"); return; }
+  var it=shopItems().find(function(x){ return x.id===id; }); if(!it) return;
+  S.owned=S.owned||[];
+  if(it.kind!=="power" && ownsItem(id)){
+    if(it.kind==="avatar") selectAvatar(it.avatarId);
+    else { S.titleId = S.titleId===id ? "" : id; saveSession(); showToast(S.titleId ? it.e+" Title on: "+it.n : "Title removed"); }
+    renderCoinShop(); renderProfile();
+    return;
+  }
+  if(it.kind==="power" && (S.streakShields||0)>=2){ showToast("🛡️ You already hold 2 Streak Shields — that's the max!"); return; }
+  if((S.coins||0)<it.cost){ showToast("You need "+(it.cost-S.coins).toLocaleString()+" more MathCoins for "+it.n+" — keep playing!"); return; }
+  if(!confirm("Spend "+it.cost+" MathCoins on "+it.n+"?")) return;
+  S.coins-=it.cost;
+  logEarning("Bought "+it.n, -it.cost);
+  if(it.kind==="power") S.streakShields=(S.streakShields||0)+1;
+  else S.owned.push(id);
+  if(it.kind==="avatar"){ S.avatarId=it.avatarId; applyAvatarEverywhere(); }
+  if(it.kind==="title") S.titleId=id;
+  saveSession();
+  renderWallet(); renderProfile();
+  var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
+  showToast(it.e+" "+it.n+" is yours!");
+}
+function renderCoinShop(){
+  var grid=$$("coin-shop"); if(!grid) return;
+  grid.innerHTML=shopItems().map(function(it){
+    var owned = it.kind==="power" ? false : ownsItem(it.id);
+    var equipped = (it.kind==="avatar" && S.avatarId===it.avatarId) || (it.kind==="title" && S.titleId===it.id);
+    var status = it.kind==="power" ? ("You have "+(S.streakShields||0)+"/2") :
+      equipped ? "✅ Equipped" : owned ? "Owned · tap to use" : it.d;
+    return "<div class='card prize-card' style='cursor:pointer"+(owned&&!equipped?";opacity:0.85":"")+"' onclick=\"buyShopItem('"+it.id+"')\">"
+      +"<div class='prize-emo'>"+it.e+"</div><div class='prize-name'>"+escHtml(it.n)+"</div>"
+      +"<div class='prize-cost'>"+(owned?"Owned":it.cost.toLocaleString()+" 🪙")+"</div>"
+      +"<div style='font-size:11px;color:var(--text2);margin-top:2px'>"+status+"</div></div>";
+  }).join("");
+}
+
+// ── SEASON MASTERY PATH ──
+function myClaimedSeasonReward(){
+  var sid=mcSeasonId(mcWeekId());
+  return (S.myRedemptions||[]).find(function(r){ return r.type==="season" && r.seasonId===sid; });
+}
+function progressBar(pct, color){
+  return "<div class='prog-wrap' style='margin:6px 0 4px'><div class='prog-fill' style='width:"+Math.max(0,Math.min(100,pct))+"%;background:"+color+"'></div></div>";
+}
+function seasonCardHtml(compact){
+  var w=weekView(), acc=w.answered?Math.round(w.correct/w.answered*100):0;
+  var goalPct=Math.min(100, Math.round(w.answered/WEEKLY_GOAL_ANSWERS*100));
+  var live=rewardsLive(), sid=mcSeasonId(mcWeekId()), done=seasonWeeksDone();
+  var paid=isPaidPlan();
+  var h="<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap'>"
+    +"<div style='font-family:\"Fredoka One\",cursive;font-size:19px'>🎯 Season Mastery Path</div>"
+    +"<span class='badge b-mint'>"+(live?mcSeasonLabel(sid)+" · ends "+mcSeasonEnds(sid):"Season 1 starts Mon, Oct 5")+"</span></div>";
+  h+="<div style='font-size:13px;margin-top:10px'><strong>This week's goal:</strong> "+WEEKLY_GOAL_ANSWERS+" questions at "+Math.round(WEEKLY_GOAL_ACCURACY*100)+"%+ accuracy"
+    +(w.goalMet?" <span class='badge b-mint'>✅ Done</span>":"")+"</div>"
+    +progressBar(w.goalMet?100:goalPct, w.goalMet?"var(--mint)":"var(--sun)")
+    +"<div style='font-size:12px;color:var(--text2)'>"+w.answered+"/"+WEEKLY_GOAL_ANSWERS+" questions · "
+    +"<span style='color:"+(acc>=WEEKLY_GOAL_ACCURACY*100?"var(--mint)":"var(--coral)")+"'>"+acc+"% accuracy</span></div>";
+  var dots="";
+  for(var i=0;i<SEASON_WEEKS_REQUIRED;i++) dots+="<span style='display:inline-block;width:22px;height:22px;border-radius:50%;margin:3px;text-align:center;line-height:22px;font-size:12px;background:"+(i<done?"var(--mint)":"rgba(255,255,255,0.08)")+"'>"+(i<done?"✓":"")+"</span>";
+  h+="<div style='font-size:13px;margin-top:12px'><strong>Season progress:</strong> "+done+"/"+SEASON_WEEKS_REQUIRED+" Weekly Goals</div><div>"+dots+"</div>";
+  if(compact){
+    return h+"<button class='btn btn-ghost btn-xs' style='margin-top:10px' onclick=\"goPage('wallet',document.querySelector('[data-nav=wallet]'))\">See rewards →</button>";
+  }
+  var foot;
+  var claimed=myClaimedSeasonReward();
+  if(!S.name || S.isPreview){
+    foot="Sign up free to start your path.";
+  } else if(!paid){
+    foot="🔒 <strong>Season Rewards come with Premium, Family &amp; Max.</strong> Finish the path and pass a Mastery Check to earn a real $5 reward (school supplies or a gift card) each season. Weekly Goals still count for MathCoins and Weekly Champions on the free plan."
+      +"<div style='margin-top:10px'><button class='btn btn-sun btn-sm' onclick='goToUpgradeOptions()'>⭐ See plans</button></div>";
+  } else if(!live){
+    foot="Weeks from Monday, October 5 count toward Season 1. Use this weekend to warm up!";
+  } else if(claimed){
+    foot="✅ <strong>"+escHtml(claimed.prizeName)+"</strong> claimed for this season. Status: "+escHtml(claimed.status)+". Next season starts after "+mcSeasonEnds(sid)+".";
+  } else if(done<SEASON_WEEKS_REQUIRED){
+    foot="🎁 "+(SEASON_WEEKS_REQUIRED-done)+" more Weekly Goal"+(SEASON_WEEKS_REQUIRED-done===1?"":"s")+" until you can claim this season's <strong>$5 Season Reward</strong> (school supplies or a gift card, sent to your parent).";
+  } else {
+    foot="🎉 <strong>Path complete!</strong> Pass a 10-question Mastery Check (8/10 to pass), then pick your reward."
+      +"<div style='margin-top:10px;display:flex;gap:8px;flex-wrap:wrap'><button class='btn btn-sun btn-sm' onclick=\"openRewardClaim('season')\">🎁 Claim Season Reward</button></div>";
+  }
+  return h+"<div style='font-size:13px;color:var(--text2);margin-top:12px;line-height:1.6'>"+foot+"</div>";
+}
+function renderSeasonCards(){
+  var c=$$("season-card"); if(c) c.innerHTML=seasonCardHtml(false);
+  var hc=$$("home-season-card");
+  if(hc){ hc.style.display=(S.name && !S.isPreview)?"block":"none"; hc.innerHTML=seasonCardHtml(true); }
+}
+
+// ── WEEKLY CHAMPIONS ──
+var WEEKLY_RESULTS = null;
+function fetchWeeklyResults(){
+  return fetch(MC_API_BASE+"/rewards/weekly-results",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){ WEEKLY_RESULTS=d; return d; })
+    .catch(function(){ return null; });
+}
+function myUid(){ return (window.auth && window.auth.currentUser) ? window.auth.currentUser.uid : ""; }
+function myWeeklyWin(){
+  var d=WEEKLY_RESULTS, uid=myUid();
+  if(!d || !d.divisions || !uid) return null;
+  for(var div in d.divisions){
+    var w=d.divisions[div];
+    if(w.champion && w.champion.uid===uid) return {division:div, category:"champion", claimed:(d.claimed||[]).indexOf("weekly_"+d.weekId+"_"+div+"_champion")>-1, prizeWeek:d.prizeWeek};
+    if(w.improved && w.improved.uid===uid) return {division:div, category:"improved", claimed:(d.claimed||[]).indexOf("weekly_"+d.weekId+"_"+div+"_improved")>-1, prizeWeek:d.prizeWeek};
+  }
+  return null;
+}
+function renderWeeklyCard(){
+  var el=$$("weekly-card"); if(!el) return;
+  var div=mcDivision(S.gradeNum), w=weekView(), acc=w.answered?Math.round(w.correct/w.answered*100):0;
+  var gain=(w.baseN>=WEEKLY_MIN_ANSWERS && w.answered)?Math.round((w.correct/w.answered-w.baseAcc)*100):null;
+  var qualified=w.answered>=WEEKLY_MIN_ANSWERS && acc>=WEEKLY_MIN_ACCURACY*100;
+  var h="<div style='font-family:\"Fredoka One\",cursive;font-size:19px'>🏆 Weekly Champions</div>"
+    +"<div style='font-size:13px;color:var(--text2);margin:6px 0 12px;line-height:1.6'>Every week, in each division, the <strong>Top Scorer</strong> and the <strong>Most Improved</strong> player each win a real $5 reward. "
+    +"Free to compete, no purchase necessary. Score = correct answers × accuracy, so careful beats fast."+(rewardsLive()?"":" <strong>Prizes start with the week of Oct 5. This week is practice.</strong>")+"</div>";
+  if(S.name && !S.isPreview){
+    h+="<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-bottom:12px'>"
+      +"<div class='card' style='padding:10px'><div style='font-size:20px;font-weight:900;color:var(--sun)'>"+weeklyScore(w)+"</div><div style='font-size:11px;color:var(--text2)'>Your score</div></div>"
+      +"<div class='card' style='padding:10px'><div style='font-size:20px;font-weight:900;color:var(--mint)'>"+acc+"%</div><div style='font-size:11px;color:var(--text2)'>Accuracy</div></div>"
+      +"<div class='card' style='padding:10px'><div style='font-size:20px;font-weight:900;color:var(--sky)'>"+(gain===null?"—":(gain>0?"+":"")+gain+"%")+"</div><div style='font-size:11px;color:var(--text2)'>vs. your usual</div></div></div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-bottom:12px'>"+(div?"Your division: <strong>"+DIVISION_LABEL[div]+"</strong> · ":"")
+      +(qualified?"✅ You qualify this week.":"Qualify with "+WEEKLY_MIN_ANSWERS+"+ questions at "+Math.round(WEEKLY_MIN_ACCURACY*100)+"%+ accuracy ("+w.answered+" so far).")
+      +" <a href='#' onclick=\"goPage('leaderboard',document.querySelector('[data-nav=leaderboard]'));setLBTab('weekly',document.getElementById('lb-weekly-btn'));return false\" style='color:var(--sky)'>See standings →</a></div>";
+  }
+  var d=WEEKLY_RESULTS;
+  if(d && d.divisions){
+    var row=function(div){
+      var x=d.divisions[div]||{};
+      var c=x.champion?escHtml(x.champion.label)+" ("+x.champion.score+" pts)":"No qualifier";
+      var m=x.improved?escHtml(x.improved.label)+" (+"+x.improved.gain+"%)":"No qualifier";
+      return "<div class='earn-row'><div style='flex:1'><div style='font-size:13px;font-weight:800'>"+DIVISION_LABEL[div]+"</div>"
+        +"<div style='font-size:12px;color:var(--text2)'>🥇 "+c+" · 📈 "+m+"</div></div></div>";
+    };
+    h+="<div class='sec-title' style='font-size:14px;margin-bottom:6px'>Week of "+mcShortDate(d.weekId)+(d.prizeWeek?"":" (practice week)")+"</div>"
+      +"<div class='card' style='padding:6px 12px'>"+row("k5")+row("68")+row("912")+"</div>";
+    var win=myWeeklyWin();
+    if(win){
+      var what=win.category==="champion"?"Top Scorer":"Most Improved";
+      if(!win.prizeWeek) h+="<div style='margin-top:12px;font-size:13px'>🎉 You were "+what+" in the practice week. Do it again from Oct 5 to win a real prize!</div>";
+      else if(win.claimed) h+="<div style='margin-top:12px;font-size:13px'>✅ You claimed your "+what+" prize. Amazing work!</div>";
+      else h+="<div style='margin-top:12px'><div style='font-size:14px;font-weight:800;margin-bottom:8px'>🎉 You were last week's "+what+"!</div>"
+        +"<button class='btn btn-sun btn-sm' onclick=\"openRewardClaim('weekly')\">🎁 Verify &amp; claim your prize</button>"
+        +"<div style='font-size:11px;color:var(--text2);margin-top:6px'>Claim by Sunday. You'll take a quick Mastery Check to verify the win.</div></div>";
+    }
+  } else {
+    h+="<div style='font-size:12px;color:var(--text2)'>Last week's results will show here.</div>";
+  }
+  el.innerHTML=h;
+}
+
+// ── MASTERY CHECK + REWARD CLAIM (one modal) ──
+var MASTERY = { check:null, picks:[], timer:null, endsAt:0, then:null };
+function openRewardModal(html){
+  var m=$$("reward-modal"); if(!m) return;
+  $$("reward-modal-body").innerHTML=html;
+  m.classList.add("open");
+}
+function closeRewardModal(){
+  var m=$$("reward-modal"); if(m) m.classList.remove("open");
+  if(MASTERY.timer){ clearInterval(MASTERY.timer); MASTERY.timer=null; }
+}
+function startMasteryCheck(then){
+  MASTERY.then=then||null;
+  if(!window.mcAuthedPost){ showToast("Please sign in first."); return; }
+  openRewardModal("<div class='modal-title'>🧠 Mastery Check</div><div class='modal-sub'>Getting your questions ready…</div>");
+  window.mcAuthedPost("/mastery-check/start",{}).then(function(res){
+    if(!res.ok){ openRewardModal("<div class='modal-title'>🧠 Mastery Check</div><div class='modal-sub'>"+escHtml(res.data.error||"Couldn't start the check. Please try again.")+"</div>"); return; }
+    MASTERY.check=res.data; MASTERY.picks=res.data.questions.map(function(){ return -1; });
+    MASTERY.endsAt=Date.now()+res.data.timeLimitSec*1000;
+    renderMasteryCheck();
+    if(MASTERY.timer) clearInterval(MASTERY.timer);
+    MASTERY.timer=setInterval(function(){
+      var t=$$("mastery-timer"); if(!t){ clearInterval(MASTERY.timer); return; }
+      var left=Math.max(0, Math.round((MASTERY.endsAt-Date.now())/1000));
+      t.textContent="⏱️ "+Math.floor(left/60)+":"+("0"+(left%60)).slice(-2);
+      if(!left){ clearInterval(MASTERY.timer); submitMasteryCheck(); }
+    },1000);
+  });
+}
+function pickMastery(qi, ci){
+  MASTERY.picks[qi]=ci;
+  document.querySelectorAll("[data-mq='"+qi+"']").forEach(function(b){ b.classList.toggle("on", +b.getAttribute("data-mc")===ci); });
+  var btn=$$("mastery-submit"), n=MASTERY.picks.filter(function(p){ return p>-1; }).length;
+  if(btn){ btn.disabled=n<MASTERY.picks.length; btn.textContent="Submit ("+n+"/"+MASTERY.picks.length+" answered)"; }
+}
+function renderMasteryCheck(results){
+  var c=MASTERY.check;
+  var h="<div class='modal-title'>🧠 Mastery Check</div>"
+    +"<div class='modal-sub' style='margin-bottom:14px'>"+(results
+      ? (results.passed?"🎉 Passed! "+results.score+"/"+results.total+" correct.":(results.late?"⏱️ Time ran out. ":"")+results.score+"/"+results.total+" correct. You need "+c.passScore+" to pass. Review the answers below and try again"+(c.attemptsLeft>0?" (" + c.attemptsLeft+" tries left today).":" tomorrow."))
+      : c.questions.length+" questions at your grade level, made fresh just for you. Get "+c.passScore+" right to pass. <span id='mastery-timer' style='font-weight:800;color:var(--sun)'></span>")+"</div>";
+  c.questions.forEach(function(q,qi){
+    h+="<div class='card' style='padding:12px;margin-bottom:10px'><div style='font-weight:800;font-size:14px;margin-bottom:8px'>"+(qi+1)+". "+escHtml(q.q)+"</div><div style='display:grid;grid-template-columns:1fr 1fr;gap:6px'>";
+    q.choices.forEach(function(ch,ci){
+      var style="";
+      if(results){
+        if(ci===results.correct[qi]) style="background:rgba(6,214,160,0.25);border-color:var(--mint)";
+        else if(ci===MASTERY.picks[qi]) style="background:rgba(255,107,107,0.2);border-color:var(--coral)";
+      }
+      h+="<button class='btn btn-ghost btn-xs mastery-opt"+(MASTERY.picks[qi]===ci?" on":"")+"' data-mq='"+qi+"' data-mc='"+ci+"' style='justify-content:flex-start;text-align:left;"+style+"' "
+        +(results?"disabled":"onclick='pickMastery("+qi+","+ci+")'")+">"+escHtml(ch)+"</button>";
+    });
+    h+="</div></div>";
+  });
+  if(!results) h+="<button class='btn btn-sun' id='mastery-submit' style='width:100%' disabled onclick='submitMasteryCheck()'>Submit (0/"+c.questions.length+" answered)</button>";
+  else if(results.passed && MASTERY.then) h+="<button class='btn btn-sun' style='width:100%' onclick='var f=MASTERY.then;MASTERY.then=null;f()'>Continue to claim →</button>";
+  else h+="<button class='btn btn-ghost' style='width:100%' onclick='closeRewardModal()'>Close</button>";
+  openRewardModal(h);
+}
+function submitMasteryCheck(){
+  var c=MASTERY.check; if(!c) return;
+  if(MASTERY.timer){ clearInterval(MASTERY.timer); MASTERY.timer=null; }
+  var btn=$$("mastery-submit"); if(btn){ btn.disabled=true; btn.textContent="Grading…"; }
+  window.mcAuthedPost("/mastery-check/submit",{checkId:c.checkId, answers:MASTERY.picks}).then(function(res){
+    if(!res.ok){ showToast(res.data.error||"Couldn't grade the check."); closeRewardModal(); return; }
+    if(res.data.passed){ S.lastMasteryPassMs=Date.now(); awardCoins(25,"Mastery Check passed"); saveSession(); }
+    renderMasteryCheck(res.data);
+  });
+}
+function openRewardClaim(kind){
+  if(!window.mcAuthedPost){ showToast("Please sign in first."); return; }
+  var title=kind==="season"?"🎁 Season Reward":"🏆 Weekly Champion Prize";
+  var h="<div class='modal-title'>"+title+"</div><div class='modal-sub' style='margin-bottom:14px'>Pick your reward. It goes to your parent's account for approval, then we send it. Your parent needs to be linked with your Parent Link Code.</div>";
+  REWARD_CHOICES.forEach(function(r){
+    h+="<button class='card' style='width:100%;display:flex;gap:12px;align-items:center;text-align:left;cursor:pointer;margin-bottom:10px;border:1px solid var(--border);color:var(--text)' onclick=\"submitRewardClaim('"+kind+"','"+r.k+"')\">"
+      +"<span style='font-size:30px'>"+r.e+"</span><span><strong>"+r.n+"</strong><br><span style='font-size:12px;color:var(--text2)'>"+r.d+"</span></span></button>";
+  });
+  openRewardModal(h);
+}
+function submitRewardClaim(kind, choice){
+  openRewardModal("<div class='modal-title'>🎁 Claiming…</div><div class='modal-sub'>One moment.</div>");
+  window.mcAuthedPost("/rewards/"+kind,{choice:choice}).then(function(res){
+    if(res.ok){
+      openRewardModal("<div class='modal-title'>🎉 Reward claimed!</div><div class='modal-sub'><strong>"+escHtml(res.data.prizeName)+"</strong> is waiting for your parent's approval in their Parent Dashboard. Once they approve, we send it within a few days.</div><button class='btn btn-sun' style='width:100%' onclick='closeRewardModal()'>Awesome!</button>");
+      if(window.fetchMyRedemptions) window.fetchMyRedemptions().then(function(reqs){ S.myRedemptions=reqs||[]; renderWallet(); });
+      if(kind==="weekly") fetchWeeklyResults().then(renderWeeklyCard);
+      return;
+    }
+    if(res.data && res.data.needMastery){ startMasteryCheck(function(){ submitRewardClaim(kind, choice); }); return; }
+    openRewardModal("<div class='modal-title'>Not yet!</div><div class='modal-sub'>"+escHtml(res.data.error||"Couldn't claim right now. Please try again.")+"</div><button class='btn btn-ghost' style='width:100%' onclick='closeRewardModal()'>OK</button>");
+  });
+}
+function openRewardsRules(){ var m=$$("rules-modal"); if(m) m.classList.add("open"); }
+function closeRewardsRules(){ var m=$$("rules-modal"); if(m) m.classList.remove("open"); }
 
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[], coveredChildren:[] };
 var TEACHER = { name:"", email:"", school:"", classCode:"", isLoggedIn:false };
@@ -3283,33 +3760,25 @@ function computeSkills(){
   return SKILLS_DATA.map(function(s){ return {n:s.n, i:s.i, unlocked:s.unlocked, m:skillMastery(s.n)}; });
 }
 
-var PRIZES = [
-  {n:"Amazon Gift Card", e:"$5",  cost:500,  val:"$5 value"},
-  {n:"$10 Amazon Card",  e:"$10", cost:1000, val:"$10 value"},
-  {n:"GameStop Card",    e:"$25", cost:2500, val:"$25 value"},
-  {n:"Calculator",       e:"Calc",cost:2000, val:"$20 value"},
-  {n:"College Savings",  e:"529", cost:5000, val:"$50 value"},
-  {n:"Math Merch",       e:"Merch",cost:1500,val:"$15 value"}
-];
-
 
 var COIN_GUIDE = [
   {a:"Daily trivia (3 questions)", c:"10-25 coins", i:"Q"},
   {a:"Win a challenge",            c:"15 coins",    i:"W"},
   {a:"Beat higher-ranked player",  c:"30 bonus",    i:"B"},
   {a:"7-day streak",               c:"50 coins",    i:"S"},
+  {a:"Complete your Weekly Goal",  c:"40 coins",    i:"G"},
+  {a:"Pass a Mastery Check",       c:"25 coins",    i:"M"},
   {a:"Perfect score",              c:"+15 bonus",   i:"P"},
-  {a:"Complete skill topic",       c:"20 coins",    i:"T"},
   {a:"Tournament win",             c:"100-500 coins",i:"TW"}
 ];
 
 var FEATURED_TOURNAMENT = {id:"algebra-champ-2026", n:"National Algebra Championship", date:"November 15, 2026"};
 var TOURNAMENTS = [
-  {id:"arith-cup-2026",      n:"5th Grade Arithmetic Cup",    date:"December 6, 2026",  prize:"$200",  capacity:500, color:"card-mint",   grades:"Grades 4-5"},
-  {id:"geo-bowl-2027",       n:"Middle School Geometry Bowl", date:"January 17, 2027",  prize:"$350",  capacity:300, color:"card-sky",    grades:"Grades 6-8"},
-  {id:"precalc-sprint-2027", n:"High School Pre-Calc Sprint", date:"February 7, 2027",  prize:"$750",  capacity:200, color:"card-purple", grades:"Grades 9-12"},
-  {id:"fun-blitz-2027",      n:"Elementary Fun Math Blitz",   date:"March 14, 2027",    prize:"$150",  capacity:400, color:"card-sun",    grades:"Grades 1-3"},
-  {id:"calc-challenge-2027", n:"National Calculus Challenge", date:"April 4, 2027",     prize:"$1000", capacity:100, color:"card-coral",  grades:"Grades 11-12"}
+  {id:"arith-cup-2026",      n:"5th Grade Arithmetic Cup",    date:"December 6, 2026",  prize:"🏅",  capacity:500, color:"card-mint",   grades:"Grades 4-5"},
+  {id:"geo-bowl-2027",       n:"Middle School Geometry Bowl", date:"January 17, 2027",  prize:"🏅",  capacity:300, color:"card-sky",    grades:"Grades 6-8"},
+  {id:"precalc-sprint-2027", n:"High School Pre-Calc Sprint", date:"February 7, 2027",  prize:"🏅",  capacity:200, color:"card-purple", grades:"Grades 9-12"},
+  {id:"fun-blitz-2027",      n:"Elementary Fun Math Blitz",   date:"March 14, 2027",    prize:"🏅",  capacity:400, color:"card-sun",    grades:"Grades 1-3"},
+  {id:"calc-challenge-2027", n:"National Calculus Challenge", date:"April 4, 2027",     prize:"🏅", capacity:100, color:"card-coral",  grades:"Grades 11-12"}
 ];
 
 var QUICK_PROMPTS = [
@@ -3343,8 +3812,8 @@ function computeAchievements(){
 
 // ── AVATAR CATALOG ──────────────────────────────────────
 // Selectable profile avatars — no photo uploads needed. Some are free
-// from the start; others unlock by earning MathCoins, winning duels, or
-// solving problems, so leveling up has a visible, collectible payoff.
+// from the start; "shop" ones are bought with MathCoins in the Coin Shop;
+// the rest unlock by winning duels or solving problems.
 // Shared across every grade tier (K-5 today; 6-8/9-12 reuse the same
 // picker once those dashboards exist).
 var AVATAR_CATALOG = [
@@ -3352,21 +3821,24 @@ var AVATAR_CATALOG = [
   {id:"cat",     emoji:"🐱", name:"Cat",       req:{type:"free"}},
   {id:"owl",     emoji:"🦉", name:"Owl",       req:{type:"free"}},
   {id:"robot",   emoji:"🤖", name:"Robot",     req:{type:"free"}},
-  {id:"panda",   emoji:"🐼", name:"Panda",     req:{type:"coins", value:150}},
-  {id:"knight",  emoji:"🛡️", name:"Knight",    req:{type:"coins", value:300}},
+  {id:"panda",   emoji:"🐼", name:"Panda",     req:{type:"shop", cost:150}},
+  {id:"knight",  emoji:"🛡️", name:"Knight",    req:{type:"shop", cost:300}},
+  {id:"lion",    emoji:"🦁", name:"Lion",      req:{type:"shop", cost:400}},
+  {id:"rocket",  emoji:"🚀", name:"Rocket",    req:{type:"shop", cost:600}},
   {id:"wizard",  emoji:"🧙", name:"Wizard",    req:{type:"problems", value:100}},
   {id:"ninja",   emoji:"🥷", name:"Ninja",     req:{type:"wins", value:5}},
-  {id:"dragon",  emoji:"🐉", name:"Dragon",    req:{type:"coins", value:800}},
+  {id:"dragon",  emoji:"🐉", name:"Dragon",    req:{type:"shop", cost:800}},
   {id:"unicorn", emoji:"🦄", name:"Unicorn",   req:{type:"problems", value:300}},
   {id:"champion",emoji:"🏆", name:"Champion",  req:{type:"wins", value:15}},
-  {id:"diamond", emoji:"💎", name:"Diamond",   req:{type:"coins", value:2000}}
+  {id:"crown",   emoji:"👑", name:"Crown",     req:{type:"shop", cost:1500}},
+  {id:"diamond", emoji:"💎", name:"Diamond",   req:{type:"shop", cost:2000}}
 ];
 
 function avatarUnlocked(av){
   if(!av || !av.req) return false;
   switch(av.req.type){
     case "free":     return true;
-    case "coins":    return (S.coins||0) >= av.req.value;
+    case "shop":     return (S.owned||[]).indexOf("av_"+av.id) > -1;
     case "wins":     return (S.wins||0) >= av.req.value;
     case "problems": return (S.problemsSolved||0) >= av.req.value;
     default:         return false;
@@ -3375,7 +3847,7 @@ function avatarUnlocked(av){
 
 function avatarReqLabel(av){
   switch(av.req.type){
-    case "coins":    return av.req.value+" 🪙 MathCoins";
+    case "shop":     return av.req.cost+" 🪙 in the Coin Shop";
     case "wins":     return av.req.value+" duel wins";
     case "problems": return av.req.value+" problems solved";
     default:         return "";
@@ -3404,7 +3876,7 @@ function applyAvatarEverywhere(){
 
 function selectAvatar(id){
   var av=AVATAR_CATALOG.find(function(a){ return a.id===id; });
-  if(!av || !avatarUnlocked(av)){ showToast("🔒 Keep playing to unlock this avatar!"); return; }
+  if(!av || !avatarUnlocked(av)){ showToast(av && av.req.type==="shop" ? "🛍️ Get "+av.name+" in the Coin Shop (Rewards page)!" : "🔒 Keep playing to unlock this avatar!"); return; }
   S.avatarId=id;
   applyAvatarEverywhere();
   saveSession();
@@ -3662,6 +4134,7 @@ function gradeOrdinal(n){
 // exposed to the student themselves and their own teacher (topic_stats
 // collection, never public_profiles) — see the Firestore rules note.
 function recordTopicAnswer(topic, correct){
+  trackLearningProgress(!!correct);
   if(!topic) return;
   if(!S.topicStats) S.topicStats={};
   var t=S.topicStats[topic] || (S.topicStats[topic]={correct:0,attempted:0});
@@ -3775,7 +4248,8 @@ function saveSession(){
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
       problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null, topicStats:S.topicStats||{},
       name:S.name, grade:S.grade, gradeNum:S.gradeNum,
-      coinCapDate:S.coinCapDate||"", coinCapEarned:S.coinCapEarned||0, recentEarnings:S.recentEarnings||[]
+      coinCapDate:S.coinCapDate||"", coinCapEarned:S.coinCapEarned||0, recentEarnings:S.recentEarnings||[],
+      learning:learningStateForSave()
     }));
   }catch(e){}
   // Mirror to the real backend too, so MathCoins/XP/wins are a genuine
@@ -3909,6 +4383,7 @@ async function signupStudent(){
   if(!password||password.length<6){ showToast("Password must be at least 6 characters!"); return; }
   var fullName=fn+(ln?" "+ln:"");
   S.xp=0; S.level=1; S.streak=0; S.coins=0; S.email=email;
+  resetLearningState();
   if(window.firebaseSignUp){
     try{
       var signupBtn=document.querySelector("#tab-student .btn-sun");
@@ -3973,7 +4448,7 @@ function showPreviewBanner(){
   banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,#1C3A6E,#06D6A0);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;";
   var span = document.createElement("span");
   span.style.cssText = "font-size:13px;font-weight:800;color:#fff";
-  span.textContent = "PREVIEW MODE - Sign up free to save progress and earn real prizes!";
+  span.textContent = "PREVIEW MODE - Sign up free to save progress and earn real rewards!";
   var btn = document.createElement("button");
   btn.className = "btn btn-sun btn-xs";
   btn.textContent = "Sign Up Free";
@@ -4056,6 +4531,7 @@ async function loginStudent(){
   if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
   if(!password){ showToast("Please enter your password!"); return; }
   S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0; S.problemsSolved=0; S.avatarId="";
+  resetLearningState();
   var loginBtn=document.querySelector("#login-tab-student .btn-sun");
   if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
   if(window.firebaseLogin){
@@ -4070,6 +4546,7 @@ async function loginStudent(){
         S.plan=data.plan||"free";
         S.coinCapDate=data.coinCapDate||""; S.coinCapEarned=data.coinCapEarned||0;
         S.recentEarnings=data.recentEarnings||[];
+        restoreLearningState(data);
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
         // Restore linkCode from Firestore
@@ -4103,6 +4580,7 @@ async function loginStudent(){
       S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
       S.wins=d.wins||0; S.problemsSolved=d.problemsSolved||0; S.avatarId=d.avatarId||"";
       S.vault=d.vault||null; S.topicStats=d.topicStats||{};
+      restoreLearningState(d.learning);
       if(d.gradeNum){ gr=String(d.gradeNum); }
     }
   }catch(e){}
@@ -4115,6 +4593,7 @@ function logout(){
   saveSession();
   // Reset student state
   S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[]; S.recentEarnings=[]; S.plan="free";
+  resetLearningState();
   document.body.removeAttribute("data-tier");
   var goPrem=$$("nav-go-premium"); if(goPrem) goPrem.style.display="none";
   // Reset parent state
@@ -4150,6 +4629,7 @@ function renderHome(){
   if(S.tier==="k5"){ renderK5Rewards(); renderK5Kingdom(); }
   if(S.classCode) checkClassSession();
   renderUpgradeNudge();
+  renderSeasonCards();
 }
 
 // Free signed-in students only. Hidden in Preview Mode on purpose: a demo
@@ -5535,26 +6015,17 @@ function leaderboardSampleData(tab, gn){
     {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"",up:true},
     {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"",up:true}
   ];
-  var WK=[
-    {n:"Taylor B.",g:"10th",pts:980, e:"T",chg:"+5",up:true},
-    {n:"Casey T.", g:"3rd", pts:840, e:"C",chg:"+3",up:true},
-    {n:"Jordan K.",g:"5th", pts:720, e:"J",chg:"-1",up:false},
-    {n:"Morgan L.",g:"6th", pts:680, e:"M",chg:"+2",up:true},
-    {n:"Sam P.",   g:"7th", pts:590, e:"S",chg:"0", up:false},
-    {n:"Alex J.",  g:"11th",pts:510, e:"A",chg:"+4",up:true},
-    {n:"Drew K.",  g:"8th", pts:480, e:"D",chg:"-2",up:false},
-    {n:"Riley M.", g:"9th", pts:420, e:"R",chg:"+1",up:true}
-  ];
-  return tab==="national"?NAT:tab==="school"?ALL:tab==="weekly"?WK:BASE;
+  return tab==="national"?NAT:tab==="school"?ALL:BASE;
 }
 
 function renderLeaderboard(){
   var tab=window.currentLBTab||"grade";
   var gn=S.gradeNum||7;
 
-  // "My Grade" and "National" are backed by the real public_profiles
-  // leaderboard. "Weekly" and "School" stay sample data for now — there's
-  // no weekly-reset or school/roster data model yet to make them real.
+  // "My Grade", "National" and "This Week" are backed by real
+  // public_profiles data. "School" stays sample data for now — there's no
+  // school/roster data model yet to make it real.
+  if(tab==="weekly"){ renderWeeklyLeaderboard(); return; }
   if(tab!=="grade" && tab!=="national"){
     renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
     return;
@@ -5580,6 +6051,35 @@ function renderLeaderboard(){
   });
 }
 
+// Weekly Champions standings for the student's own division, scored the
+// same way the Worker picks winners (correct × accuracy, qualifiers only
+// ranked first). Never padded with sample players.
+function renderWeeklyLeaderboard(){
+  var div=mcDivision(S.gradeNum), wk=mcWeekId();
+  var showEmpty=function(msg){
+    var note=$$("lb-sample-note"); if(note) note.style.display="none";
+    var pod=$$("lb-podium"); if(pod) pod.innerHTML="";
+    var full=$$("lb-full"); if(full) full.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:18px'>"+msg+"</div>";
+  };
+  if(!window.fetchWeeklyBoard){ showEmpty("Sign in to see this week's standings."); return; }
+  showEmpty("Loading this week's standings…");
+  window.fetchWeeklyBoard(wk).then(function(rows){
+    if(window.currentLBTab!=="weekly") return;
+    if(!rows){ showEmpty("Couldn't load standings. Try again in a moment."); return; }
+    var list=rows.filter(function(r){ return mcDivision(r.grade)===div && (r.wkAnswered||0)>0 && (r.wkAnswered||0)<=WEEKLY_MAX_ANSWERS; })
+      .map(function(r){
+        var a=r.wkAnswered||0, c=Math.min(r.wkCorrect||0, a), acc=a?c/a:0;
+        return {n:r.displayLabel||"Player", g:(r.grade||"")+"th", pts:Math.round(c*acc), e:(r.displayLabel||"P")[0].toUpperCase(),
+          q:(a>=WEEKLY_MIN_ANSWERS && acc>=WEEKLY_MIN_ACCURACY), chg:Math.round(acc*100)+"% acc", up:acc>=WEEKLY_MIN_ACCURACY};
+      })
+      .sort(function(x,y){ return (y.q-x.q) || (y.pts-x.pts); });
+    if(!list.length){ showEmpty("No scores yet this week in "+(DIVISION_LABEL[div]||"your division")+". Answer questions to take the lead!"); return; }
+    renderLeaderboardRows(list.map(function(r){ return {n:r.n+(r.q?"":" · not qualified yet"), g:r.g, pts:r.pts, e:r.e, chg:r.chg, up:r.up}; }), false);
+    var full=$$("lb-full");
+    if(full) full.insertAdjacentHTML("afterbegin","<div style='font-size:12px;color:var(--text2);padding:4px 4px 10px'>"+(DIVISION_LABEL[div]||"")+" · Week of "+mcShortDate(wk)+" · Score = correct × accuracy. Qualify with "+WEEKLY_MIN_ANSWERS+"+ questions at "+Math.round(WEEKLY_MIN_ACCURACY*100)+"%+. Top Scorer and Most Improved each win a $5 reward"+(rewardsLive()?".":" (from Oct 5).")+"</div>");
+  });
+}
+
 function renderLeaderboardRows(DATA, isSample){
   var note=$$("lb-sample-note"); if(note) note.style.display=isSample?"block":"none";
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
@@ -5590,8 +6090,8 @@ function renderLeaderboardRows(DATA, isSample){
       var p=DATA[i];
       html+="<div class='podium-place'>"
         +"<div class='pod-crown'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
-        +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+p.e+"</div>"
-        +"<div class='pod-name'>"+p.n+"</div>"
+        +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+escHtml(p.e)+"</div>"
+        +"<div class='pod-name'>"+escHtml(p.n)+"</div>"
         +"<div class='pod-pts'>"+p.pts.toLocaleString()+"</div>"
         +"<div class='pod-block' style='background:"+colors[i]+";height:"+(i===0?"100px":i===1?"80px":"65px")+";width:100%;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900'>#"+(i+1)+"</div>"
         +"</div>";
@@ -5606,8 +6106,8 @@ function renderLeaderboardRows(DATA, isSample){
     DATA.forEach(function(p,i){
       var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
       fhtml+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
-        +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
-        +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div><div class='lb-grade'>"+p.g+"</div></div>"
+        +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+escHtml(p.e)+"</div>"
+        +"<div class='lb-info'><div class='lb-name'>"+escHtml(p.n)+"</div><div class='lb-grade'>"+escHtml(p.g)+"</div></div>"
         +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
         +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+p.chg+"</div></div></div>";
     });
@@ -5624,7 +6124,7 @@ function renderTournaments(){
     var card=document.createElement("div"); card.className="t-card "+t.color;
     card.innerHTML="<div class='t-card-row'>"
       +"<div><div class='t-name'>"+t.n+"</div><div class='t-meta'>"+t.date+" · Up to "+t.capacity+" spots · "+t.grades+"</div></div>"
-      +"<div><div class='t-prize'>"+t.prize+"</div><div class='t-pplace'>1st place</div></div>"
+      +"<div><div class='t-prize'>"+t.prize+"</div><div class='t-pplace'>Medals + certificates</div></div>"
       +"</div><div style='margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap'>"
       +"<span class='t-registered-count' style='font-size:12px;color:var(--text2)'>Loading registrations…</span>"
       +"<button class='btn btn-ghost btn-xs t-register-btn'>Register Free</button></div>";
@@ -5903,20 +6403,7 @@ function showPracticeResult(){
   wrap.innerHTML=""; wrap.appendChild(div);
 }
 
-// ── WALLET ─────────────────────────────────────────────
-// Prize redemption (real gift cards / 529 contributions) is gated to paid
-// plans: that ties "who can cash out" to a verified, billed parent account
-// rather than any signed-up student, bounding it the same way the coin
-// cap bounds how fast a balance can grow.
-function openPrizeStore(){
-  if(!isPaidPlan()){ upgradeToPlan("premium"); return; }
-  var grid=$$("prize-store"); if(grid) grid.scrollIntoView({behavior:"smooth", block:"center"});
-  showToast("🎁 Pick a prize below to send a redemption request!");
-}
-function open529Option(){
-  if(!isPaidPlan()){ upgradeToPlan("premium"); return; }
-  showToast("🎓 Pick 'College Savings' in the Prize Store below to request a 529 contribution!");
-}
+// ── WALLET / REWARDS ───────────────────────────────────
 function renderWallet(){
   var wc=$$("wallet-coins"); if(wc) wc.textContent=S.coins.toLocaleString();
   if(S.tier==="k5") renderPiggyBank();
@@ -5933,14 +6420,16 @@ function renderWallet(){
     });
     cg.innerHTML=html;
   }
-  renderPrizeGrid();
-  // Real redemption history — fetched async, then re-render whatever
-  // reads it (the grid shows "already requested", the history card lists
-  // status) once the real data is back.
-  if(window.fetchMyRedemptions){
+  renderCoinShop();
+  renderSeasonCards();
+  renderWeeklyCard();
+  renderRedemptionHistory();
+  fetchWeeklyResults().then(renderWeeklyCard);
+  // Real reward claims — fetched async, then re-render what reads them.
+  if(window.fetchMyRedemptions && S.name && !S.isPreview){
     window.fetchMyRedemptions().then(function(reqs){
       S.myRedemptions=reqs||[];
-      renderPrizeGrid();
+      renderSeasonCards();
       renderRedemptionHistory();
     });
   }
@@ -5952,59 +6441,13 @@ function renderWallet(){
     } else {
       eg.innerHTML=log.map(function(e){
         var d=e.ts?new Date(e.ts).toLocaleDateString():"";
-        return "<div class='earn-row'><div class='earn-icon' style='background:rgba(255,255,255,0.06)'>🪙</div>"
-          +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+e.label+"</div><div style='font-size:12px;color:var(--text2)'>"+d+"</div></div>"
-          +"<div style='font-size:16px;font-weight:800;color:var(--mint)'>+"+e.amount+"</div></div>";
+        var spent=e.amount<0;
+        return "<div class='earn-row'><div class='earn-icon' style='background:rgba(255,255,255,0.06)'>"+(spent?"🛍️":"🪙")+"</div>"
+          +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+escHtml(e.label)+"</div><div style='font-size:12px;color:var(--text2)'>"+d+"</div></div>"
+          +"<div style='font-size:16px;font-weight:800;color:"+(spent?"var(--coral)":"var(--mint)")+"'>"+(spent?"":"+")+e.amount+"</div></div>";
       }).join("");
     }
   }
-}
-
-function pendingRedemptionFor(prizeName){
-  return (S.myRedemptions||[]).some(function(r){ return r.prizeName===prizeName && (r.status==="pending"||r.status==="approved"); });
-}
-
-function renderPrizeGrid(){
-  var ps=$$("prize-store"); if(!ps) return;
-  ps.innerHTML="";
-  var paid=isPaidPlan();
-  PRIZES.forEach(function(p){
-    var card=document.createElement("div"); card.className="card prize-card";
-    var pending=pendingRedemptionFor(p.n);
-    var affordable=S.coins>=p.cost;
-    var locked = !paid || pending;
-    card.style.cursor=locked?"default":"pointer";
-    if(locked) card.style.opacity="0.55";
-    var msg = !paid ? "Upgrade to Premium to unlock prize redemption!" :
-      pending ? p.n+" — request already sent, waiting on fulfillment!" :
-      (affordable ? "" : p.n+" costs "+p.cost+" MathCoins — you have "+S.coins.toLocaleString()+", keep earning!");
-    card.addEventListener("click",function(){
-      if(!paid){ upgradeToPlan("premium"); return; }
-      if(pending || !affordable){ showToast(msg); return; }
-      submitRedemption(p);
-    });
-    card.innerHTML="<div class='prize-emo'>"+p.e+"</div><div class='prize-name'>"+p.n+"</div><div class='prize-cost'>"+p.cost+" coins</div><div style='font-size:11px;color:var(--text2);margin-top:2px'>"+(pending?"⏳ Requested":p.val)+"</div>";
-    ps.appendChild(card);
-  });
-}
-
-// Coins are NOT deducted here — see the requestRedemption() comment in
-// the Firebase module script: they're deducted by hand, alongside
-// actually sending the card/contribution, when the request is fulfilled.
-function submitRedemption(prize){
-  if(!window.requestRedemption){ showToast("Redemption isn't available right now — try again soon."); return; }
-  showToast("Sending request...");
-  window.requestRedemption(prize).then(function(res){
-    if(res.ok){
-      S.myRedemptions=S.myRedemptions||[];
-      S.myRedemptions.unshift({id:res.id, prizeName:prize.n, prizeCost:prize.cost, prizeValue:prize.val, status:"pending", requestedAt:{seconds:Math.floor(Date.now()/1000)}});
-      renderPrizeGrid();
-      renderRedemptionHistory();
-      showToast("🎁 Request sent! "+prize.n+" will be fulfilled soon.");
-    } else {
-      showToast("Couldn't submit request: "+(res.error||"please try again"));
-    }
-  });
 }
 
 function renderRedemptionHistory(){
@@ -6013,12 +6456,12 @@ function renderRedemptionHistory(){
   var list=S.myRedemptions||[];
   if(!list.length){ wrap.style.display="none"; return; }
   wrap.style.display="block";
-  var STATUS_LABEL={pending:"⏳ Pending",approved:"👍 Approved — awaiting fulfillment",fulfilled:"✅ Fulfilled",denied:"❌ Denied"};
+  var STATUS_LABEL={pending:"⏳ Waiting for parent",approved:"👍 Approved, sending soon",fulfilled:"✅ Sent",denied:"❌ Denied"};
   var STATUS_COLOR={pending:"var(--sun)",approved:"var(--sky)",fulfilled:"var(--mint)",denied:"var(--coral)"};
   box.innerHTML=list.map(function(r){
     var d=(r.requestedAt&&r.requestedAt.seconds)?new Date(r.requestedAt.seconds*1000).toLocaleDateString():"";
-    return "<div class='earn-row'><div style='flex:1'><div style='font-size:14px;font-weight:800'>"+r.prizeName+"</div>"
-      +"<div style='font-size:12px;color:var(--text2)'>"+r.prizeCost+" coins · "+d+"</div></div>"
+    return "<div class='earn-row'><div style='flex:1'><div style='font-size:14px;font-weight:800'>"+escHtml(r.prizeName)+"</div>"
+      +"<div style='font-size:12px;color:var(--text2)'>"+escHtml(r.prizeValue||"")+" · "+d+"</div></div>"
       +"<div style='font-size:13px;font-weight:800;color:"+(STATUS_COLOR[r.status]||"var(--text2)")+"'>"+(STATUS_LABEL[r.status]||r.status)+"</div></div>";
   }).join("");
 }
@@ -6056,7 +6499,7 @@ function renderProfile(){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   setEl("prof-ava", S.name?myAvatarGlyph():"?");
   setEl("prof-name", S.name||"Sign up to create your profile");
-  setEl("prof-grade", S.grade?(S.grade+" - Math Champ"):"Sign up free to get started");
+  setEl("prof-grade", S.grade?(S.grade+" - "+(myTitle()||"Math Champ")):"Sign up free to get started");
   if(S.classCode) showJoinedClassUI();
   var pb=$$("prof-badges-row");
   if(pb){
@@ -6193,21 +6636,21 @@ function renderPrizeQueue(){
     (child.pendingRedemptions||[]).forEach(function(r){ pending.push({child:child.name, req:r}); });
   });
   if(!pending.length){
-    list.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:12px'>No pending prize requests right now.</div>";
+    list.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:12px'>No reward claims waiting for you right now.</div>";
     return;
   }
   pending.forEach(function(p){
     var r=p.req;
     var card=document.createElement("div"); card.className="prize-req-card";
     card.innerHTML="<div style='font-size:28px'>🎁</div>"
-      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.child+" wants: "+r.prizeName+"</div>"
-      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+r.prizeCost.toLocaleString()+" MathCoins</div></div>"
+      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+escHtml(p.child)+" earned: "+escHtml(r.prizeName)+"</div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-top:3px'>"+escHtml(r.prizeValue||"")+" · "+(r.type==="weekly"?"Weekly Champions win":"Season Mastery Reward")+", verified by a Mastery Check</div></div>"
       +"<div style='display:flex;gap:6px;flex-direction:column'></div>";
     var appBtn=document.createElement("button"); appBtn.className="btn btn-mint btn-xs"; appBtn.style.color="var(--dark)"; appBtn.textContent="Approve";
     appBtn.addEventListener("click",function(){
       appBtn.disabled=true;
       window.respondToRedemption(r.id,"approved").then(function(res){
-        if(res.ok){ showToast("Approved — you'll fulfill "+r.prizeName+" and mark it sent."); card.style.opacity="0.4"; }
+        if(res.ok){ showToast("Approved! We'll send "+r.prizeName+" to you within about 14 days."); card.style.opacity="0.4"; }
         else { showToast(res.error||"Could not approve."); appBtn.disabled=false; }
       });
     });
@@ -6215,7 +6658,7 @@ function renderPrizeQueue(){
     dnyBtn.addEventListener("click",function(){
       dnyBtn.disabled=true;
       window.respondToRedemption(r.id,"denied").then(function(res){
-        if(res.ok){ showToast("Prize request denied."); card.remove(); }
+        if(res.ok){ showToast("Reward claim denied."); card.remove(); }
         else { showToast(res.error||"Could not deny."); dnyBtn.disabled=false; }
       });
     });
@@ -7202,12 +7645,19 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     const coinCapEarned = window.S ? (window.S.coinCapEarned || 0) : 0;
     const recentEarnings = window.S ? (window.S.recentEarnings || []) : [];
     const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
-    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats, coinCapDate, coinCapEarned, recentEarnings };
+    const learning = window.learningStateForSave ? window.learningStateForSave() : {};
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats, coinCapDate, coinCapEarned, recentEarnings, ...learning };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
       const pub = { xp, level, grade: grade || "", wins: wins || 0, coins, problemsSolved, updatedAt: serverTimestamp() };
       if (avatarEmoji) pub.avatar = avatarEmoji;
+      if (window.S && window.S.name) pub.displayLabel = safeLabel(window.S.name);
+      // This week's / last week's numbers for Weekly Champions (the Worker
+      // re-computes winners from these same fields).
+      const wkS = learning.week, pw = learning.prevWeek;
+      if (wkS) Object.assign(pub, { wk: wkS.id, wkAnswered: wkS.answered, wkCorrect: wkS.correct, wkBaseAcc: wkS.baseAcc, wkBaseN: wkS.baseN });
+      if (pw) Object.assign(pub, { prevWk: pw.id, prevWkAnswered: pw.answered, prevWkCorrect: pw.correct, prevWkBaseAcc: pw.baseAcc, prevWkBaseN: pw.baseN });
       await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
     } catch(e) {}
     // Private, teacher-visible-only mastery data — deliberately NOT in
@@ -7371,30 +7821,35 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     await updateDoc(doc(db, "users", user.uid), { plan: planKey });
   };
 
-  // ── PRIZE REDEMPTION REQUESTS ─────────────────────────────────
-  // Logs a real request instead of pretending to fulfill one — see the
-  // openPrizeStore()/submitRedemption() comment in the main script for
-  // why this stays a manually-fulfilled queue rather than an automated
-  // payout for now. Coins are deducted only when the request is marked
-  // fulfilled (done by hand in the Firebase Console, alongside actually
-  // sending the card/contribution) — never at request time — so a
-  // denied or abandoned request never needs a refund.
-  window.requestRedemption = async function(prize) {
+  // ── REAL REWARDS (Worker-verified) ────────────────────────────
+  // Reward requests are created only by the Worker (mathcrown-worker.js),
+  // after it checks the plan, progress and a server-graded Mastery Check —
+  // the browser can't create one directly (see firestore.rules).
+  window.mcAuthedPost = async function(path, body) {
     const user = auth.currentUser;
-    if (!user) return { ok: false, error: "Not signed in." };
+    if (!user) return { ok: false, status: 401, data: { error: "Please sign in first." } };
     try {
-      const ref = await addDoc(collection(db, "redemption_requests"), {
-        uid: user.uid,
-        name: (window.S && window.S.name) || "",
-        email: (window.S && window.S.email) || "",
-        grade: (window.S && window.S.gradeNum) || "",
-        prizeName: prize.n, prizeCost: prize.cost, prizeValue: prize.val,
-        status: "pending",
-        requestedAt: serverTimestamp()
+      const idToken = await user.getIdToken();
+      const res = await fetch(MC_API_BASE + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({}, body || {}, { idToken }))
       });
-      return { ok: true, id: ref.id };
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
     } catch (e) {
-      return { ok: false, error: e.message || "Could not submit request." };
+      return { ok: false, status: 0, data: { error: "Network problem. Please try again." } };
+    }
+  };
+
+  // This week's Weekly Champions standings (public_profiles mirror only).
+  window.fetchWeeklyBoard = async function(weekId) {
+    try {
+      const snap = await getDocs(query(collection(db, "public_profiles"), where("wk", "==", weekId), limit(500)));
+      return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    } catch (e) {
+      console.log("fetchWeeklyBoard error:", e.message);
+      return null;
     }
   };
 
@@ -7496,7 +7951,14 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   // Console-only, out-of-band step — see firestore.rules.
   window.respondToRedemption = async function(reqId, decision) {
     try {
-      await updateDoc(doc(db, "redemption_requests", reqId), { status: decision, respondedAt: serverTimestamp() });
+      const ref = doc(db, "redemption_requests", reqId);
+      try {
+        // approvedBy tells whoever fulfills the reward which parent to deliver to.
+        await updateDoc(ref, { status: decision, respondedAt: serverTimestamp(), approvedBy: auth.currentUser.uid });
+      } catch (e) {
+        // Older security rules don't allow approvedBy yet.
+        await updateDoc(ref, { status: decision, respondedAt: serverTimestamp() });
+      }
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e.message || "Could not update request." };
@@ -7746,7 +8208,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         <li>Parents may review, edit, or delete their child's data at any time by emailing <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4b383e3b3b24393f0b2632262a3f232839243c2565282426">[email&#160;protected]</a>.</li>
         <li>We do not serve behavioral advertising to children under 13.</li>
         <li>We never sell, rent, or share children's personal data with third parties for commercial purposes.</li>
-        <li>Children's accounts are linked to a parent account for oversight and prize redemption.</li>
+        <li>Children's accounts are linked to a parent account for oversight and reward approval.</li>
       </ul>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">4. How We Use Your Information</p>
       <ul style="margin:0 0 20px 20px">
@@ -7754,7 +8216,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         <li>To provide personalized math practice and AI tutoring via Axiom</li>
         <li>To display leaderboards and track progress</li>
         <li>To send account-related emails (password reset, weekly reports)</li>
-        <li>To process prize redemptions through verified parent accounts</li>
+        <li>To deliver earned rewards through verified parent accounts</li>
       </ul>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">5. Data Storage and Security</p>
       <p style="margin-bottom:20px">Your data is stored securely using Google Firebase (Firestore) with enterprise-grade encryption in transit and at rest. We use Firebase Authentication for secure login and never store plain-text passwords.</p>
@@ -7811,12 +8273,12 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         <li>Use MathCrown for any commercial purpose without written consent</li>
         <li>Reverse-engineer, copy, or redistribute MathCrown's content or code</li>
       </ul>
-      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">5. MathCoins and Prizes</p>
+      <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">5. MathCoins and Rewards</p>
       <ul style="margin:0 0 20px 20px">
-        <li>MathCoins are virtual rewards with no real monetary value and cannot be exchanged for cash directly.</li>
-        <li>Prize redemptions are processed through verified parent accounts only.</li>
-        <li>Prizes obtained through cheating will be forfeited and the account suspended.</li>
-        <li>MathCrown reserves the right to adjust the prize system at any time.</li>
+        <li>MathCoins are virtual points with no monetary value. They can't be exchanged for cash, gift cards or prizes, and are only spent in the in-app Coin Shop.</li>
+        <li>Real rewards (Season Mastery Rewards and Weekly Champions prizes) are earned under the Official Rewards Rules, never by chance, and are delivered only to verified parent accounts after parent approval.</li>
+        <li>Rewards obtained through cheating will be forfeited and the account may be suspended.</li>
+        <li>MathCrown may change or end the rewards program by updating the Official Rewards Rules; rewards already earned will be honored.</li>
       </ul>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">6. AI Tutor — Axiom</p>
       <p style="margin-bottom:20px">Axiom is powered by Claude (Anthropic) and is intended for educational purposes only. While we strive for accuracy, AI responses may occasionally contain errors. Always verify important concepts with a qualified teacher.</p>

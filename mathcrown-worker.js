@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v7 - + parent subscriptions cover linked children)
+ * MathCrown API Worker  (v8 - + Earn While You Learn: mastery checks & capped real rewards)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -279,7 +279,7 @@ async function fsPatch(env, path, fields, mustExist) {
   if (mustExist) params.push("currentDocument.exists=true");
   const body = { fields: {} };
   for (const [k, v] of Object.entries(fields)) {
-    body.fields[k] = (v && v.timestamp) ? { timestampValue: v.timestamp } : { stringValue: String(v) };
+    body.fields[k] = (v && v.timestamp) ? { timestampValue: v.timestamp } : toFs(v);
   }
   const res = await fsFetch(env, path + "?" + params.join("&"), { method: "PATCH", body: JSON.stringify(body) });
   if (res.ok) return true;
@@ -424,6 +424,506 @@ async function handleSyncEntitlements(request, env, origin) {
   }
 }
 
+// ══ EARN WHILE YOU LEARN ════════════════════════════════════════
+// Real rewards are earned through verified mastery, never bought with
+// MathCoins and never decided by chance. Every payout is capped here, on
+// the server, so the business's reward cost per subscriber is known in
+// advance:
+//   • Season Reward — a paid student who completes SEASON_WEEKS_REQUIRED
+//     Weekly Goals in a season AND passes a server-graded Mastery Check
+//     can claim one $5 reward. The PAYER's plan caps how many children's
+//     rewards it covers per season (SEASON_REWARD_SLOTS).
+//   • Weekly Champions — per division, one Top Scorer and one Most
+//     Improved each week. Open to every player, free or paid (no purchase
+//     necessary). Winners also pass a Mastery Check before claiming.
+// Claims land in redemption_requests for parent approval and are then
+// fulfilled by hand, same as before. Only this Worker writes the claim
+// records (mastery_checks, mastery_passes, mastery_attempts,
+// reward_claims have no client rules, so Firestore denies clients).
+
+// The public Firebase web API key (same one index.html ships) — used only
+// to ask Google to validate a caller's ID token.
+const FIREBASE_WEB_API_KEY = "AIzaSyBPSvyqDq5Rl-2omowIqo86OGvrJdrP-no";
+
+// First week whose results pay real prizes (Season 1 = 2026-Q4). Earlier
+// weeks still show standings, but are practice only.
+const REWARDS_START_WEEK = "2026-10-05";
+const REWARD_VALUE_LABEL = "$5 value";
+const SEASON_WEEKS_REQUIRED = 8;
+const SEASON_REWARD_SLOTS = { premium: 1, family: 2, max: 2 };
+const MASTERY_QUESTIONS = 10;
+const MASTERY_PASS_SCORE = 8;
+const MASTERY_TIME_LIMIT_MS = 15 * 60 * 1000;
+const MASTERY_DAILY_ATTEMPTS = 3;
+const MASTERY_PASS_VALID_MS = { season: 14 * 864e5, weekly: 7 * 864e5 };
+const WEEKLY_MIN_ANSWERS = 30;
+const WEEKLY_MIN_ACCURACY = 0.6;
+const WEEKLY_MAX_ANSWERS = 3000;   // anything above this is treated as tampered
+const WEEKLY_MIN_GAIN = 0.05;
+const REWARD_CHOICES = {
+  supplies: "School Supplies Kit",
+  target: "$5 Target eGift Card",
+  amazon: "$5 Amazon eGift Card"
+};
+
+// Weeks run Monday–Sunday on a fixed US Eastern (UTC-5) clock, and a
+// season is the calendar quarter that week's Monday falls in. index.html
+// computes the same ids with the same math, so client and server agree.
+const MC_TZ_OFFSET_MS = -5 * 3600 * 1000;
+function weekIdFor(ms) {
+  const d = new Date((ms === undefined ? Date.now() : ms) + MC_TZ_OFFSET_MS);
+  const back = (d.getUTCDay() + 6) % 7;
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - back)).toISOString().slice(0, 10);
+}
+function prevWeekId(weekId) {
+  return new Date(Date.parse(weekId + "T00:00:00Z") - 7 * 864e5).toISOString().slice(0, 10);
+}
+function seasonIdForWeek(weekId) {
+  const [y, m] = weekId.split("-").map(Number);
+  return y + "-Q" + (Math.floor((m - 1) / 3) + 1);
+}
+function isWeekId(s) {
+  return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && weekIdFor(Date.parse(s + "T12:00:00Z") - MC_TZ_OFFSET_MS) === s;
+}
+
+function divisionFor(grade) {
+  const g = String(grade || "").trim().toUpperCase();
+  if (g === "K") return "k5";
+  const n = parseInt(g, 10);
+  if (isNaN(n)) return "";
+  if (n <= 5) return "k5";
+  if (n <= 8) return "68";
+  return "912";
+}
+
+// ── Firestore value helpers (typed, beyond fsPatch's strings) ──
+function toFs(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (v instanceof Date) return { timestampValue: v.toISOString() };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (typeof v === "string") return { stringValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(toFs) } };
+  if (typeof v === "object") {
+    const fields = {};
+    for (const [k, x] of Object.entries(v)) fields[k] = toFs(x);
+    return { mapValue: { fields } };
+  }
+  return { stringValue: String(v) };
+}
+function fromFs(v) {
+  if (!v) return null;
+  if ("stringValue" in v) return v.stringValue;
+  if ("integerValue" in v) return Number(v.integerValue);
+  if ("doubleValue" in v) return v.doubleValue;
+  if ("booleanValue" in v) return v.booleanValue;
+  if ("timestampValue" in v) return v.timestampValue;
+  if ("nullValue" in v) return null;
+  if ("arrayValue" in v) return (v.arrayValue.values || []).map(fromFs);
+  if ("mapValue" in v) {
+    const o = {};
+    for (const [k, x] of Object.entries(v.mapValue.fields || {})) o[k] = fromFs(x);
+    return o;
+  }
+  return null;
+}
+function fsData(doc) {
+  const o = {};
+  if (doc && doc.fields) for (const [k, v] of Object.entries(doc.fields)) o[k] = fromFs(v);
+  return o;
+}
+function fsFields(data) {
+  const fields = {};
+  for (const [k, v] of Object.entries(data)) fields[k] = toFs(v);
+  return fields;
+}
+
+// Create-only write: true if created, false if the doc already exists.
+// This is what makes every reward cap atomic — two simultaneous claims
+// for the same slot can't both succeed.
+async function fsCreate(env, collection, docId, data) {
+  const res = await fsFetch(env, `/${collection}?documentId=${encodeURIComponent(docId)}`, {
+    method: "POST", body: JSON.stringify({ fields: fsFields(data) })
+  });
+  if (res.ok) return true;
+  if (res.status === 409) return false;
+  throw new Error(`Firestore create ${collection}/${docId} failed: ${res.status}`);
+}
+async function fsSet(env, path, data) {
+  const res = await fsFetch(env, path, { method: "PATCH", body: JSON.stringify({ fields: fsFields(data) }) });
+  if (!res.ok) throw new Error(`Firestore set ${path} failed: ${res.status}`);
+}
+async function fsDelete(env, path) {
+  await fsFetch(env, path, { method: "DELETE" });
+}
+async function fsQueryEq(env, collectionId, field, value, max) {
+  const res = await fsFetch(env, ":runQuery", {
+    method: "POST",
+    body: JSON.stringify({ structuredQuery: {
+      from: [{ collectionId }],
+      where: { fieldFilter: { field: { fieldPath: field }, op: "EQUAL", value: toFs(value) } },
+      limit: max || 1000
+    } })
+  });
+  if (!res.ok) throw new Error(`Firestore query ${collectionId}.${field} failed: ${res.status}`);
+  const rows = await res.json();
+  return (rows || []).filter((r) => r.document).map((r) => ({ id: r.document.name.split("/").pop(), data: fsData(r.document) }));
+}
+
+// ── Auth: the caller proves who they are with a Firebase ID token ──
+async function verifyIdToken(idToken) {
+  if (typeof idToken !== "string" || idToken.length < 100 || idToken.length > 4096) return null;
+  const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_WEB_API_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Referer": "https://mymathcrown.com/" },
+    body: JSON.stringify({ idToken })
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const u = data && data.users && data.users[0];
+  return u && isValidUid(u.localId) ? u.localId : null;
+}
+
+// Who pays for this student's plan, checked against server-only records:
+// entitlements/{payer} (written only by the Stripe webhook) and, for a
+// parent-covered child, the parent-owned parent_links entry. The
+// client-writable users/{uid}.plan field is never trusted on its own.
+async function resolvePaidPlan(env, uid, user) {
+  const source = user.planSource || "";
+  const payer = (!source || source === "self") ? uid : source;
+  if (!isValidUid(payer)) return { plan: "free" };
+  const plan = fsStr(await fsGetDoc(env, `/entitlements/${payer}`), "plan") || "free";
+  if (plan === "free") return { plan: "free" };
+  if (payer !== uid && !(await fsGetDoc(env, `/parent_links/${payer}/children/${uid}`))) return { plan: "free" };
+  return { plan, payer };
+}
+
+// ── Mastery Check: questions generated and graded on the server ──
+function rint(a, b) {
+  const x = new Uint32Array(1);
+  crypto.getRandomValues(x);
+  return a + (x[0] % (b - a + 1));
+}
+function pick(arr) { return arr[rint(0, arr.length - 1)]; }
+function shuffled(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = rint(0, i); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function signed(n) { return n < 0 ? "− " + Math.abs(n) : "+ " + n; }
+function paren(n) { return n < 0 ? "(" + n + ")" : String(n); }
+// " + 3x", " − x", or "" for a zero coefficient — keeps polynomials readable.
+function term(coef, v) {
+  if (coef === 0) return "";
+  const mag = Math.abs(coef) === 1 && v ? "" : String(Math.abs(coef));
+  return (coef < 0 ? " − " : " + ") + mag + v;
+}
+
+// Each generator returns { q, a, wrong }: the answer plus candidate
+// wrong answers (the common mistakes). makeQuestion pads with nearby
+// numbers if the candidates collide.
+const MASTERY_GENERATORS = {
+  1: [
+    () => { const a = rint(12, 89), b = rint(11, 89); return { q: `${a} + ${b} = ?`, a: a + b, wrong: [a + b + 1, a + b - 1, a + b + 10, a + b - 10] }; },
+    () => { const a = rint(40, 99), b = rint(11, a - 5); return { q: `${a} − ${b} = ?`, a: a - b, wrong: [a - b + 1, a - b - 1, a - b + 10, a + b] }; },
+    () => { const a = rint(2, 9), b = rint(2, 9); return { q: `${a} × ${b} = ?`, a: a * b, wrong: [a * b + a, a * b - b, a + b, (a + 1) * b] }; },
+    () => { const a = rint(5, 40), c = a + rint(5, 40); return { q: `${a} + ? = ${c}`, a: c - a, wrong: [c + a, c - a + 1, c - a - 1, c - a + 10] }; },
+    () => { const n = rint(3, 9), each = rint(2, 6); return { q: `${n} bags each hold ${each} apples. How many apples in all?`, a: n * each, wrong: [n + each, n * each + each, n * each - n, n * each + 1] }; }
+  ],
+  2: [
+    () => { const a = rint(12, 49), b = rint(3, 9); return { q: `${a} × ${b} = ?`, a: a * b, wrong: [a * b + b, a * b - a, a * (b + 1), a * b + 10] }; },
+    () => { const b = rint(3, 12), q = rint(3, 15); return { q: `${b * q} ÷ ${b} = ?`, a: q, wrong: [q + 1, q - 1, q + 2, b] }; },
+    () => { const d = rint(5, 12), n1 = rint(1, d - 3), n2 = rint(1, d - 1 - n1); return { q: `${n1}/${d} + ${n2}/${d} = ?`, a: `${n1 + n2}/${d}`, wrong: [`${n1 + n2}/${2 * d}`, `${n1 * n2}/${d}`, `${n1 + n2 + 1}/${d}`, `${Math.abs(n1 - n2)}/${d}`] }; },
+    () => { const a = rint(11, 89), b = rint(11, 89); const s = (a + b) / 10; return { q: `${(a / 10).toFixed(1)} + ${(b / 10).toFixed(1)} = ?`, a: s.toFixed(1), wrong: [(s + 0.1).toFixed(1), (s - 0.1).toFixed(1), (s + 1).toFixed(1), (s - 1).toFixed(1)] }; },
+    () => { const l = rint(4, 15), w = rint(3, 12); return { q: `A rectangle is ${l} cm long and ${w} cm wide. What is its area in cm²?`, a: l * w, wrong: [2 * (l + w), l + w, l * w + l, l * w - w] }; }
+  ],
+  3: [
+    () => { const a = rint(-20, 20), b = rint(-20, -1); return { q: `${a} + ${paren(b)} = ?`, a: a + b, wrong: [a - b, -(a + b), a + b + 1, a + b - 1] }; },
+    () => { const a = rint(-9, 9), b = rint(-9, -2); return { q: `${paren(a)} × ${paren(b)} = ?`, a: a * b, wrong: [-(a * b), a + b, a * b + 1, a * b - b] }; },
+    () => { const p = pick([10, 20, 25, 50, 75]), n = rint(1, 20) * 20; return { q: `What is ${p}% of ${n}?`, a: p * n / 100, wrong: [p * n / 10, n - p * n / 100, p + n / 10, p * n / 100 + 5] }; },
+    () => { const x = rint(-9, 9), a = rint(2, 9), b = rint(-15, 15); return { q: `Solve for x: ${a}x ${signed(b)} = ${a * x + b}`, a: x, wrong: [-x, x + 1, x - 1, a * x] }; },
+    () => { const unit = rint(2, 9), n1 = rint(2, 5), n2 = rint(6, 12); return { q: `${n1} notebooks cost $${unit * n1}. At the same price, how many dollars do ${n2} notebooks cost?`, a: unit * n2, wrong: [unit * n2 + unit, unit * n1 + n2, unit * (n2 - 1), unit * n2 - 2] }; },
+    () => { const a = rint(2, 20), b = rint(2, 9), c = rint(2, 9); return { q: `${a} + ${b} × ${c} = ?`, a: a + b * c, wrong: [(a + b) * c, a + b + c, a * b + c, a + b * c + 1] }; }
+  ],
+  4: [
+    () => { const x = rint(-8, 8); let a = rint(2, 9), c = rint(1, 9); if (a === c) a++; const b = rint(-12, 12), d = a * x + b - c * x; return { q: `Solve for x: ${a}x ${signed(b)} = ${c}x ${signed(d)}`, a: x, wrong: [-x, x + 1, x - 1, x + 2] }; },
+    () => {
+      // Non-zero, distinct, non-opposite roots, so every distractor differs.
+      const roots = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      const r1 = pick(roots), r2 = pick(roots.filter((r) => r !== r1 && r !== -r1));
+      const b = -(r1 + r2), c = r1 * r2;
+      const poly = "x²" + term(b, "x") + term(c, "");
+      const pair = (p, q) => `x = ${Math.min(p, q)} and x = ${Math.max(p, q)}`;
+      return { q: `Solve: ${poly} = 0`, a: pair(r1, r2), wrong: [pair(-r1, -r2), pair(r1, -r2), pair(-r1, r2), pair(r1 + 1, r2 + 1)] };
+    },
+    () => { const m = rint(-5, 5) || 3, x1 = rint(-6, 3), x2 = x1 + rint(1, 5), y1 = rint(-8, 8), y2 = y1 + m * (x2 - x1); return { q: `What is the slope of the line through (${x1}, ${y1}) and (${x2}, ${y2})?`, a: m, wrong: [-m, m + 1, m - 1, x2 - x1] }; },
+    () => { const [p, q, r] = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25]]), k = rint(1, 3); return { q: `A right triangle has legs ${p * k} and ${q * k}. How long is the hypotenuse?`, a: r * k, wrong: [(p + q) * k, r * k + 1, r * k - 1, (q + 1) * k] }; },
+    () => { const a = rint(1, 4), b = rint(-6, 6), c = rint(-9, 9), x = rint(-3, 4); return { q: `If f(x) = ${a === 1 ? "" : a}x²${term(b, "x")}${term(c, "")}, what is f(${x})?`, a: a * x * x + b * x + c, wrong: [a * x * x - b * x + c, a * 2 * x + b * x + c, a * x * x + b * x - c, a * x * x + b * x + c + 1] }; }
+  ],
+  5: [
+    () => { const a = rint(1, 5), n = rint(2, 4), k = rint(1, 3); return { q: `If f(x) = ${a === 1 ? "" : a}x^${n}, what is f′(${k})?`, a: a * n * Math.pow(k, n - 1), wrong: [a * Math.pow(k, n), a * n * Math.pow(k, n), a * (n - 1) * Math.pow(k, n - 1), n * Math.pow(k, n - 1)] }; },
+    () => { const b = pick([2, 3, 5, 10]), k = rint(2, 5); return { q: `log base ${b} of ${Math.pow(b, k)} = ?`, a: k, wrong: [k + 1, k - 1, b * k, Math.pow(b, k - 1)] }; },
+    () => { const a1 = rint(1, 9), d = rint(2, 6), n = rint(5, 12); return { q: `What is the sum of the first ${n} terms of the arithmetic sequence ${a1}, ${a1 + d}, ${a1 + 2 * d}, …?`, a: n * (2 * a1 + (n - 1) * d) / 2, wrong: [n * (a1 + (n - 1) * d), a1 + (n - 1) * d, n * (2 * a1 + n * d) / 2, n * (2 * a1 + (n - 1) * d) / 2 + d] }; },
+    () => { const a = rint(2, 9); return { q: `lim (x→${a}) of (x² − ${a * a}) / (x − ${a}) = ?`, a: 2 * a, wrong: [a, a * a, 0, 2 * a + 1] }; },
+    () => { const [q, a] = pick([["sin 30°", "1/2"], ["cos 60°", "1/2"], ["sin 90°", "1"], ["cos 0°", "1"], ["tan 45°", "1"], ["sin 0°", "0"], ["cos 90°", "0"], ["sin 60°", "√3/2"], ["cos 45°", "√2/2"]]); return { q: `${q} = ?`, a, wrong: ["0", "1/2", "1", "√3/2", "√2/2", "√3"].filter((w) => w !== a) }; },
+    () => { const a = 2 * rint(1, 4), k = rint(1, 5); return { q: `∫ from 0 to ${k} of ${a}x dx = ?`, a: a * k * k / 2, wrong: [a * k * k, a * k, a * k * k / 2 + a, a] }; }
+  ]
+};
+
+function bandForGrade(grade) {
+  const g = String(grade || "").trim().toUpperCase();
+  const n = g === "K" ? 0 : parseInt(g, 10);
+  if (isNaN(n)) return 3;
+  if (n <= 3) return 1;
+  if (n <= 5) return 2;
+  if (n <= 8) return 3;
+  if (n <= 10) return 4;
+  return 5;
+}
+
+function makeQuestion(gen) {
+  const { q, a, wrong } = gen();
+  const answer = String(a);
+  const opts = [answer];
+  for (const w of shuffled(wrong.map(String))) {
+    if (opts.length === 4) break;
+    if (!opts.includes(w)) opts.push(w);
+  }
+  for (let k = 2; opts.length < 4 && !isNaN(Number(answer)); k++) {
+    const w = String(Number(answer) + (k % 2 ? k : -k));
+    if (!opts.includes(w)) opts.push(w);
+  }
+  const choices = shuffled(opts);
+  return { q, choices, correct: choices.indexOf(answer) };
+}
+
+function buildMasteryCheck(band) {
+  const gens = MASTERY_GENERATORS[band] || MASTERY_GENERATORS[3];
+  const order = [];
+  while (order.length < MASTERY_QUESTIONS) order.push(...shuffled(gens));
+  return order.slice(0, MASTERY_QUESTIONS).map(makeQuestion);
+}
+
+function randomId() {
+  const b = new Uint8Array(12);
+  crypto.getRandomValues(b);
+  return [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+async function readAuthedJson(request, env, origin) {
+  let payload;
+  try { payload = await request.json(); } catch (e) { return { error: json({ error: "Invalid JSON" }, 400, origin) }; }
+  if (!env.FIREBASE_SERVICE_ACCOUNT_JSON) return { error: json({ error: "Server is missing its Firebase credentials." }, 500, origin) };
+  const uid = await verifyIdToken(payload && payload.idToken);
+  if (!uid) return { error: json({ error: "Please sign in again." }, 401, origin) };
+  return { uid, payload };
+}
+
+async function handleMasteryStart(request, env, origin) {
+  const { uid, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  try {
+    const user = fsData(await fsGetDoc(env, `/users/${uid}`));
+    if (user.role && user.role !== "student") return json({ error: "Mastery Checks are for student accounts." }, 403, origin);
+    const today = new Date(Date.now() + MC_TZ_OFFSET_MS).toISOString().slice(0, 10);
+    const attemptsPath = `/mastery_attempts/${uid}_${today}`;
+    const used = Number(fsData(await fsGetDoc(env, attemptsPath)).count || 0);
+    if (used >= MASTERY_DAILY_ATTEMPTS) {
+      return json({ error: `You've used all ${MASTERY_DAILY_ATTEMPTS} Mastery Checks for today — practice a bit and try again tomorrow!` }, 429, origin);
+    }
+    await fsSet(env, attemptsPath, { uid, count: used + 1 });
+    const band = bandForGrade(user.grade);
+    const qs = buildMasteryCheck(band);
+    const checkId = randomId();
+    const now = Date.now();
+    await fsCreate(env, "mastery_checks", checkId, {
+      uid, band, answers: qs.map((x) => x.correct), createdAtMs: now, expiresAtMs: now + MASTERY_TIME_LIMIT_MS, used: false
+    });
+    return json({
+      checkId, timeLimitSec: MASTERY_TIME_LIMIT_MS / 1000, passScore: MASTERY_PASS_SCORE,
+      attemptsLeft: MASTERY_DAILY_ATTEMPTS - used - 1,
+      questions: qs.map((x) => ({ q: x.q, choices: x.choices }))
+    }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not start the Mastery Check: " + err.message }, 502, origin);
+  }
+}
+
+async function handleMasterySubmit(request, env, origin) {
+  const { uid, payload, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  const checkId = payload.checkId;
+  const picks = payload.answers;
+  if (typeof checkId !== "string" || !/^[0-9a-f]{24}$/.test(checkId)) return json({ error: "checkId required" }, 400, origin);
+  if (!Array.isArray(picks) || picks.length !== MASTERY_QUESTIONS) return json({ error: "answers required" }, 400, origin);
+  try {
+    const path = `/mastery_checks/${checkId}`;
+    const check = fsData(await fsGetDoc(env, path));
+    if (check.uid !== uid) return json({ error: "That Mastery Check wasn't found." }, 404, origin);
+    if (check.used) return json({ error: "That Mastery Check was already submitted." }, 409, origin);
+    await fsPatch(env, path, { used: true }, true);
+    const late = Date.now() > Number(check.expiresAtMs || 0) + 60 * 1000;
+    const answers = check.answers || [];
+    let score = 0;
+    answers.forEach((c, i) => { if (Number(picks[i]) === c) score++; });
+    const passed = !late && score >= MASTERY_PASS_SCORE;
+    if (passed) await fsSet(env, `/mastery_passes/${uid}`, { uid, score, band: check.band, passedAtMs: Date.now() });
+    return json({ score, total: answers.length, passed, late, correct: answers }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not grade the Mastery Check: " + err.message }, 502, origin);
+  }
+}
+
+async function hasRecentMasteryPass(env, uid, purpose) {
+  const pass = fsData(await fsGetDoc(env, `/mastery_passes/${uid}`));
+  return Date.now() - Number(pass.passedAtMs || 0) <= MASTERY_PASS_VALID_MS[purpose];
+}
+
+// Name/grade/email ride along so whoever fulfills the request can see
+// who it's for; delivery itself goes to the approving parent.
+function rewardRequestDoc(uid, user, choiceKey, extra) {
+  return Object.assign({
+    uid, name: user.name || user.displayName || "", email: user.email || "", grade: String(user.grade || ""),
+    choice: choiceKey, prizeCost: 0, prizeValue: REWARD_VALUE_LABEL,
+    status: "pending", requestedAt: new Date(), source: "worker"
+  }, extra);
+}
+
+async function handleSeasonClaim(request, env, origin) {
+  const { uid, payload, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  const choiceKey = payload.choice;
+  if (!REWARD_CHOICES[choiceKey]) return json({ error: "Pick a reward first." }, 400, origin);
+  try {
+    const user = fsData(await fsGetDoc(env, `/users/${uid}`));
+    const { plan, payer } = await resolvePaidPlan(env, uid, user);
+    if (plan === "free") return json({ error: "Season Rewards come with Premium, Family and Max plans." }, 403, origin);
+
+    const thisWeek = weekIdFor();
+    const seasonId = seasonIdForWeek(thisWeek);
+    if (thisWeek < REWARDS_START_WEEK) return json({ error: "Season 1 starts Monday, October 5." }, 403, origin);
+    const sp = user.seasonProgress || {};
+    const weeks = new Set((sp.id === seasonId && Array.isArray(sp.weeks) ? sp.weeks : [])
+      .filter((w) => isWeekId(w) && w <= thisWeek && seasonIdForWeek(w) === seasonId));
+    if (weeks.size < SEASON_WEEKS_REQUIRED) {
+      return json({ error: `Complete ${SEASON_WEEKS_REQUIRED} Weekly Goals this season first (${weeks.size} so far).` }, 403, origin);
+    }
+    if (!(await hasRecentMasteryPass(env, uid, "season"))) {
+      return json({ error: "Pass a Mastery Check first.", needMastery: true }, 403, origin);
+    }
+
+    const childMarker = `season_${seasonId}_child_${uid}`;
+    if (!(await fsCreate(env, "reward_claims", childMarker, { uid, seasonId, createdAt: new Date() }))) {
+      return json({ error: "You already claimed this season's reward — great work!" }, 409, origin);
+    }
+    let slot = 0;
+    const slots = SEASON_REWARD_SLOTS[plan] || 0;
+    for (let n = 1; n <= slots && !slot; n++) {
+      if (await fsCreate(env, "reward_claims", `season_${seasonId}_payer_${payer}_${n}`, { uid, payer, plan, seasonId, createdAt: new Date() })) slot = n;
+    }
+    if (!slot) {
+      await fsDelete(env, `/reward_claims/${childMarker}`);
+      return json({ error: `Your plan's ${slots} Season Reward${slots === 1 ? "" : "s"} for this season ${slots === 1 ? "has" : "have"} already been claimed.` }, 409, origin);
+    }
+    const requestId = `season_${seasonId}_${uid}`;
+    await fsCreate(env, "redemption_requests", requestId, rewardRequestDoc(uid, user, choiceKey, {
+      type: "season", prizeName: `Season Reward: ${REWARD_CHOICES[choiceKey]}`, seasonId, payerUid: payer, plan
+    }));
+    return json({ ok: true, requestId, prizeName: `Season Reward: ${REWARD_CHOICES[choiceKey]}` }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not claim the reward: " + err.message }, 502, origin);
+  }
+}
+
+// Last week's winners per division, recomputed from public_profiles with
+// the same rules index.html uses to show standings. Cached briefly since
+// every Rewards page visit asks for it.
+let _weeklyCache = { weekId: "", at: 0, data: null };
+
+function weeklyRow(id, d, prefix) {
+  const answered = Number(d[prefix + "Answered"] || 0), correct = Number(d[prefix + "Correct"] || 0);
+  if (answered < WEEKLY_MIN_ANSWERS || answered > WEEKLY_MAX_ANSWERS || correct < 0 || correct > answered) return null;
+  const division = divisionFor(d.grade);
+  if (!division || !isValidUid(id)) return null;
+  const acc = correct / answered;
+  return {
+    uid: id, label: d.displayLabel || "Player", division, answered, acc,
+    score: Math.round(correct * acc),
+    gain: Number(d[prefix + "BaseN"] || 0) >= WEEKLY_MIN_ANSWERS ? acc - Number(d[prefix + "BaseAcc"] || 0) : null
+  };
+}
+
+async function computeWeeklyWinners(env, weekId) {
+  if (_weeklyCache.weekId === weekId && Date.now() - _weeklyCache.at < 5 * 60 * 1000) return _weeklyCache.data;
+  const [cur, prev] = await Promise.all([
+    fsQueryEq(env, "public_profiles", "wk", weekId, 1000),
+    fsQueryEq(env, "public_profiles", "prevWk", weekId, 1000)
+  ]);
+  const rows = new Map();
+  cur.forEach((r) => { const x = weeklyRow(r.id, r.data, "wk"); if (x) rows.set(x.uid, x); });
+  prev.forEach((r) => { const x = weeklyRow(r.id, r.data, "prevWk"); if (x && !rows.has(x.uid)) rows.set(x.uid, x); });
+  const out = {};
+  for (const division of ["k5", "68", "912"]) {
+    const list = [...rows.values()].filter((x) => x.division === division);
+    const champ = list.filter((x) => x.acc >= WEEKLY_MIN_ACCURACY)
+      .sort((a, b) => b.score - a.score || b.acc - a.acc || a.uid.localeCompare(b.uid))[0] || null;
+    const improved = list.filter((x) => x.gain !== null && x.gain >= WEEKLY_MIN_GAIN && (!champ || x.uid !== champ.uid))
+      .sort((a, b) => b.gain - a.gain || b.answered - a.answered || a.uid.localeCompare(b.uid))[0] || null;
+    out[division] = {
+      champion: champ && { uid: champ.uid, label: champ.label, score: champ.score, accuracy: Math.round(champ.acc * 100) },
+      improved: improved && { uid: improved.uid, label: improved.label, gain: Math.round(improved.gain * 100), accuracy: Math.round(improved.acc * 100) }
+    };
+  }
+  _weeklyCache = { weekId, at: Date.now(), data: out };
+  return out;
+}
+
+async function handleWeeklyResults(request, env, origin) {
+  if (!env.FIREBASE_SERVICE_ACCOUNT_JSON) return json({ error: "Server is missing its Firebase credentials." }, 500, origin);
+  try {
+    const weekId = prevWeekId(weekIdFor());
+    const divisions = await computeWeeklyWinners(env, weekId);
+    const claims = await fsQueryEq(env, "reward_claims", "weekId", weekId, 50);
+    const claimed = claims.map((c) => c.id);
+    return json({ weekId, divisions, claimed, prizeWeek: weekId >= REWARDS_START_WEEK }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not load weekly results: " + err.message }, 502, origin);
+  }
+}
+
+async function handleWeeklyClaim(request, env, origin) {
+  const { uid, payload, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  const choiceKey = payload.choice;
+  if (!REWARD_CHOICES[choiceKey]) return json({ error: "Pick a reward first." }, 400, origin);
+  try {
+    const weekId = prevWeekId(weekIdFor());
+    if (weekId < REWARDS_START_WEEK) return json({ error: "Weekly prizes start with the week of October 5 — this week is practice." }, 403, origin);
+    const winners = await computeWeeklyWinners(env, weekId);
+    let division = "", category = "";
+    for (const [div, w] of Object.entries(winners)) {
+      if (w.champion && w.champion.uid === uid) { division = div; category = "champion"; }
+      else if (w.improved && w.improved.uid === uid) { division = div; category = "improved"; }
+    }
+    if (!category) return json({ error: "Only last week's Weekly Champions can claim this prize." }, 403, origin);
+    if (!(await hasRecentMasteryPass(env, uid, "weekly"))) {
+      return json({ error: "Pass a Mastery Check to verify your win first.", needMastery: true }, 403, origin);
+    }
+    const user = fsData(await fsGetDoc(env, `/users/${uid}`));
+    const slotId = `weekly_${weekId}_${division}_${category}`;
+    if (!(await fsCreate(env, "reward_claims", slotId, { uid, weekId, division, category, createdAt: new Date() }))) {
+      return json({ error: "This prize was already claimed." }, 409, origin);
+    }
+    const label = category === "champion" ? "Weekly Top Scorer" : "Weekly Most Improved";
+    await fsCreate(env, "redemption_requests", slotId, rewardRequestDoc(uid, user, choiceKey, {
+      type: "weekly", prizeName: `${label}: ${REWARD_CHOICES[choiceKey]}`, weekId, division, category
+    }));
+    return json({ ok: true, requestId: slotId, prizeName: `${label}: ${REWARD_CHOICES[choiceKey]}` }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not claim the prize: " + err.message }, 502, origin);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -434,7 +934,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 7 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 8 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it
@@ -478,6 +978,14 @@ export default {
 
     if (url.pathname === "/sync-entitlements" && request.method === "POST") {
       return handleSyncEntitlements(request, env, origin);
+    }
+
+    if (request.method === "POST") {
+      if (url.pathname === "/mastery-check/start") return handleMasteryStart(request, env, origin);
+      if (url.pathname === "/mastery-check/submit") return handleMasterySubmit(request, env, origin);
+      if (url.pathname === "/rewards/season") return handleSeasonClaim(request, env, origin);
+      if (url.pathname === "/rewards/weekly") return handleWeeklyClaim(request, env, origin);
+      if (url.pathname === "/rewards/weekly-results") return handleWeeklyResults(request, env, origin);
     }
 
     if (url.pathname !== "/ai" || request.method !== "POST") {

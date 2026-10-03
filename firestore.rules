@@ -108,24 +108,27 @@ service cloud.firestore {
       allow write: if signedIn() && request.auth.uid == uid;
     }
 
-    // Prize Store redemption requests. This app has no backend to
-    // automate a real gift-card/529 payout yet, so a "redeem" click logs
-    // a request here instead of pretending to fulfill it. A student can
-    // create and read only their own requests; a linked parent (see
-    // parent_links below) can also read and can move a pending request to
-    // approved/denied — that's parental authorization, not fulfillment.
-    // Actually fulfilling it (buying/sending the real card) and marking a
-    // request "fulfilled" happens out-of-band, by whoever runs the
-    // business, directly in the Firebase Console (which, as project
-    // owner, bypasses these rules entirely) — never through the app, so
-    // no one can self-mark a request fulfilled.
+    // Real reward claims (Season Mastery Rewards, Weekly Champions).
+    // Only the Cloudflare Worker creates these, using the service account
+    // (which bypasses these rules), after checking the student's plan,
+    // progress and a server-graded Mastery Check — so clients can't create
+    // one at all. The student and their linked parent can read them; the
+    // linked parent can move a pending claim to approved/denied (and
+    // record themselves as approvedBy, so whoever fulfills it knows which
+    // parent to deliver to). Marking a claim "fulfilled" happens out-of-band
+    // in the Firebase Console, never through the app.
+    //
+    // Server-only collections with deliberately NO rule here (Firestore
+    // denies all client access by default): entitlements, mastery_checks,
+    // mastery_passes, mastery_attempts, reward_claims.
     match /redemption_requests/{reqId} {
-      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow create: if false;
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isLinkedParentOf(resource.data.uid));
       allow update: if signedIn() && isLinkedParentOf(resource.data.uid)
         && resource.data.status == "pending"
         && request.resource.data.status in ["approved", "denied"]
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "respondedAt"]);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "respondedAt", "approvedBy"])
+        && (!("approvedBy" in request.resource.data) || request.resource.data.approvedBy == request.auth.uid);
       allow delete: if false;
     }
 

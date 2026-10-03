@@ -502,6 +502,38 @@ body{
 .s4{width:200px;height:200px;background:#FFD93D;bottom:20%;right:20%;animation-delay:-2s;}
 @keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(40px,30px) scale(1.15);}}
 
+/* ── HOMEPAGE MATH BACKGROUND ── built by buildMathBackground().
+   Lives inside #s-land, so it's display:none (and its animations stop)
+   the moment someone enters the app. z-index:-1 puts it above #s-land's
+   own background but behind all homepage content. Symbols rise slowly
+   and sway; low opacity keeps text readable over them. */
+.math-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+.math-sym{
+  position:absolute;bottom:-14vh;
+  font-family:'Fredoka One','Baloo 2',cursive;white-space:nowrap;user-select:none;
+  opacity:0;will-change:transform,opacity;
+  animation:math-rise var(--dur) linear var(--delay) infinite;
+}
+.math-sym > span{display:inline-block;animation:math-sway var(--sway) ease-in-out var(--delay) infinite alternate;}
+@keyframes math-rise{
+  0%{transform:translateY(0) rotate(var(--r0));opacity:0;}
+  10%{opacity:var(--op);}
+  88%{opacity:var(--op);}
+  100%{transform:translateY(-130vh) rotate(var(--r1));opacity:0;}
+}
+@keyframes math-sway{from{transform:translateX(calc(-1 * var(--dx)));}to{transform:translateX(var(--dx));}}
+/* Homepage cards sit over the moving symbols: a near-solid base under each
+   card's original tint keeps reading areas still. */
+#s-land .how-card,#s-land .price-card{background:linear-gradient(var(--card),var(--card)),rgba(11,22,41,0.92);}
+#s-land .grade-card,#s-land .test-card,#s-land .price-note{background:linear-gradient(rgba(255,255,255,0.04),rgba(255,255,255,0.04)),rgba(11,22,41,0.92);}
+#s-land .price-card-featured{background:linear-gradient(180deg,rgba(255,217,61,0.07),rgba(255,217,61,0.02)),rgba(11,22,41,0.92);}
+#s-land .waitlist-box{background:linear-gradient(135deg,rgba(255,217,61,0.06),rgba(6,214,160,0.04)),rgba(11,22,41,0.92);}
+@media (prefers-reduced-motion: reduce){
+  .math-bg .shape{animation:none;}
+  .math-sym{animation:none;bottom:auto;top:var(--top);opacity:var(--op);transform:rotate(var(--r0));}
+  .math-sym > span{animation:none;}
+}
+
 /* ── SCREENS ── */
 .screen{display:none;position:relative;z-index:1;min-height:100vh;}
 .screen.active{display:block;}
@@ -1233,14 +1265,16 @@ body{
 .land-hero{
   display:flex;flex-direction:column;align-items:center;
   text-align:center;padding:52px 20px 60px;
-  background:linear-gradient(180deg,#080F1E 0%,#0B1629 60%,#0D1F3C 100%);
+  /* See-through on top so the math background shows; keeps the original
+     lighter fade at the bottom edge. */
+  background:linear-gradient(180deg,transparent 0%,transparent 55%,rgba(13,31,60,0.6) 100%);
 }
 .land-section{
   padding:60px 24px;max-width:1100px;
   margin:0 auto;width:100%;text-align:center;
 }
 .land-section-dark{
-  background:var(--dark2);
+  background:rgba(11,22,41,0.72); /* var(--dark2), translucent so the math background shows faintly */
   max-width:100%;padding:60px 24px;
 }
 .land-section-dark > *{max-width:1100px;margin:0 auto;}
@@ -6723,8 +6757,50 @@ function startCountdown(){
   },1000);
 }
 
+// ── HOMEPAGE MATH BACKGROUND ───────────────────────────
+// Slowly rising math symbols and equations behind the homepage (CSS in
+// .math-bg). Every equation here is correct math — kids read these.
+// Bigger symbols are fainter and rise faster, so they read as "nearer";
+// negative delays mean the screen is already full on first paint.
+var MATH_BG_SYMBOLS = ["π","∑","√","∞","÷","×","+","−","=","%","∫","θ","Δ","≈","≠","≤","≥","±","∠","△","½","¾","x²","∛","λ","7","3","9","0","3.14"];
+var MATH_BG_EQUATIONS = ["2 + 2 = 4","7 × 8 = 56","√16 = 4","12 ÷ 4 = 3","9 − 4 = 5","10² = 100","½ + ¼ = ¾","π ≈ 3.14","a² + b² = c²","y = mx + b","f(x) = x²","A = πr²","5! = 120","∛27 = 3","log₂ 8 = 3","sin²θ + cos²θ = 1","d/dx x² = 2x","∫ 2x dx = x² + C","(a + b)² = a² + 2ab + b²"];
+var MATH_BG_COLORS = ["#FFD93D","#06D6A0","#4ECDC4","#60A5FA","#F0F6FF"];
+
+function buildMathBackground(){
+  var land=$$("s-land"); if(!land || land.querySelector(".math-bg")) return;
+  var layer=document.createElement("div");
+  layer.className="math-bg"; layer.setAttribute("aria-hidden","true");
+  // The soft colour glows from .bg-shapes, repeated here because the
+  // homepage's own background covers the body-level ones.
+  layer.innerHTML="<div class='shape s1'></div><div class='shape s2'></div><div class='shape s3'></div><div class='shape s4'></div>";
+  var rnd=function(a,b){ return a+Math.random()*(b-a); };
+  var pick=function(arr){ return arr[Math.floor(Math.random()*arr.length)]; };
+  var count=Math.round(Math.min(32, Math.max(14, window.innerWidth*window.innerHeight/38000)));
+  for(var i=0;i<count;i++){
+    var isEq = Math.random()<0.35;
+    var size = isEq ? rnd(13,22) : rnd(18,60);
+    var depth = isEq ? 0.2 : (size-18)/42;          // 0 = far/small, 1 = near/big
+    var dur = 62 - depth*26 + rnd(-6,6);
+    var r0 = rnd(-25,25);
+    var el=document.createElement("div");
+    el.className="math-sym";
+    el.style.cssText = "left:"+((i+rnd(0.1,0.9))/count*96).toFixed(1)+"%;font-size:"+size.toFixed(0)+"px;color:"+pick(MATH_BG_COLORS)+";"
+      +"--op:"+(isEq ? rnd(0.10,0.16) : rnd(0.07,0.14) - depth*0.02).toFixed(3)+";"
+      +"--dur:"+dur.toFixed(1)+"s;--delay:"+(-rnd(0,dur)).toFixed(1)+"s;"
+      +"--sway:"+rnd(5,11).toFixed(1)+"s;--dx:"+rnd(10,40).toFixed(0)+"px;"
+      +"--r0:"+r0.toFixed(0)+"deg;--r1:"+(r0+rnd(-40,40)).toFixed(0)+"deg;"
+      +"--top:"+rnd(2,92).toFixed(0)+"%";
+    var span=document.createElement("span");
+    span.textContent = isEq ? pick(MATH_BG_EQUATIONS) : pick(MATH_BG_SYMBOLS);
+    el.appendChild(span);
+    layer.appendChild(el);
+  }
+  land.insertBefore(layer, land.firstChild);
+}
+
 // ── DOM READY ──────────────────────────────────────────
 document.addEventListener("DOMContentLoaded",function(){
+  buildMathBackground();
   var mo=$$("signup-modal"); if(mo) mo.addEventListener("click",function(e){ if(e.target===this) closeModal(); });
   var lm=$$("login-modal"); if(lm) lm.addEventListener("click",function(e){ if(e.target===this) closeLoginModal(); });
   var lcm=$$("link-child-modal"); if(lcm) lcm.addEventListener("click",function(e){ if(e.target===this) closeLinkChildModal(); });

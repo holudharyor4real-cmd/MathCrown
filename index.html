@@ -115,11 +115,15 @@ function openCheckout(planKey) {
     featEl.innerHTML = items.map(function(f){ return "<div style='padding:2px 0'>" + f + "</div>"; }).join("");
   }
 
-  // Pre-fill email if user is logged in
+  // Pre-fill email/name from whoever is signed in (a parent session keeps
+  // its details on PARENT, not S).
+  var parentIn = typeof PARENT !== "undefined" && PARENT.isLoggedIn;
   var emailEl = document.getElementById("checkout-email");
-  if (emailEl && S && S.email) emailEl.value = S.email;
+  var prefillEmail = parentIn ? PARENT.email : (S && S.email);
+  if (emailEl && prefillEmail) emailEl.value = prefillEmail;
   var nameInput = document.getElementById("checkout-name");
-  if (nameInput && S && S.name) nameInput.value = S.name;
+  var prefillName = parentIn ? PARENT.name : (S && S.name);
+  if (nameInput && prefillName) nameInput.value = prefillName;
 
   // Reset states
   document.getElementById("checkout-success").style.display = "none";
@@ -318,14 +322,20 @@ function showCheckoutSuccess(planKey) {
       existing.plan = planKey;
       localStorage.setItem(pKey, JSON.stringify(existing));
     } catch (e) {}
+    // Re-renders the dashboard, which also asks the Worker to apply this
+    // plan to linked children (the Stripe webhook does the same moments
+    // later, whichever lands first).
+    if (typeof renderParentDash === "function") renderParentDash();
   }
+  if (typeof renderUpgradeNudge === "function") renderUpgradeNudge();
   showToast("🎉 Welcome to MathCrown " + STRIPE_PLANS[planKey].name + "!");
 }
 
 // ─── Hook up all pricing buttons to real checkout ───────────────
 function upgradeToPlan(planKey) {
-  console.log("[Checkout] upgradeToPlan(" + planKey + ") — signed in as:", S.name || "(nobody)");
-  if (!S.name) {
+  var parentIn = typeof PARENT !== "undefined" && PARENT.isLoggedIn;
+  console.log("[Checkout] upgradeToPlan(" + planKey + ") — signed in as:", S.name || (parentIn ? "parent " + PARENT.email : "(nobody)"));
+  if (!S.name && !parentIn) {
     // Not logged in yet — create a free account first, then resume
     // straight into Stripe checkout. No plan is granted here.
     console.log("[Checkout] Not signed in — opening free signup, will resume checkout after account creation.");
@@ -2108,6 +2118,9 @@ body{
     <button class="nav-item" onclick="goPage('profile',this)">
       <span class="nav-icon">👤</span> My Profile
     </button>
+    <button class="nav-item" id="nav-go-premium" onclick="upgradeToPlan('premium')" style="display:none;color:var(--sun)">
+      <span class="nav-icon">⭐</span> Go Premium
+    </button>
     <button class="nav-item" id="nav-parent-dash" onclick="goPage('parentdash',this)" style="display:none">
       <span class="nav-icon">👨‍👩‍👧</span> Parent Dashboard
     </button>
@@ -2215,6 +2228,18 @@ body{
             <div id="home-link-code" style="font-family:monospace;font-size:26px;font-weight:900;letter-spacing:6px;color:var(--sun)">------</div>
           </div>
           <button onclick="copyLinkCode()" class="btn btn-xs" style="background:rgba(6,214,160,0.15);border:1px solid var(--mint);color:var(--mint);border-radius:8px;padding:6px 14px">Copy</button>
+        </div>
+      </div>
+
+      <!-- Upgrade nudge — free accounts only, toggled by renderUpgradeNudge() -->
+      <div class="card" id="home-upgrade-card" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,rgba(255,217,61,0.12),rgba(155,93,229,0.08));border:1.5px solid rgba(255,217,61,0.35)">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="font-size:30px">⭐</div>
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:15px;font-weight:800;margin-bottom:2px">Unlock Premium — ask a grown-up!</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.6">Prize redemption, unlimited challenges, tournaments, and 300 MathCoins a day. 14-day free trial. A parent can upgrade right here, or link your account with the code above and upgrade from their Parent Dashboard.</div>
+          </div>
+          <button class="btn btn-sun btn-sm" onclick="upgradeToPlan('premium')">👨‍👩‍👧 Grown-up: Start Free Trial</button>
         </div>
       </div>
 
@@ -2749,6 +2774,14 @@ body{
         <div style="flex:1">
           <div style="font-size:20px;font-weight:800;margin-bottom:4px" id="p-dash-name">Parent Account</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="p-dash-plan">Plan: Free</div>
+          <div id="p-dash-upgrade" style="display:none;margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Upgrade to unlock prize redemption and Premium for your linked children. 14-day free trial, cancel anytime.</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-sun btn-xs" onclick="upgradeToPlan('premium')">Premium $9.99/mo · 1 child</button>
+              <button class="btn btn-mint btn-xs" style="color:var(--dark)" onclick="upgradeToPlan('family')">Family $14.99/mo · up to 4</button>
+              <button class="btn btn-coral btn-xs" onclick="upgradeToPlan('max')">Max + AI $19.99/mo · up to 4</button>
+            </div>
+          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <span class="badge b-mint">🔒 COPPA Compliant</span>
             <span class="badge b-sky">👁️ Full Parental Control</span>
@@ -3020,7 +3053,7 @@ function awardCoins(amount, reason){
   return granted;
 }
 
-var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
+var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[], coveredChildren:[] };
 var TEACHER = { name:"", email:"", school:"", classCode:"", isLoggedIn:false };
 
 // PARENT.plan holds either the display default "Free" or a raw Stripe
@@ -4003,10 +4036,11 @@ async function loginStudent(){
 function logout(){
   saveSession();
   // Reset student state
-  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[]; S.recentEarnings=[];
+  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[]; S.recentEarnings=[]; S.plan="free";
   document.body.removeAttribute("data-tier");
+  var goPrem=$$("nav-go-premium"); if(goPrem) goPrem.style.display="none";
   // Reset parent state
-  PARENT.isLoggedIn=false;
+  PARENT.isLoggedIn=false; PARENT.plan="Free"; PARENT.children=[]; PARENT.coveredChildren=[];
   // Hide parent nav
   var parentNav=$$("nav-parent-dash"); if(parentNav) parentNav.style.display="none";
   // Reset teacher state
@@ -4037,6 +4071,16 @@ function renderHome(){
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
   if(S.tier==="k5"){ renderK5Rewards(); renderK5Kingdom(); }
   if(S.classCode) checkClassSession();
+  renderUpgradeNudge();
+}
+
+// Free signed-in students only. Hidden in Preview Mode on purpose: a demo
+// session has no Firebase account, so a checkout started there would
+// create a Stripe subscription attached to nobody.
+function renderUpgradeNudge(){
+  var show = !!S.name && !S.isPreview && !isPaidPlan();
+  var card=$$("home-upgrade-card"); if(card) card.style.display = show ? "block" : "none";
+  var nav=$$("nav-go-premium"); if(nav) nav.style.display = show ? "flex" : "none";
 }
 
 // ── CLASS SESSION (student side): same questions, own pace ──────
@@ -5961,10 +6005,21 @@ function renderProfile(){
 function renderParentDash(){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   setEl("p-dash-name",PARENT.name||"Parent Account");
-  setEl("p-dash-plan","Plan: "+planLabel(PARENT.plan));
   var pa=$$("p-dash-avatar"); if(pa) pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
+  renderParentPlan();
   renderChildrenList();
   refreshParentChildren();
+}
+
+var PLAN_CHILD_LIMITS = { premium:1, family:4, max:4 };
+
+function renderParentPlan(){
+  var key=(PARENT.plan||"free").toLowerCase();
+  var limit=PLAN_CHILD_LIMITS[key]||0;
+  var label="Plan: "+planLabel(PARENT.plan);
+  if(limit) label+=" · covers "+(limit===1?"1 child":"up to "+limit+" children");
+  var el=$$("p-dash-plan"); if(el) el.textContent=label;
+  var up=$$("p-dash-upgrade"); if(up) up.style.display=limit?"none":"block";
 }
 
 function renderChildrenList(){
@@ -5988,10 +6043,21 @@ function renderChildrenList(){
 // Fetches real linked-children data from Firestore, then re-renders just
 // the children list/prize queue (NOT the whole dashboard — renderParentDash
 // calls this, so re-calling renderParentDash here would loop forever).
+// Also asks the Worker to (re)apply the parent's plan to linked children —
+// covers a child linked after the parent subscribed, which no Stripe
+// event announces — and takes the server's record of the parent's plan
+// over the browser-cached one when the server has one.
 function refreshParentChildren(){
   if(!window.fetchLinkedChildren) return;
-  window.fetchLinkedChildren().then(function(children){
-    PARENT.children=children||[];
+  var sync = window.syncEntitlements ? window.syncEntitlements() : Promise.resolve(null);
+  Promise.all([window.fetchLinkedChildren(), sync]).then(function(r){
+    PARENT.children=r[0]||[];
+    var ent=r[1];
+    if(ent){
+      PARENT.coveredChildren=ent.covered||[];
+      if(ent.known) PARENT.plan=ent.plan;
+    }
+    renderParentPlan();
     renderChildrenList();
   });
 }
@@ -6015,7 +6081,8 @@ function buildChildCard(child){
     :"<span style='font-size:12px;color:var(--text2)'>Not enough answers yet</span>";
   card.innerHTML="<div class='child-card-header'>"
     +"<div class='child-ava' style='background:linear-gradient(135deg,#1C3A6E,#06D6A0)'>"+child.name[0]+"</div>"
-    +"<div style='flex:1'><div style='font-size:16px;font-weight:800'>"+child.name+"</div>"
+    +"<div style='flex:1'><div style='font-size:16px;font-weight:800'>"+child.name
+    +((PARENT.coveredChildren||[]).indexOf(child.uid)>-1?" <span class='badge b-sun' style='font-size:10px;margin-left:4px'>⭐ "+planLabel(PARENT.plan)+"</span>":"")+"</div>"
     +"<div style='font-size:12px;color:var(--text2)'>"+(child.grade||"—")+" Grade · Level "+child.level+"</div></div></div>"
     +"<div class='child-stats'>"
     +"<div class='child-stat'><div class='child-stat-val'>"+child.xp.toLocaleString()+"</div><div class='child-stat-lbl'>XP</div></div>"
@@ -7214,6 +7281,24 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   };
 
   // ── PARENT <-> CHILD LINKING (real, Firestore-backed) ──────────
+  // Asks the Worker to re-apply this account's paid plan to its linked
+  // children (see handleSyncEntitlements in mathcrown-worker.js). Returns
+  // { plan, known, covered:[childUid] } or null if unreachable.
+  window.syncEntitlements = async function() {
+    const user = auth.currentUser;
+    if (!user || !window.MC_API_BASE) return null;
+    try {
+      const res = await fetch(window.MC_API_BASE + "/sync-entitlements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parentUid: user.uid })
+      });
+      return res.ok ? await res.json() : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
   window.linkChildByCode = async function(code) {
     const user = auth.currentUser;
     if (!user) return { ok: false, error: "Not signed in." };

@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v8 - + Earn While You Learn: mastery checks & capped real rewards)
+ * MathCrown API Worker  (v9 - + weekly parent report emails)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -233,6 +233,7 @@ async function getFirestoreAccessToken(env) {
   const sigBuffer = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, new TextEncoder().encode(unsigned));
   const jwt = `${unsigned}.${base64UrlEncode(sigBuffer)}`;
 
+  _subrequests++;
   const res = await fetch(sa.token_uri || "https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -254,6 +255,7 @@ function isValidUid(uid) {
 
 async function fsFetch(env, path, opts) {
   const token = await getFirestoreAccessToken(env);
+  _subrequests++;
   return fetch(FS_BASE + path, {
     ...opts,
     headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" }
@@ -924,6 +926,222 @@ async function handleWeeklyClaim(request, env, origin) {
   }
 }
 
+// ══ WEEKLY PARENT REPORT EMAIL ══════════════════════════════════
+// Every Monday morning each parent gets one email summarizing last week
+// for each linked child: questions answered, accuracy and how it compares
+// to the child's usual, Weekly Goal, Season Mastery Path progress, streak
+// and the topic that needs the most practice.
+//
+// Setup (Cloudflare dashboard, not this file):
+//   • Secret RESEND_API_KEY — from resend.com, with mymathcrown.com
+//     verified there so mail can come from reports@mymathcrown.com.
+//   • Cron Trigger "0 12-23 * * 1" (hourly on Mondays from 7am ET). Each
+//     run sends a batch and records lastReportWeek per parent, so later
+//     runs pick up where the last one stopped; this keeps every run under
+//     the Workers subrequest limit (REPORT_SUBREQUEST_BUDGET, default 45,
+//     fits the free plan; raise it on Workers Paid).
+//   • Optional REPORT_FROM, e.g. "MathCrown <reports@mymathcrown.com>".
+// Parents opt out with the one-click link in every email or the toggle in
+// their Parent Dashboard (users/{uid}.weeklyReport = false).
+
+const SITE_URL = "https://www.mymathcrown.com";
+let _subrequests = 0;
+
+async function countedFetch(url, opts) {
+  _subrequests++;
+  return fetch(url, opts);
+}
+
+// Unsubscribe links are signed so nobody can opt out someone else. The
+// HMAC key is derived from the service account's private key, so no
+// extra secret needs managing.
+async function unsubscribeToken(env, uid) {
+  const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  const keyBytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("mc-unsubscribe:" + sa.private_key));
+  const key = await crypto.subtle.importKey("raw", keyBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(uid));
+  return [...new Uint8Array(sig)].slice(0, 16).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function escHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+}
+
+function firstName(full) {
+  return String(full || "Your child").trim().split(/\s+/)[0] || "Your child";
+}
+
+function weekStatsFor(child, weekId) {
+  if (child.week && child.week.id === weekId) return child.week;
+  if (child.prevWeek && child.prevWeek.id === weekId) return child.prevWeek;
+  return null;
+}
+
+function weakestTopic(topicStats) {
+  let worst = null;
+  for (const [topic, t] of Object.entries(topicStats || {})) {
+    const attempted = Number(t && t.attempted) || 0;
+    if (attempted < 5) continue;
+    const acc = (Number(t.correct) || 0) / attempted;
+    if (!worst || acc < worst.acc) worst = { topic, acc };
+  }
+  if (!worst || worst.acc >= 0.85) return null;
+  return { name: worst.topic.replace(/([a-z])([A-Z0-9])/g, "$1 $2"), pct: Math.round(worst.acc * 100) };
+}
+
+// One child's numbers for the given week, from their private users doc.
+function childSummary(child, weekId) {
+  const w = weekStatsFor(child, weekId) || { answered: 0, correct: 0, baseAcc: 0, baseN: 0 };
+  const answered = Number(w.answered) || 0, correct = Number(w.correct) || 0;
+  const acc = answered ? Math.round(correct / answered * 100) : 0;
+  const change = (answered >= 10 && Number(w.baseN) >= WEEKLY_MIN_ANSWERS) ? acc - Math.round(Number(w.baseAcc) * 100) : null;
+  const seasonId = seasonIdForWeek(weekId);
+  const sp = child.seasonProgress || {};
+  const seasonDone = (sp.id === seasonId && Array.isArray(sp.weeks) ? sp.weeks : [])
+    .filter((x) => isWeekId(x) && x >= REWARDS_START_WEEK && x <= weekId).length;
+  return {
+    name: firstName(child.name || child.displayName), answered, acc, change,
+    goalMet: !!(w.goalMet || (answered >= 50 && correct / answered >= 0.75)),
+    seasonDone, seasonActive: weekId >= REWARDS_START_WEEK,
+    streak: Number(child.streak) || 0,
+    weak: weakestTopic(child.topicStats)
+  };
+}
+
+function childBlockHtml(c) {
+  const stat = (big, small, color) => `<td style="padding:8px 6px;text-align:center;width:33%"><div style="font-size:22px;font-weight:800;color:${color}">${big}</div><div style="font-size:12px;color:#5b6b84">${small}</div></td>`;
+  const change = c.change === null ? "—" : (c.change > 0 ? "+" : "") + c.change + "%";
+  const lines = [];
+  if (!c.answered) {
+    lines.push(`${escHtml(c.name)} didn't practice this week. Ten minutes a day is enough to keep skills fresh: try today's Daily Crown together.`);
+  } else {
+    lines.push(c.goalMet ? `🎯 Weekly Goal complete (50 questions at 75%+ accuracy).` : `🎯 Weekly Goal: ${c.answered}/50 questions${c.acc < 75 ? `, accuracy ${c.acc}% (goal 75%)` : ""}.`);
+  }
+  if (c.seasonActive) lines.push(`🏁 Season Mastery Path: ${c.seasonDone} of ${SEASON_WEEKS_REQUIRED} Weekly Goals this season.`);
+  if (c.streak > 1) lines.push(`🔥 ${c.streak}-day practice streak.`);
+  if (c.weak) lines.push(`📌 Needs practice: <strong>${escHtml(c.weak.name)}</strong> (${c.weak.pct}% accuracy so far).`);
+  return `<div style="border:1px solid #dfe6f1;border-radius:14px;padding:16px;margin:0 0 14px">
+    <div style="font-size:18px;font-weight:800;color:#0d1f3c;margin-bottom:8px">${escHtml(c.name)}</div>
+    <table role="presentation" style="width:100%;border-collapse:collapse;background:#f5f8fc;border-radius:10px"><tr>
+      ${stat(c.answered, "questions", "#1c3a6e")}${stat(c.answered ? c.acc + "%" : "—", "accuracy", "#0a8f6a")}${stat(change, "vs. usual", c.change > 0 ? "#0a8f6a" : "#1c3a6e")}
+    </tr></table>
+    <div style="font-size:14px;color:#24344d;line-height:1.7;margin-top:10px">${lines.join("<br>")}</div>
+  </div>`;
+}
+
+function childBlockText(c) {
+  const parts = [`${c.name}: ${c.answered} questions, ${c.answered ? c.acc + "% accuracy" : "no practice"}` + (c.change === null ? "" : `, ${c.change > 0 ? "+" : ""}${c.change}% vs. usual`) + "."];
+  if (c.answered) parts.push(c.goalMet ? "Weekly Goal complete." : `Weekly Goal: ${c.answered}/50.`);
+  if (c.seasonActive) parts.push(`Season path: ${c.seasonDone}/${SEASON_WEEKS_REQUIRED}.`);
+  if (c.weak) parts.push(`Needs practice: ${c.weak.name} (${c.weak.pct}%).`);
+  return parts.join(" ");
+}
+
+async function buildParentReport(env, parentUid, weekId, label) {
+  const res = await countedFetch(FS_BASE + `/parent_links/${parentUid}/children?pageSize=10`, {
+    headers: { "Authorization": "Bearer " + await getFirestoreAccessToken(env) }
+  });
+  if (!res.ok) throw new Error("Could not list children: " + res.status);
+  const links = ((await res.json()).documents || []).map((d) => d.name.split("/").pop()).filter(isValidUid).slice(0, 4);
+  const kids = [];
+  for (const childUid of links) {
+    const child = fsData(await fsGetDoc(env, `/users/${childUid}`));
+    if (child.role && child.role !== "student") continue;
+    kids.push(childSummary(child, weekId));
+  }
+  if (!kids.length) return null;
+  const unsub = `https://mathcrown-api.holudharyor4real.workers.dev/unsubscribe?u=${parentUid}&t=${await unsubscribeToken(env, parentUid)}`;
+  const subject = kids.length === 1
+    ? `${kids[0].name}'s math week: ${kids[0].answered} questions${kids[0].answered ? `, ${kids[0].acc}% accuracy` : ""}`
+    : `Your kids' math week: ${kids.map((k) => `${k.name} ${k.answered}`).join(" · ")} questions`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:20px;color:#0d1f3c">
+    <div style="font-size:22px;font-weight:800;margin-bottom:2px">👑 MathCrown Weekly Report</div>
+    <div style="font-size:13px;color:#5b6b84;margin-bottom:18px">${escHtml(label)}</div>
+    ${kids.map(childBlockHtml).join("")}
+    <div style="text-align:center;margin:20px 0"><a href="${SITE_URL}" style="background:#ffc93c;color:#0d1f3c;font-weight:800;text-decoration:none;padding:12px 22px;border-radius:999px;display:inline-block">Open MathCrown</a></div>
+    <div style="font-size:12px;color:#7a879b;line-height:1.6">You get this because you linked a child to your MathCrown parent account. MathCoins have no cash value; real rewards follow the Official Rewards Rules and always need your approval.<br><a href="${unsub}" style="color:#7a879b">Unsubscribe from weekly reports</a></div>
+  </div>`;
+  const text = `MathCrown Weekly Report (${label})\n\n${kids.map(childBlockText).join("\n\n")}\n\nOpen MathCrown: ${SITE_URL}\nUnsubscribe: ${unsub}`;
+  return { subject, html, text, unsub };
+}
+
+async function sendEmail(env, to, report) {
+  const res = await countedFetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + (env.RESEND_API_KEY || "").trim(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: env.REPORT_FROM || "MathCrown <reports@mymathcrown.com>",
+      to: [to], subject: report.subject, html: report.html, text: report.text,
+      headers: { "List-Unsubscribe": `<${report.unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" }
+    })
+  });
+  if (!res.ok) throw new Error("Email send failed: " + res.status + " " + (await res.text()).slice(0, 200));
+}
+
+function weekLabel(weekId) {
+  const start = new Date(Date.parse(weekId + "T12:00:00Z"));
+  const end = new Date(start.getTime() + 6 * 864e5);
+  const f = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  return `Week of ${f(start)} – ${f(end)}`;
+}
+
+// One scheduled batch: parents who haven't had last week's report yet.
+async function runWeeklyReports(env) {
+  if (!env.RESEND_API_KEY || !env.FIREBASE_SERVICE_ACCOUNT_JSON) return { skipped: "missing RESEND_API_KEY or Firebase credentials" };
+  _subrequests = 0;
+  const budget = Number(env.REPORT_SUBREQUEST_BUDGET) || 45;
+  const weekId = prevWeekId(weekIdFor());
+  const parents = await fsQueryEq(env, "users", "role", "parent", 1000);
+  let sent = 0, skipped = 0, failed = 0;
+  for (const p of parents) {
+    if (_subrequests > budget - 8) break;
+    const d = p.data;
+    if (d.lastReportWeek === weekId || d.weeklyReport === false || !isValidUid(p.id)) continue;
+    try {
+      const report = d.email ? await buildParentReport(env, p.id, weekId, weekLabel(weekId)) : null;
+      if (report) { await sendEmail(env, d.email, report); sent++; } else skipped++;
+      await fsPatch(env, `/users/${p.id}`, { lastReportWeek: weekId }, true);
+    } catch (err) {
+      failed++;
+      console.log("weekly report failed for", p.id, err.message);
+    }
+  }
+  return { weekId, sent, skipped, failed };
+}
+
+async function handleReportPreview(request, env, origin) {
+  const { uid, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  if (!env.RESEND_API_KEY) return json({ error: "Weekly emails aren't switched on yet." }, 503, origin);
+  try {
+    const parent = fsData(await fsGetDoc(env, `/users/${uid}`));
+    if (parent.role !== "parent" || !parent.email) return json({ error: "Sample reports are for parent accounts." }, 403, origin);
+    const log = fsData(await fsGetDoc(env, `/report_log/${uid}`));
+    if (Date.now() - Number(log.lastPreviewAtMs || 0) < 10 * 60 * 1000) {
+      return json({ error: "A sample was just sent. Check your inbox (and spam folder)." }, 429, origin);
+    }
+    const weekId = weekIdFor();
+    const report = await buildParentReport(env, uid, weekId, weekLabel(weekId) + " (so far)");
+    if (!report) return json({ error: "Link a child first, then we can send a report." }, 400, origin);
+    await sendEmail(env, parent.email, report);
+    await fsSet(env, `/report_log/${uid}`, { lastPreviewAtMs: Date.now() });
+    return json({ ok: true, to: parent.email }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not send the sample: " + err.message }, 502, origin);
+  }
+}
+
+async function handleUnsubscribe(request, env, url) {
+  const uid = url.searchParams.get("u") || "";
+  const t = url.searchParams.get("t") || "";
+  const page = (msg) => new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MathCrown</title><div style="font-family:system-ui,sans-serif;max-width:480px;margin:60px auto;padding:0 20px;text-align:center;color:#0d1f3c"><div style="font-size:40px">👑</div><h2>${msg}</h2><p><a href="${SITE_URL}">Back to MathCrown</a></p></div>`, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  if (!isValidUid(uid) || !env.FIREBASE_SERVICE_ACCOUNT_JSON || t !== await unsubscribeToken(env, uid)) {
+    return page("That unsubscribe link isn't valid. You can turn off reports in your Parent Dashboard.");
+  }
+  await fsPatch(env, `/users/${uid}`, { weeklyReport: false }, true);
+  return page("You're unsubscribed from weekly reports. You can turn them back on in your Parent Dashboard.");
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -934,7 +1152,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 8 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 9 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it
@@ -943,6 +1161,13 @@ export default {
     // guards this route, not CORS/origin.
     if (url.pathname === "/stripe-webhook" && request.method === "POST") {
       return handleStripeWebhook(request, env);
+    }
+
+    // Opened from an email (GET) or by a mail client's one-click
+    // unsubscribe (POST) — neither sends a site Origin; the signed token
+    // in the link is what guards it.
+    if (url.pathname === "/unsubscribe") {
+      return handleUnsubscribe(request, env, url);
     }
 
     // ── KEY DIAGNOSTIC ──────────────────────────────────────────
@@ -986,6 +1211,7 @@ export default {
       if (url.pathname === "/rewards/season") return handleSeasonClaim(request, env, origin);
       if (url.pathname === "/rewards/weekly") return handleWeeklyClaim(request, env, origin);
       if (url.pathname === "/rewards/weekly-results") return handleWeeklyResults(request, env, origin);
+      if (url.pathname === "/weekly-report/preview") return handleReportPreview(request, env, origin);
     }
 
     if (url.pathname !== "/ai" || request.method !== "POST") {
@@ -1049,5 +1275,10 @@ export default {
     } catch (err) {
       return json({ error: "Request failed: " + (err.message || "unknown") }, 502, origin);
     }
+  },
+
+  // Cron Trigger (see WEEKLY PARENT REPORT EMAIL above).
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runWeeklyReports(env).then((r) => console.log("weekly reports:", JSON.stringify(r))));
   }
 };

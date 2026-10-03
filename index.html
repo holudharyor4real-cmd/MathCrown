@@ -1492,6 +1492,8 @@ body{
 .child-stat-val{font-size:18px;font-weight:900;color:var(--sun);}
 .child-stat-lbl{font-size:10px;color:var(--text2);font-weight:700;margin-top:2px;}
 .wrong-q-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.15);border-radius:10px;margin-bottom:8px;}
+.daily-opt{justify-content:center;font-size:16px;padding:14px 10px;min-height:54px;white-space:normal;}
+.daily-strip{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 18px;}
 .mastery-opt.on{background:rgba(255,217,61,0.18);border-color:var(--sun);color:var(--sun);}
 .rules-body h4{font-size:15px;font-weight:900;margin:14px 0 4px;color:var(--sun);}
 .rules-body p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:6px;}
@@ -1637,6 +1639,11 @@ body{
       <div class="feat-pill">👨‍👩‍👧 Parent Dashboard</div>
       <div class="feat-pill">🏫 Grades K–12</div>
     </div>
+    <div class="daily-strip">
+      <button class="btn btn-sun" onclick="openDailyCrown()">👑 Play Today's Daily Crown</button>
+      <button class="btn btn-ghost" onclick="openFamilyDuel()">👨‍👩‍👧 Family Duel: Kids vs. Grown-ups</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin:-8px 0 18px">No signup needed. Five questions a day, the same for everyone in your grade.</div>
     <div class="cta-row">
       <button class="btn btn-sun" onclick="openModal('student')">🎮 Join Free as Student</button>
       <button class="btn btn-mint" onclick="openModal('parent')">👨‍👩‍👧 Parent Account</button>
@@ -2057,6 +2064,14 @@ body{
   </div>
 </div>
 
+<!-- ═══════════════ DAILY CROWN / FAMILY DUEL MODAL ═══════════════ -->
+<div class="modal-overlay" id="game-modal">
+  <div class="modal" style="max-width:520px">
+    <button class="modal-close" onclick="closeGameModal()" aria-label="Close">✕</button>
+    <div id="game-modal-body"></div>
+  </div>
+</div>
+
 <!-- ═══════════════ OFFICIAL REWARDS RULES ═══════════════ -->
 <div class="modal-overlay" id="rules-modal">
   <div class="modal rules-body" style="max-width:640px">
@@ -2346,6 +2361,9 @@ body{
           <button onclick="copyLinkCode()" class="btn btn-xs" style="background:rgba(6,214,160,0.15);border:1px solid var(--mint);color:var(--mint);border-radius:8px;padding:6px 14px">Copy</button>
         </div>
       </div>
+
+      <!-- Daily Crown + Family Duel — filled by renderDailyHomeCard() -->
+      <div class="card card-sun" id="home-daily-card" style="display:none;margin-bottom:16px;padding:18px"></div>
 
       <!-- Season Mastery Path summary — filled by renderSeasonCards() -->
       <div class="card card-mint" id="home-season-card" style="display:none;margin-bottom:16px;padding:18px"></div>
@@ -2934,7 +2952,7 @@ body{
           </div>
         </div>
         <div style="text-align:right">
-          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyReport()">📧 Weekly Reports</button>
+          <button class="btn btn-ghost btn-sm" onclick="var r=document.getElementById('parent-week-report');if(r)r.scrollIntoView({behavior:'smooth',block:'center'})">📧 Weekly Reports</button>
         </div>
       </div>
 
@@ -2970,25 +2988,21 @@ body{
         </div>
       </div>
 
-      <!-- Weekly Report Preview -->
+      <!-- This week + weekly email report (real data from each child's public profile) -->
       <div class="card" style="margin-top:16px">
-        <div class="sec-title" style="margin-bottom:14px">📊 Weekly Progress Report Preview</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">
-          When weekly reports are enabled, you will receive an email every Sunday showing each child's activity, improvement areas, and Season Mastery Path progress. Here is a preview of what it looks like:
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="sec-title" style="margin:0">📊 This Week</div>
+          <button class="btn btn-ghost btn-xs" onclick="openFamilyDuel()">👨‍👩‍👧 Start a Family Duel</button>
         </div>
-        <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:16px;border:1px solid var(--border)">
-          <div style="font-size:14px;font-weight:800;margin-bottom:10px;color:var(--sun)">📧 Sample Weekly Report — Week of March 24</div>
-          <div id="sample-report">
-            <div class="activity-row"><div class="activity-dot" style="background:var(--mint)"></div><span>Questions answered: <strong>47</strong> this week</span></div>
-            <div class="activity-row"><div class="activity-dot" style="background:var(--sun)"></div><span>MathCoins earned: <strong>320 coins</strong> this week</span></div>
-            <div class="activity-row"><div class="activity-dot" style="background:var(--sky)"></div><span>Challenges won: <strong>8 of 12</strong> — 67% win rate</span></div>
-            <div class="activity-row"><div class="activity-dot" style="background:var(--coral)"></div><span>Weak area detected: <strong>Fractions</strong> — 45% accuracy</span></div>
-            <div class="activity-row"><div class="activity-dot" style="background:var(--purple)"></div><span>AI Tutor sessions: <strong>3 sessions</strong> with Axiom</span></div>
-            <div class="activity-row" style="border:none"><div class="activity-dot" style="background:var(--mint)"></div><span>Season Mastery Path: <strong>5 of 8</strong> Weekly Goals complete</span></div>
-          </div>
-          <div style="margin-top:14px;font-size:12px;color:var(--text2)">
-            📧 Weekly reports will be sent to your registered email. 
-            <span style="color:var(--mint);font-weight:700">Coming with Firebase launch.</span>
+        <div id="parent-week-report"><div style="font-size:13px;color:var(--text2)">Loading…</div></div>
+        <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
+          <div style="font-weight:800;margin-bottom:4px">📧 Weekly email report</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px">Every Monday morning: each child's questions, accuracy compared to their usual, Weekly Goal, Season Mastery Path progress, streak and the topic that needs practice.</div>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer">
+              <input type="checkbox" id="parent-report-toggle" checked onchange="setParentReportSetting(this.checked)"> Send me the weekly report
+            </label>
+            <button class="btn btn-sun btn-xs" id="parent-sample-btn" onclick="sendParentSampleReport()">📧 Email me a sample now</button>
           </div>
         </div>
       </div>
@@ -3128,7 +3142,7 @@ var S = {
   plan:"free", linkCode:"",
   coinCapDate:"", coinCapEarned:0, coinCapNotified:false,
   myRedemptions:[], recentEarnings:[],
-  week:null, prevWeek:null, seasonProgress:null, lastPlayDay:"", streakShields:0, owned:[], titleId:"", lastMasteryPassMs:0
+  week:null, prevWeek:null, seasonProgress:null, lastPlayDay:"", streakShields:0, owned:[], titleId:"", lastMasteryPassMs:0, dailyCrown:null
 };
 
 // ═══ AXIOM ACCESS CONTROL ═══
@@ -3264,13 +3278,14 @@ function rewardsLive(){ return mcWeekId()>=REWARDS_START_WEEK; }
 
 function resetLearningState(){
   S.week=null; S.prevWeek=null; S.seasonProgress=null; S.lastPlayDay=""; S.streakShields=0;
-  S.owned=[]; S.titleId=""; S.lastMasteryPassMs=0;
+  S.owned=[]; S.titleId=""; S.lastMasteryPassMs=0; S.dailyCrown=null;
 }
 function restoreLearningState(d){
   d=d||{};
   S.week=d.week||null; S.prevWeek=d.prevWeek||null; S.seasonProgress=d.seasonProgress||null;
   S.lastPlayDay=d.lastPlayDay||""; S.streakShields=d.streakShields||0;
   S.owned=Array.isArray(d.owned)?d.owned:[]; S.titleId=d.titleId||""; S.lastMasteryPassMs=d.lastMasteryPassMs||0;
+  S.dailyCrown=d.dailyCrown||null;
   // Avatars used to unlock by coin BALANCE; they're bought now. Keep
   // whatever was already equipped.
   var eq=AVATAR_CATALOG.find(function(a){ return a.id===S.avatarId; });
@@ -3283,7 +3298,7 @@ function restoreLearningState(d){
 function learningStateForSave(){
   return { week:S.week||null, prevWeek:S.prevWeek||null, seasonProgress:S.seasonProgress||null,
     lastPlayDay:S.lastPlayDay||"", streakShields:S.streakShields||0, owned:S.owned||[], titleId:S.titleId||"",
-    lastMasteryPassMs:S.lastMasteryPassMs||0 };
+    lastMasteryPassMs:S.lastMasteryPassMs||0, dailyCrown:S.dailyCrown||null };
 }
 
 function allTimeTotals(){
@@ -3607,6 +3622,351 @@ function submitRewardClaim(kind, choice){
 }
 function openRewardsRules(){ var m=$$("rules-modal"); if(m) m.classList.add("open"); }
 function closeRewardsRules(){ var m=$$("rules-modal"); if(m) m.classList.remove("open"); }
+
+// ═══ DAILY CROWN ═══
+// Five questions a day, the same for everyone in a grade band (picked
+// with a date-seeded shuffle of the built-in question bank), with a
+// shareable emoji result. Playable without an account — it's the front
+// door for families who haven't signed up yet.
+var DAILY_LAUNCH_DAY = "2026-10-03";
+var BAND_LABEL = { grades_1_3:"Grades K–3", grades_4_5:"Grades 4–5", grades_6_8:"Grades 6–8", grades_9_10:"Grades 9–10", grades_11_12:"Grades 11–12" };
+var DAILY = null;
+var GAME_TIMER = null;
+
+function dailyNumber(day){ return Math.round((Date.parse(day+"T12:00:00Z")-Date.parse(DAILY_LAUNCH_DAY+"T12:00:00Z"))/864e5)+1; }
+function seededRandom(str){
+  var h=2166136261>>>0;
+  for(var i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
+  var a=h;
+  return function(){
+    a=(a+0x6D2B79F5)>>>0;
+    var t=a; t=Math.imul(t^(t>>>15), t|1); t^=t+Math.imul(t^(t>>>7), t|61);
+    return ((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+function dailyQuestions(day, band){
+  var bank=QUESTION_BANK[band]||QUESTION_BANK.grades_6_8, rnd=seededRandom("daily|"+day+"|"+band);
+  var topics=Object.keys(bank).sort();
+  for(var i=topics.length-1;i>0;i--){ var j=Math.floor(rnd()*(i+1)); var t=topics[i]; topics[i]=topics[j]; topics[j]=t; }
+  var out=[];
+  for(var k=0;k<5;k++){
+    var tp=topics[k%topics.length], list=bank[tp], q=list[Math.floor(rnd()*list.length)];
+    out.push({q:q.q, a:q.a, c:q.c, topic:tp});
+  }
+  return out;
+}
+function signedInStudent(){ return !!(S.name && !S.isPreview); }
+function dailyBandDefault(){
+  if(signedInStudent()) return gradeBand(S.gradeNum);
+  try{ var b=localStorage.getItem("mc_daily_band"); if(BAND_LABEL[b]) return b; }catch(e){}
+  return "grades_6_8";
+}
+function dailyResultFor(day, band){
+  if(signedInStudent() && S.dailyCrown && S.dailyCrown.day===day && S.dailyCrown.band===band) return S.dailyCrown;
+  try{ var r=JSON.parse(localStorage.getItem("mc_daily_"+day+"_"+band)||"null"); if(r) return r; }catch(e){}
+  return null;
+}
+function dailyShareText(res){
+  return "👑 MathCrown Daily #"+dailyNumber(res.day)+" · "+BAND_LABEL[res.band]+"\n"
+    +res.marks.map(function(m){ return m?"🟩":"🟥"; }).join("")+" "+res.score+"/5 in "+res.time+"s\nmymathcrown.com";
+}
+function openGameModal(html){
+  var m=$$("game-modal"); if(!m) return;
+  $$("game-modal-body").innerHTML=html;
+  m.classList.add("open");
+}
+function closeGameModal(){
+  var m=$$("game-modal"); if(m) m.classList.remove("open");
+  if(GAME_TIMER){ clearInterval(GAME_TIMER); GAME_TIMER=null; }
+  if(signedInStudent()) renderDailyHomeCard();
+}
+function openDailyCrown(band){
+  var day=mcDayId();
+  band=band||dailyBandDefault();
+  var done=dailyResultFor(day, band);
+  if(done){ renderDailyResult(done); return; }
+  var picker=signedInStudent() ? "<div class='badge b-mint'>"+BAND_LABEL[band]+"</div>"
+    : "<label class='form-label' for='daily-band'>Your grade</label><select class='form-select' id='daily-band' onchange='openDailyCrown(this.value)'>"
+      +Object.keys(BAND_LABEL).map(function(k){ return "<option value='"+k+"'"+(k===band?" selected":"")+">"+BAND_LABEL[k]+"</option>"; }).join("")+"</select>";
+  openGameModal("<div class='modal-title'>👑 Daily Crown #"+dailyNumber(day)+"</div>"
+    +"<div class='modal-sub' style='margin-bottom:16px'>5 questions. Everyone in your grade gets the same ones today. Be accurate first, then fast. One try a day!</div>"
+    +"<div style='margin-bottom:18px'>"+picker+"</div>"
+    +"<button class='btn btn-sun' style='width:100%' onclick=\"startDailyCrown('"+band+"')\">▶ Start</button>"
+    +(signedInStudent()?"":"<div style='font-size:12px;color:var(--text2);text-align:center;margin-top:10px'>No account needed. Sign up free to keep a streak and earn MathCoins.</div>"));
+}
+function startDailyCrown(band){
+  try{ if(!signedInStudent()) localStorage.setItem("mc_daily_band", band); }catch(e){}
+  DAILY={day:mcDayId(), band:band, qs:dailyQuestions(mcDayId(), band), idx:0, marks:[], start:Date.now(), locked:false};
+  renderDailyQuestion();
+  if(GAME_TIMER) clearInterval(GAME_TIMER);
+  GAME_TIMER=setInterval(function(){
+    var t=$$("daily-clock"); if(t && DAILY) t.textContent=((Date.now()-DAILY.start)/1000).toFixed(1)+"s";
+  },100);
+}
+function renderDailyQuestion(){
+  var q=DAILY.qs[DAILY.idx];
+  var dots=DAILY.qs.map(function(_,i){
+    var bg=i<DAILY.marks.length?(DAILY.marks[i]?"var(--mint)":"var(--coral)"):(i===DAILY.idx?"var(--sun)":"rgba(255,255,255,0.12)");
+    return "<span style='display:inline-block;width:28px;height:8px;border-radius:4px;margin:0 3px;background:"+bg+"'></span>";
+  }).join("");
+  openGameModal("<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-right:44px'><div style='font-family:\"Fredoka One\",cursive;font-size:20px'>👑 Daily #"+dailyNumber(DAILY.day)+"</div>"
+    +"<div id='daily-clock' style='font-weight:900;color:var(--sun);font-variant-numeric:tabular-nums'>0.0s</div></div>"
+    +"<div style='text-align:center;margin-bottom:16px'>"+dots+"</div>"
+    +"<div style='font-size:20px;font-weight:800;text-align:center;margin:10px 0 18px;line-height:1.4'>"+escHtml(q.q)+"</div>"
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px'>"
+    +q.a.map(function(ans,i){ return "<button class='btn btn-ghost daily-opt' id='daily-opt-"+i+"' onclick='answerDaily("+i+")'>"+escHtml(ans)+"</button>"; }).join("")
+    +"</div>");
+}
+function answerDaily(i){
+  if(!DAILY || DAILY.locked) return;
+  DAILY.locked=true;
+  var q=DAILY.qs[DAILY.idx], right=i===q.c;
+  DAILY.marks.push(right);
+  var ok=$$("daily-opt-"+q.c); if(ok) ok.style.cssText="background:rgba(6,214,160,0.3);border-color:var(--mint)";
+  if(!right){ var bad=$$("daily-opt-"+i); if(bad) bad.style.cssText="background:rgba(255,107,107,0.25);border-color:var(--coral)"; }
+  if(signedInStudent()) recordTopicAnswer(q.topic, right);
+  try{ if(right) sndCorrect(); else sndWrong(); }catch(e){}
+  setTimeout(function(){
+    DAILY.idx++; DAILY.locked=false;
+    if(DAILY.idx<DAILY.qs.length) renderDailyQuestion(); else finishDailyCrown();
+  }, right?450:900);
+}
+function finishDailyCrown(){
+  if(GAME_TIMER){ clearInterval(GAME_TIMER); GAME_TIMER=null; }
+  var score=DAILY.marks.filter(Boolean).length;
+  var res={day:DAILY.day, band:DAILY.band, score:score, time:Math.round((Date.now()-DAILY.start)/100)/10, marks:DAILY.marks.slice()};
+  try{ localStorage.setItem("mc_daily_"+res.day+"_"+res.band, JSON.stringify(res)); }catch(e){}
+  if(signedInStudent()){
+    var prev=S.dailyCrown;
+    res.streak=(prev && prev.day===mcDayId(Date.now()-864e5)) ? (prev.streak||1)+1 : 1;
+    S.dailyCrown=res;
+    awardCoins(5+5*score, "Daily Crown #"+dailyNumber(res.day));
+    saveSession();
+  }
+  DAILY=null;
+  renderDailyResult(res);
+}
+function msUntilNextDaily(){
+  var now=Date.now(), d=new Date(now+MC_TZ_OFFSET_MS);
+  var next=Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()+1)-MC_TZ_OFFSET_MS;
+  return next-now;
+}
+function renderDailyResult(res){
+  var text=dailyShareText(res);
+  var h=Math.floor(msUntilNextDaily()/3600000), m=Math.floor(msUntilNextDaily()%3600000/60000);
+  var verdict=res.score===5?"Perfect crown! 👑":res.score>=4?"So close to perfect!":res.score>=3?"Nice work!":"Tomorrow's a new crown!";
+  var html="<div class='modal-title'>👑 Daily Crown #"+dailyNumber(res.day)+"</div>"
+    +"<div class='modal-sub' style='margin-bottom:10px'>"+BAND_LABEL[res.band]+" · "+verdict+"</div>"
+    +"<div style='text-align:center;font-size:34px;letter-spacing:4px;margin:6px 0'>"+res.marks.map(function(x){ return x?"🟩":"🟥"; }).join("")+"</div>"
+    +"<div style='text-align:center;font-family:\"Fredoka One\",cursive;font-size:30px;color:var(--sun)'>"+res.score+"/5 in "+res.time+"s</div>"
+    +(res.streak>1?"<div style='text-align:center;font-size:13px;color:var(--mint);margin-top:4px'>🔥 "+res.streak+"-day Daily Crown streak</div>":"")
+    +"<textarea id='daily-share-text' class='form-input' readonly rows='3' style='width:100%;margin:14px 0 8px;font-size:13px;resize:none'>"+escHtml(text)+"</textarea>"
+    +"<div style='display:flex;gap:8px;flex-wrap:wrap'><button class='btn btn-sun btn-sm' style='flex:1' onclick='copyDailyShare()'>📋 Copy result</button>"
+    +(navigator.share?"<button class='btn btn-mint btn-sm' style='flex:1;color:var(--dark)' onclick='shareDaily()'>📤 Share</button>":"")+"</div>"
+    +"<div style='font-size:12px;color:var(--text2);text-align:center;margin-top:10px'>Next Daily Crown in "+h+"h "+m+"m</div>"
+    +"<div id='daily-board' style='margin-top:14px'></div>";
+  if(!signedInStudent()){
+    html+="<div class='card' style='margin-top:14px;padding:14px;text-align:center'><div style='font-weight:800;margin-bottom:8px'>Keep your streak going</div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-bottom:10px'>Free accounts earn MathCoins, keep a streak, and can win Weekly Champions prizes.</div>"
+      +"<button class='btn btn-sun btn-sm' onclick=\"closeGameModal();openModal('student')\">Join free as a student</button> "
+      +"<button class='btn btn-ghost btn-sm' onclick='openFamilyDuel()'>👨‍👩‍👧 Family Duel</button></div>";
+  }
+  openGameModal(html);
+  if(signedInStudent() && window.fetchDailyBoard){
+    window.fetchDailyBoard(res.day).then(function(rows){
+      var el=$$("daily-board"); if(!el || !rows) return;
+      var top=rows.filter(function(r){ return r.dcBand===res.band; })
+        .sort(function(a,b){ return (b.dcScore-a.dcScore) || (a.dcTime-b.dcTime); }).slice(0,5);
+      if(!top.length) return;
+      el.innerHTML="<div class='sec-title' style='font-size:14px;margin-bottom:6px'>Today's top crowns · "+BAND_LABEL[res.band]+"</div>"
+        +top.map(function(r,i){ return "<div class='earn-row'><div style='width:26px;font-weight:900'>"+(i+1)+"</div><div style='flex:1;font-weight:700'>"+escHtml(r.displayLabel||"Player")+"</div><div style='color:var(--sun);font-weight:800'>"+r.dcScore+"/5 · "+r.dcTime+"s</div></div>"; }).join("");
+    });
+  }
+}
+function copyDailyShare(){
+  var ta=$$("daily-share-text"); if(!ta) return;
+  var done=function(){ showToast("📋 Copied! Paste it in your family chat."); };
+  if(navigator.clipboard){ navigator.clipboard.writeText(ta.value).then(done).catch(function(){ ta.select(); document.execCommand("copy"); done(); }); }
+  else { ta.select(); document.execCommand("copy"); done(); }
+}
+function shareDaily(){
+  var ta=$$("daily-share-text"); if(ta && navigator.share) navigator.share({text:ta.value}).catch(function(){});
+}
+function renderDailyHomeCard(){
+  var el=$$("home-daily-card"); if(!el) return;
+  if(!signedInStudent()){ el.style.display="none"; return; }
+  el.style.display="block";
+  var day=mcDayId(), band=gradeBand(S.gradeNum), res=dailyResultFor(day, band);
+  el.innerHTML="<div style='display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap'>"
+    +"<div><div style='font-family:\"Fredoka One\",cursive;font-size:19px'>👑 Daily Crown #"+dailyNumber(day)+"</div>"
+    +"<div style='font-size:13px;color:var(--text2);margin-top:2px'>"+(res
+      ? "Today: "+res.marks.map(function(x){ return x?"🟩":"🟥"; }).join("")+" "+res.score+"/5 in "+res.time+"s"+(res.streak>1?" · 🔥 "+res.streak+"-day streak":"")
+      : "5 questions, same for everyone in "+BAND_LABEL[band]+". One try a day.")+"</div></div>"
+    +"<div style='display:flex;gap:8px;flex-wrap:wrap'><button class='btn btn-sun btn-sm' onclick='openDailyCrown()'>"+(res?"📤 Share result":"▶ Play today's")+"</button>"
+    +"<button class='btn btn-ghost btn-sm' onclick='openFamilyDuel()'>👨‍👩‍👧 Family Duel</button></div></div>";
+}
+
+// ═══ FAMILY DUEL ═══
+// Pass-and-play on one device for 2–4 players. Everyone answers questions
+// at their OWN level, so a 3rd grader can beat a parent fair and square.
+var FAMILY = null;
+var FAMILY_TURN_SECONDS = 15;
+function familyDefaults(){
+  if(PARENT.isLoggedIn && PARENT.children && PARENT.children.length){
+    return PARENT.children.slice(0,3).map(function(c){ return {name:firstNameOf(c.name), band:gradeBand(parseInt(c.grade,10)||5)}; })
+      .concat([{name:firstNameOf(PARENT.name)||"Grown-up", band:"grades_9_10"}]);
+  }
+  if(signedInStudent()) return [{name:firstNameOf(S.name), band:gradeBand(S.gradeNum), me:true}, {name:"Grown-up", band:"grades_9_10"}];
+  return [{name:"Kid", band:"grades_4_5"}, {name:"Grown-up", band:"grades_9_10"}];
+}
+function firstNameOf(n){ return String(n||"").trim().split(/\s+/)[0]; }
+function openFamilyDuel(){
+  if(GAME_TIMER){ clearInterval(GAME_TIMER); GAME_TIMER=null; }
+  FAMILY={players:familyDefaults(), rounds:5};
+  renderFamilySetup();
+}
+function readFamilySetup(){
+  FAMILY.players=FAMILY.players.map(function(p,i){
+    var n=$$("fd-name-"+i), b=$$("fd-band-"+i);
+    return {name:(n&&n.value.trim())||("Player "+(i+1)), band:b?b.value:p.band, me:p.me&&i===0};
+  });
+  var r=$$("fd-rounds"); if(r) FAMILY.rounds=parseInt(r.value,10)||5;
+}
+function familyAddPlayer(){ readFamilySetup(); if(FAMILY.players.length<4) FAMILY.players.push({name:"Player "+(FAMILY.players.length+1), band:"grades_4_5"}); renderFamilySetup(); }
+function familyRemovePlayer(i){ readFamilySetup(); if(FAMILY.players.length>2) FAMILY.players.splice(i,1); renderFamilySetup(); }
+function renderFamilySetup(){
+  var rows=FAMILY.players.map(function(p,i){
+    return "<div style='display:flex;gap:8px;align-items:center;margin-bottom:8px'>"
+      +"<input class='form-input' id='fd-name-"+i+"' maxlength='16' value='"+escHtml(p.name)+"' aria-label='Player "+(i+1)+" name' style='flex:1;min-width:0'>"
+      +"<select class='form-select' id='fd-band-"+i+"' aria-label='Player "+(i+1)+" level' style='flex:1;min-width:0'>"
+      +Object.keys(BAND_LABEL).map(function(k){ return "<option value='"+k+"'"+(k===p.band?" selected":"")+">"+BAND_LABEL[k]+"</option>"; }).join("")+"</select>"
+      +(FAMILY.players.length>2?"<button class='btn btn-ghost btn-xs' onclick='familyRemovePlayer("+i+")' aria-label='Remove player'>✕</button>":"")
+      +"</div>";
+  }).join("");
+  openGameModal("<div class='modal-title'>👨‍👩‍👧 Family Duel</div>"
+    +"<div class='modal-sub' style='margin-bottom:16px'>Pass one phone or laptop around. Everyone answers questions at their own level, so kids can beat the grown-ups. Correct answers score 100, plus up to 50 for speed.</div>"
+    +rows
+    +(FAMILY.players.length<4?"<button class='btn btn-ghost btn-xs' style='margin-bottom:14px' onclick='familyAddPlayer()'>+ Add player</button>":"")
+    +"<div style='display:flex;gap:10px;align-items:center;margin-bottom:16px'><label class='form-label' for='fd-rounds' style='margin:0'>Rounds</label>"
+    +"<select class='form-select' id='fd-rounds' style='max-width:110px'>"+[3,5,7].map(function(n){ return "<option"+(n===FAMILY.rounds?" selected":"")+">"+n+"</option>"; }).join("")+"</select></div>"
+    +"<button class='btn btn-sun' style='width:100%' onclick='startFamilyDuel()'>▶ Start Family Duel</button>");
+}
+function startFamilyDuel(){
+  readFamilySetup();
+  FAMILY.players.forEach(function(p){ p.score=0; p.right=0; });
+  FAMILY.round=1; FAMILY.turn=0; FAMILY.used={};
+  showFamilyPass();
+}
+function showFamilyPass(){
+  var p=FAMILY.players[FAMILY.turn];
+  openGameModal("<div style='text-align:center;padding:20px 0'>"
+    +"<div style='font-size:13px;color:var(--text2);letter-spacing:1px;text-transform:uppercase'>Round "+FAMILY.round+" of "+FAMILY.rounds+"</div>"
+    +"<div style='font-family:\"Fredoka One\",cursive;font-size:32px;margin:12px 0 4px'>Pass to "+escHtml(p.name)+"</div>"
+    +"<div style='font-size:13px;color:var(--text2);margin-bottom:22px'>"+BAND_LABEL[p.band]+" · "+FAMILY_TURN_SECONDS+" seconds</div>"
+    +"<button class='btn btn-sun' onclick='playFamilyTurn()'>I'm ready!</button>"
+    +"<div style='margin-top:22px;font-size:13px;color:var(--text2)'>"+FAMILY.players.map(function(x){ return escHtml(x.name)+" "+x.score; }).join(" · ")+"</div></div>");
+}
+function pickFamilyQuestion(band){
+  var bank=QUESTION_BANK[band]||QUESTION_BANK.grades_6_8, topics=Object.keys(bank);
+  for(var tries=0; tries<40; tries++){
+    var tp=topics[Math.floor(Math.random()*topics.length)], list=bank[tp], q=list[Math.floor(Math.random()*list.length)];
+    if(!FAMILY.used[q.q]){ FAMILY.used[q.q]=true; return {q:q.q, a:q.a, c:q.c, topic:tp}; }
+  }
+  return {q:q.q, a:q.a, c:q.c, topic:tp};
+}
+function playFamilyTurn(){
+  var p=FAMILY.players[FAMILY.turn], q=pickFamilyQuestion(p.band);
+  FAMILY.q=q; FAMILY.answered=false; FAMILY.endsAt=Date.now()+FAMILY_TURN_SECONDS*1000;
+  openGameModal("<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-right:44px'><div style='font-weight:800'>"+escHtml(p.name)+"</div>"
+    +"<div id='fd-clock' style='font-weight:900;color:var(--sun);font-variant-numeric:tabular-nums'>"+FAMILY_TURN_SECONDS+"s</div></div>"
+    +"<div class='prog-wrap'><div class='prog-fill' id='fd-bar' style='width:100%;background:var(--sun);transition:width .1s linear'></div></div>"
+    +"<div style='font-size:20px;font-weight:800;text-align:center;margin:20px 0;line-height:1.4'>"+escHtml(q.q)+"</div>"
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px'>"
+    +q.a.map(function(ans,i){ return "<button class='btn btn-ghost daily-opt' id='fd-opt-"+i+"' onclick='answerFamily("+i+")'>"+escHtml(ans)+"</button>"; }).join("")
+    +"</div><div id='fd-feedback' style='text-align:center;font-weight:800;margin-top:14px;min-height:22px'></div>");
+  if(GAME_TIMER) clearInterval(GAME_TIMER);
+  GAME_TIMER=setInterval(function(){
+    var left=Math.max(0, FAMILY.endsAt-Date.now());
+    var c=$$("fd-clock"), b=$$("fd-bar");
+    if(c) c.textContent=Math.ceil(left/1000)+"s";
+    if(b) b.style.width=(left/(FAMILY_TURN_SECONDS*10))+"%";
+    if(!left) answerFamily(-1);
+  },100);
+}
+function answerFamily(i){
+  if(!FAMILY || FAMILY.answered) return;
+  FAMILY.answered=true;
+  if(GAME_TIMER){ clearInterval(GAME_TIMER); GAME_TIMER=null; }
+  var p=FAMILY.players[FAMILY.turn], q=FAMILY.q, right=i===q.c;
+  try{ if(right) sndCorrect(); else sndWrong(); }catch(e){}
+  var left=Math.max(0, FAMILY.endsAt-Date.now())/1000;
+  var pts=right ? 100+Math.round(50*left/FAMILY_TURN_SECONDS) : 0;
+  p.score+=pts; if(right) p.right++;
+  if(p.me) recordTopicAnswer(q.topic, right);
+  var ok=$$("fd-opt-"+q.c); if(ok) ok.style.cssText="background:rgba(6,214,160,0.3);border-color:var(--mint)";
+  if(!right && i>-1){ var bad=$$("fd-opt-"+i); if(bad) bad.style.cssText="background:rgba(255,107,107,0.25);border-color:var(--coral)"; }
+  var fb=$$("fd-feedback"); if(fb) fb.innerHTML=right?"<span style='color:var(--mint)'>✅ +"+pts+" points!</span>":(i<0?"⏱️ Time's up!":"<span style='color:var(--coral)'>Not this time!</span>");
+  setTimeout(function(){
+    FAMILY.turn++;
+    if(FAMILY.turn>=FAMILY.players.length){ FAMILY.turn=0; FAMILY.round++; }
+    if(FAMILY.round>FAMILY.rounds) finishFamilyDuel(); else showFamilyPass();
+  }, 1300);
+}
+function finishFamilyDuel(){
+  var ranked=FAMILY.players.slice().sort(function(a,b){ return b.score-a.score; });
+  var tie=ranked.length>1 && ranked[0].score===ranked[1].score;
+  var me=FAMILY.players.find(function(p){ return p.me; });
+  if(me && signedInStudent()){
+    if(!tie && ranked[0]===me) awardCoins(20, "Family Duel win"); else awardCoins(5, "Family Duel");
+    saveSession();
+  }
+  var share="👑 MathCrown Family Duel\n"+ranked.map(function(p,i){ return (i===0&&!tie?"👑 ":"")+p.name+" "+p.score; }).join(" · ")+"\nmymathcrown.com";
+  openGameModal("<div class='modal-title'>"+(tie?"🤝 It's a tie!":"👑 "+escHtml(ranked[0].name)+" takes the crown!")+"</div>"
+    +"<div class='modal-sub' style='margin-bottom:14px'>"+FAMILY.rounds+" rounds · everyone at their own level</div>"
+    +ranked.map(function(p,i){ return "<div class='earn-row'><div style='width:30px;font-size:20px'>"+(i===0&&!tie?"👑":(i+1))+"</div><div style='flex:1'><div style='font-weight:800'>"+escHtml(p.name)+"</div><div style='font-size:12px;color:var(--text2)'>"+p.right+"/"+FAMILY.rounds+" correct · "+BAND_LABEL[p.band]+"</div></div><div style='font-family:\"Fredoka One\",cursive;font-size:22px;color:var(--sun)'>"+p.score+"</div></div>"; }).join("")
+    +"<textarea id='daily-share-text' class='form-input' readonly rows='3' style='width:100%;margin:14px 0 8px;font-size:13px;resize:none'>"+escHtml(share)+"</textarea>"
+    +"<div style='display:flex;gap:8px;flex-wrap:wrap'><button class='btn btn-sun btn-sm' style='flex:1' onclick='startFamilyDuel()'>🔁 Rematch</button>"
+    +"<button class='btn btn-ghost btn-sm' style='flex:1' onclick='copyDailyShare()'>📋 Copy result</button>"
+    +"<button class='btn btn-ghost btn-sm' style='flex:1' onclick='renderFamilySetup()'>Change players</button></div>");
+}
+
+// ═══ PARENT: THIS WEEK + WEEKLY EMAIL ═══
+function renderParentWeekly(){
+  var el=$$("parent-week-report"); if(!el) return;
+  var kids=PARENT.children||[];
+  if(!kids.length){ el.innerHTML="<div style='font-size:13px;color:var(--text2)'>Link a child to see their week here.</div>"; return; }
+  var wk=mcWeekId(), sid=mcSeasonId(wk);
+  el.innerHTML=kids.map(function(c){
+    var w=(c.week && c.week.id===wk)?c.week:{answered:0,correct:0,baseAcc:0,baseN:0};
+    var acc=w.answered?Math.round(w.correct/w.answered*100):0;
+    var change=(w.answered>=10 && w.baseN>=WEEKLY_MIN_ANSWERS)?acc-Math.round(w.baseAcc*100):null;
+    var goal=w.answered>=WEEKLY_GOAL_ANSWERS && acc>=WEEKLY_GOAL_ACCURACY*100;
+    var season=(c.seasonId===sid)?(c.seasonDone||0):0;
+    return "<div class='card' style='padding:14px;margin-bottom:10px'><div style='font-weight:800;margin-bottom:8px'>"+escHtml(c.name)+"</div>"
+      +"<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center'>"
+      +"<div><div style='font-size:20px;font-weight:900;color:var(--sun)'>"+w.answered+"</div><div style='font-size:11px;color:var(--text2)'>questions</div></div>"
+      +"<div><div style='font-size:20px;font-weight:900;color:var(--mint)'>"+(w.answered?acc+"%":"—")+"</div><div style='font-size:11px;color:var(--text2)'>accuracy</div></div>"
+      +"<div><div style='font-size:20px;font-weight:900;color:var(--sky)'>"+(change===null?"—":(change>0?"+":"")+change+"%")+"</div><div style='font-size:11px;color:var(--text2)'>vs. usual</div></div></div>"
+      +"<div style='font-size:12px;color:var(--text2);margin-top:8px'>"+(goal?"🎯 Weekly Goal complete":"🎯 Weekly Goal: "+w.answered+"/"+WEEKLY_GOAL_ANSWERS+" at 75%+")
+      +(rewardsLive()?" · 🏁 Season path "+season+"/"+SEASON_WEEKS_REQUIRED:"")+"</div></div>";
+  }).join("");
+}
+function loadParentReportSetting(){
+  var t=$$("parent-report-toggle"); if(!t || !window.loadProgress) return;
+  window.loadProgress().then(function(d){ t.checked=!(d && d.weeklyReport===false); }).catch(function(){});
+}
+function setParentReportSetting(on){
+  if(!window.setWeeklyReport){ showToast("Please sign in again."); return; }
+  window.setWeeklyReport(on).then(function(ok){ showToast(ok?(on?"📧 Weekly reports on. They arrive Monday mornings.":"Weekly reports off."):"Couldn't save that. Try again."); });
+}
+function sendParentSampleReport(){
+  if(!window.mcAuthedPost){ showToast("Please sign in again."); return; }
+  var b=$$("parent-sample-btn"); if(b){ b.disabled=true; b.textContent="Sending…"; }
+  window.mcAuthedPost("/weekly-report/preview",{}).then(function(res){
+    if(b){ b.disabled=false; b.textContent="📧 Email me a sample now"; }
+    showToast(res.ok?"📧 Sample sent to "+res.data.to+". Check your inbox.":(res.data.error||"Couldn't send the sample."));
+  });
+}
 
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[], coveredChildren:[] };
 var TEACHER = { name:"", email:"", school:"", classCode:"", isLoggedIn:false };
@@ -4630,6 +4990,7 @@ function renderHome(){
   if(S.classCode) checkClassSession();
   renderUpgradeNudge();
   renderSeasonCards();
+  renderDailyHomeCard();
 }
 
 // Free signed-in students only. Hidden in Preview Mode on purpose: a demo
@@ -6543,6 +6904,8 @@ function renderParentDash(){
   var pa=$$("p-dash-avatar"); if(pa) pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
   renderParentPlan();
   renderChildrenList();
+  renderParentWeekly();
+  loadParentReportSetting();
   refreshParentChildren();
 }
 
@@ -6594,6 +6957,7 @@ function refreshParentChildren(){
     }
     renderParentPlan();
     renderChildrenList();
+    renderParentWeekly();
   });
 }
 
@@ -7658,6 +8022,10 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       const wkS = learning.week, pw = learning.prevWeek;
       if (wkS) Object.assign(pub, { wk: wkS.id, wkAnswered: wkS.answered, wkCorrect: wkS.correct, wkBaseAcc: wkS.baseAcc, wkBaseN: wkS.baseN });
       if (pw) Object.assign(pub, { prevWk: pw.id, prevWkAnswered: pw.answered, prevWkCorrect: pw.correct, prevWkBaseAcc: pw.baseAcc, prevWkBaseN: pw.baseN });
+      // Season progress count (for the Parent Dashboard) and today's Daily Crown (for its mini leaderboard).
+      if (learning.seasonProgress) Object.assign(pub, { seasonId: learning.seasonProgress.id, seasonDone: window.seasonWeeksDone ? window.seasonWeeksDone() : 0 });
+      const dc = learning.dailyCrown;
+      if (dc) Object.assign(pub, { dcDay: dc.day, dcBand: dc.band, dcScore: dc.score, dcTime: dc.time });
       await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
     } catch(e) {}
     // Private, teacher-visible-only mastery data — deliberately NOT in
@@ -7842,6 +8210,25 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     }
   };
 
+  // Today's Daily Crown results (public_profiles mirror only).
+  window.fetchDailyBoard = async function(day) {
+    try {
+      const snap = await getDocs(query(collection(db, "public_profiles"), where("dcDay", "==", day), limit(300)));
+      return snap.docs.map(d => d.data());
+    } catch (e) {
+      console.log("fetchDailyBoard error:", e.message);
+      return null;
+    }
+  };
+
+  // Parent's own weekly-email preference (users/{uid}.weeklyReport).
+  window.setWeeklyReport = async function(on) {
+    const user = auth.currentUser;
+    if (!user) return false;
+    try { await updateDoc(doc(db, "users", user.uid), { weeklyReport: !!on }); return true; }
+    catch (e) { console.log("setWeeklyReport error:", e.message); return false; }
+  };
+
   // This week's Weekly Champions standings (public_profiles mirror only).
   window.fetchWeeklyBoard = async function(weekId) {
     try {
@@ -7936,6 +8323,8 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
           name: prof.displayLabel || link.name || "Student",
           grade: prof.grade ? (prof.grade + "th") : (link.grade ? link.grade + "th" : ""),
           xp: prof.xp || 0, level: prof.level || 1, wins: prof.wins || 0, coins: prof.coins || 0,
+          week: prof.wk ? { id: prof.wk, answered: prof.wkAnswered || 0, correct: prof.wkCorrect || 0, baseAcc: prof.wkBaseAcc || 0, baseN: prof.wkBaseN || 0 } : null,
+          seasonId: prof.seasonId || "", seasonDone: prof.seasonDone || 0,
           topicStats: topicStats,
           pendingRedemptions: pending
         };

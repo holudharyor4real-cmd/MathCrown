@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v6 - + Stripe webhook keeps plan in sync server-side)
+ * MathCrown API Worker  (v7 - + parent subscriptions cover linked children)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -244,17 +244,106 @@ async function getFirestoreAccessToken(env) {
   return data.access_token;
 }
 
-// Partial update — only ever touches the `plan` field on users/{uid},
-// via Firestore's updateMask so nothing else on the document is disturbed.
-async function setUserPlan(env, uid, planKey) {
-  if (!uid) return;
+const FS_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+
+// uids go straight into Firestore REST paths, so anything that isn't a
+// plain Firebase-style id (e.g. containing "/" or "..") is rejected.
+function isValidUid(uid) {
+  return typeof uid === "string" && /^[A-Za-z0-9]{10,128}$/.test(uid);
+}
+
+async function fsFetch(env, path, opts) {
   const token = await getFirestoreAccessToken(env);
-  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=plan`;
-  await fetch(url, {
-    method: "PATCH",
-    headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
-    body: JSON.stringify({ fields: { plan: { stringValue: planKey } } })
+  return fetch(FS_BASE + path, {
+    ...opts,
+    headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" }
   });
+}
+
+async function fsGetDoc(env, path) {
+  const res = await fsFetch(env, path, { method: "GET" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Firestore read ${path} failed: ${res.status}`);
+  return res.json();
+}
+
+function fsStr(doc, field) {
+  return (doc && doc.fields && doc.fields[field] && doc.fields[field].stringValue) || "";
+}
+
+// Partial update via updateMask, so only the listed fields change. With
+// mustExist, a missing document is skipped instead of being created (a
+// stale parent link must never conjure up a half-empty users/{uid} doc).
+async function fsPatch(env, path, fields, mustExist) {
+  const params = Object.keys(fields).map((f) => "updateMask.fieldPaths=" + encodeURIComponent(f));
+  if (mustExist) params.push("currentDocument.exists=true");
+  const body = { fields: {} };
+  for (const [k, v] of Object.entries(fields)) {
+    body.fields[k] = (v && v.timestamp) ? { timestampValue: v.timestamp } : { stringValue: String(v) };
+  }
+  const res = await fsFetch(env, path + "?" + params.join("&"), { method: "PATCH", body: JSON.stringify(body) });
+  if (res.ok) return true;
+  if (mustExist && res.status === 404) return false;
+  throw new Error(`Firestore write ${path} failed: ${res.status}`);
+}
+
+// planSource records WHO is paying for a users/{uid}.plan: "self" for the
+// account's own subscription, or the paying parent's uid. That's what
+// lets a parent's cancellation downgrade only the children it covered,
+// never a child who has their own subscription.
+async function setUserPlan(env, uid, planKey, planSource) {
+  await fsPatch(env, `/users/${uid}`, { plan: planKey, planSource: planSource }, true);
+}
+
+// entitlements/{uid} is the server's own record of what a payer is
+// actually paying for. Only this Worker writes it (there's no client rule
+// for the collection, so Firestore denies all client access by default),
+// unlike users/{uid}.plan, which the account owner can write themselves.
+async function setEntitlement(env, uid, plan, status) {
+  await fsPatch(env, `/entitlements/${uid}`, { plan, status: status || "", updatedAt: { timestamp: new Date().toISOString() } }, false);
+}
+
+const PLAN_CHILD_LIMITS = { premium: 1, family: 4, max: 4 };
+
+// Applies a payer's plan to the children they've linked (parent_links/
+// {payerUid}/children), earliest-linked first, up to the plan's child
+// limit. Children past the limit, or every child once the plan is "free",
+// fall back to free — but only if THIS payer was the one covering them.
+// Returns the uids now covered.
+async function propagatePlanToChildren(env, payerUid, plan) {
+  const res = await fsFetch(env, `/parent_links/${payerUid}/children?pageSize=50`, { method: "GET" });
+  if (!res.ok) throw new Error(`Could not list linked children: ${res.status}`);
+  const data = await res.json();
+  const links = (data.documents || []).slice().sort((a, b) => (a.createTime || "").localeCompare(b.createTime || ""));
+  const limit = PLAN_CHILD_LIMITS[plan] || 0;
+  const covered = [];
+  for (const link of links) {
+    const childUid = link.name.split("/").pop();
+    if (!isValidUid(childUid) || childUid === payerUid) continue;
+    const child = await fsGetDoc(env, `/users/${childUid}`);
+    if (!child) continue;
+    const childSource = fsStr(child, "planSource");
+    if (childSource === "self" && (fsStr(child, "plan") || "free") !== "free") continue;
+    if (covered.length < limit) {
+      if (await fsPatch(env, `/users/${childUid}`, { plan, planSource: payerUid }, true)) covered.push(childUid);
+    } else if (childSource === payerUid) {
+      await fsPatch(env, `/users/${childUid}`, { plan: "free", planSource: "" }, true);
+    }
+  }
+  return covered;
+}
+
+async function applyPayerPlan(env, uid, plan, status) {
+  await setEntitlement(env, uid, plan, status);
+  if (plan !== "free") {
+    await setUserPlan(env, uid, plan, "self");
+  } else {
+    // Don't downgrade an account that a parent is still covering.
+    const payer = await fsGetDoc(env, `/users/${uid}`);
+    const source = fsStr(payer, "planSource");
+    if (!source || source === "self") await setUserPlan(env, uid, "free", "");
+  }
+  await propagatePlanToChildren(env, uid, plan);
 }
 
 // Subscription states where the account should keep its paid plan —
@@ -283,17 +372,20 @@ async function handleStripeWebhook(request, env) {
   }
 
   try {
-    if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated") {
+    const isSubEvent = event.type === "customer.subscription.created"
+      || event.type === "customer.subscription.updated"
+      || event.type === "customer.subscription.deleted";
+    if (isSubEvent) {
       const sub = event.data.object;
       const uid = sub.metadata && sub.metadata.uid;
-      const priceId = sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price && sub.items.data[0].price.id;
-      const mappedPlan = PRICE_ID_TO_PLAN[priceId] || "free";
-      const plan = PLAN_RETAINING_STATUSES.has(sub.status) ? mappedPlan : "free";
-      if (uid) await setUserPlan(env, uid, plan);
-    } else if (event.type === "customer.subscription.deleted") {
-      const sub = event.data.object;
-      const uid = sub.metadata && sub.metadata.uid;
-      if (uid) await setUserPlan(env, uid, "free");
+      if (isValidUid(uid)) {
+        let plan = "free";
+        if (event.type !== "customer.subscription.deleted") {
+          const priceId = sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price && sub.items.data[0].price.id;
+          plan = PLAN_RETAINING_STATUSES.has(sub.status) ? (PRICE_ID_TO_PLAN[priceId] || "free") : "free";
+        }
+        await applyPayerPlan(env, uid, plan, sub.status);
+      }
     }
   } catch (err) {
     // Stripe retries on non-2xx, and a bad retry loop is worse than one
@@ -306,6 +398,32 @@ async function handleStripeWebhook(request, env) {
   return new Response(JSON.stringify({ received: true }), { status: 200 });
 }
 
+// Re-applies a parent's current plan to their linked children. Needed
+// because no Stripe event fires when a parent links a child AFTER they
+// already subscribed — the site calls this right after linking and on
+// each Parent Dashboard visit. It's safe without a login check: it only
+// ever re-applies what the server-written entitlements/{uid} doc already
+// says the parent pays for, never a plan the caller supplies.
+async function handleSyncEntitlements(request, env, origin) {
+  let payload;
+  try {
+    payload = await request.json();
+  } catch (e) {
+    return json({ error: "Invalid JSON" }, 400, origin);
+  }
+  const parentUid = payload && payload.parentUid;
+  if (!isValidUid(parentUid)) return json({ error: "parentUid required" }, 400, origin);
+  if (!env.FIREBASE_SERVICE_ACCOUNT_JSON) return json({ error: "Server is missing its Firebase credentials." }, 500, origin);
+  try {
+    const ent = await fsGetDoc(env, `/entitlements/${parentUid}`);
+    const plan = fsStr(ent, "plan") || "free";
+    const covered = await propagatePlanToChildren(env, parentUid, plan);
+    return json({ plan, known: !!ent, covered }, 200, origin);
+  } catch (err) {
+    return json({ error: "Sync failed: " + err.message }, 502, origin);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -316,7 +434,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 6 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 7 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it
@@ -356,6 +474,10 @@ export default {
 
     if (url.pathname === "/subscribe" && request.method === "POST") {
       return handleSubscribe(request, env, origin);
+    }
+
+    if (url.pathname === "/sync-entitlements" && request.method === "POST") {
+      return handleSyncEntitlements(request, env, origin);
     }
 
     if (url.pathname !== "/ai" || request.method !== "POST") {

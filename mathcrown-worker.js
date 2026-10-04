@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v9 - + weekly parent report emails)
+ * MathCrown API Worker  (v10 - AI replies no longer expose provider details)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -9,6 +9,11 @@ const ALLOWED_ORIGINS = [
 ];
 
 const MAX_TOKENS_LIMIT = 1200;
+// The tutor's model is fixed here, never chosen by the browser, so the
+// page doesn't reveal which AI provider powers Axiom and a client can't
+// switch to a pricier model.
+const AI_MODEL = "claude-sonnet-4-6";
+const AI_BUSY_MESSAGE = "Axiom is busy right now. Please try again in a moment.";
 const MAX_PROMPT_CHARS = 4000;
 
 // ── STRIPE ── LIVE MODE ─────────────────────────────────────────
@@ -1152,7 +1157,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 9 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 10 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it
@@ -1168,29 +1173,6 @@ export default {
     // in the link is what guards it.
     if (url.pathname === "/unsubscribe") {
       return handleUnsubscribe(request, env, url);
-    }
-
-    // ── KEY DIAGNOSTIC ──────────────────────────────────────────
-    // Reports the SHAPE of the key only. Never returns the key itself.
-    if (url.pathname === "/keycheck") {
-      const raw = env.ANTHROPIC_API_KEY;
-      if (!raw) {
-        return json({
-          keyFound: false,
-          problem: "ANTHROPIC_API_KEY secret is not set on this Worker."
-        }, 200, origin);
-      }
-      const trimmed = raw.trim();
-      return json({
-        keyFound: true,
-        rawLength: raw.length,
-        trimmedLength: trimmed.length,
-        hasWhitespace: raw.length !== trimmed.length,
-        correctPrefix: trimmed.startsWith("sk-ant-"),
-        prefixSeen: trimmed.slice(0, 12),
-        expectedLengthRange: "roughly 100-115 characters",
-        looksTruncated: trimmed.length < 90
-      }, 200, origin);
     }
 
     if (origin && !ALLOWED_ORIGINS.includes(origin)) {
@@ -1220,7 +1202,8 @@ export default {
 
     const apiKey = (env.ANTHROPIC_API_KEY || "").trim();   // auto-trim whitespace
     if (!apiKey) {
-      return json({ error: "Server is missing its API key." }, 500, origin);
+      console.log("AI key secret is not set");
+      return json({ error: AI_BUSY_MESSAGE }, 500, origin);
     }
 
     let payload;
@@ -1238,7 +1221,7 @@ export default {
     }
 
     const body = {
-      model: payload.model || "claude-sonnet-4-5",
+      model: AI_MODEL,
       max_tokens: Math.min(payload.max_tokens || 800, MAX_TOKENS_LIMIT),
       messages: messages
     };
@@ -1267,13 +1250,17 @@ export default {
 
       const data = await upstream.json();
 
+      // Only the reply text goes back to the browser: no model name, ids
+      // or provider error messages. Details stay in the Worker logs.
       if (!upstream.ok) {
-        const msg = (data && data.error && data.error.message) || "Upstream error";
-        return json({ error: msg, status: upstream.status }, upstream.status, origin);
+        console.log("AI upstream error", upstream.status, JSON.stringify(data && data.error));
+        return json({ error: AI_BUSY_MESSAGE }, 502, origin);
       }
-      return json(data, 200, origin);
+      const text = (data.content || []).filter((c) => c.type === "text").map((c) => c.text).join("");
+      return json({ content: [{ type: "text", text }] }, 200, origin);
     } catch (err) {
-      return json({ error: "Request failed: " + (err.message || "unknown") }, 502, origin);
+      console.log("AI request failed", err.message);
+      return json({ error: AI_BUSY_MESSAGE }, 502, origin);
     }
   },
 

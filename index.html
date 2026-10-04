@@ -1671,6 +1671,18 @@ body{
 @media (prefers-reduced-motion: reduce){
   .lp-stars circle,.lp-walking .lp-leg-a,.lp-walking .lp-leg-b{animation:none;}
 }
+.lp-grade-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+.lp-grade{display:flex;flex-direction:column;border-radius:24px;overflow:hidden;background:#0f2242;border:1.5px solid rgba(255,255,255,0.08);transition:transform .25s,border-color .25s;}
+.lp-grade:hover{transform:translateY(-4px);border-color:var(--accent);}
+.lp-grade-art{aspect-ratio:16/10;}
+.lp-grade-art svg{display:block;width:100%;height:100%;}
+.lp-grade-body{position:relative;padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;}
+.lp-grade-range{font-family:'Fredoka One',cursive;font-size:44px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums;}
+.lp-grade h3{font-family:'Fredoka One',cursive;font-weight:400;font-size:22px;margin:0;}
+.lp-grade p{margin:0;font-size:14px;color:var(--text2);line-height:1.6;}
+.lp-grade-q{margin-top:auto;padding-top:12px;font-family:'Fredoka One',cursive;font-size:19px;color:var(--text);}
+.lp-grade-q span{display:block;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:2px;}
+@media (max-width:900px){.lp-grade-grid{grid-template-columns:minmax(0,1fr);gap:14px;}.lp-grade-art{aspect-ratio:16/8;}}
 @media (max-width:900px){
   .lp-hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"copy" "scene" "play";row-gap:16px;}
   .lp-scene{max-width:560px;width:100%;justify-self:center;}
@@ -1981,13 +1993,94 @@ body{
   </section>
 
   <!-- GRADE LEVELS -->
-  <section class="lp-sec">
+  <section class="lp-sec" id="grades">
     <h2>Every grade, every topic</h2>
-    <p class="lp-sub">From counting to calculus, matched to Common Core, SAT/ACT, AP and STAAR topics.</p>
-    <div class="lp-cols">
-      <div class="lp-col" style="--accent:#06d6a0"><h3>Grades K–5</h3><p>Arithmetic, fractions, decimals, place value, geometry and measurement.</p></div>
-      <div class="lp-col" style="--accent:#ffd93d"><h3>Grades 6–8</h3><p>Ratios, integers, equations, statistics, probability and the Pythagorean theorem.</p></div>
-      <div class="lp-col" style="--accent:#60a5fa"><h3>Grades 9–12</h3><p>Algebra II, trigonometry, pre-calculus, AP Calculus and AP Statistics.</p></div>
+    <p class="lp-sub">From counting to calculus, matched to Common Core, SAT/ACT, AP and STAAR topics. Every player gets questions at their own level.</p>
+    <div class="lp-grade-grid">
+      <article class="lp-grade" style="--accent:#ff8a65">
+        <div class="lp-grade-art" style="background:linear-gradient(160deg,#ffab91,#ff6b6b)">
+          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="#fff" opacity=".35" font-family="Fredoka One,Nunito,sans-serif" font-size="28"><text x="30" y="56">1</text><text x="268" y="62">2</text><text x="40" y="160">3</text><text x="262" y="150">+</text></g>
+            <circle cx="160" cy="214" r="92" fill="#fff" opacity=".22"/>
+            <!-- number blocks -->
+            <rect x="196" y="150" width="34" height="34" rx="5" fill="#ffd93d"/><text x="213" y="175" text-anchor="middle" font-family="Fredoka One,Nunito,sans-serif" font-size="22" fill="#1c3a6e">1</text>
+            <rect x="230" y="150" width="34" height="34" rx="5" fill="#06d6a0"/><text x="247" y="175" text-anchor="middle" font-family="Fredoka One,Nunito,sans-serif" font-size="22" fill="#1c3a6e">2</text>
+            <rect x="213" y="116" width="34" height="34" rx="5" fill="#60a5fa"/><text x="230" y="141" text-anchor="middle" font-family="Fredoka One,Nunito,sans-serif" font-size="22" fill="#fff">3</text>
+            <!-- small kid: big head, short body, pigtails -->
+            <rect x="122" y="146" width="66" height="66" rx="26" fill="#ffd93d"/>
+            <path d="M178 160 C196 160 204 150 210 140" stroke="#c98a5a" stroke-width="12" stroke-linecap="round" fill="none"/>
+            <rect x="146" y="130" width="18" height="20" fill="#c98a5a"/>
+            <circle cx="122" cy="96" r="12" fill="#3a2414"/><circle cx="198" cy="96" r="12" fill="#3a2414"/>
+            <circle cx="160" cy="100" r="36" fill="#c98a5a"/>
+            <path d="M124 98 C122 64 198 60 196 98 C188 82 172 76 158 78 C144 80 130 86 124 98Z" fill="#3a2414"/>
+            <circle cx="148" cy="104" r="4" fill="#1a0f08"/><circle cx="172" cy="104" r="4" fill="#1a0f08"/>
+            <circle cx="140" cy="116" r="5" fill="#ff8a80" opacity=".6"/><circle cx="180" cy="116" r="5" fill="#ff8a80" opacity=".6"/>
+            <path d="M150 118 Q160 127 170 118" stroke="#1a0f08" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="lp-grade-body">
+          <div class="lp-grade-range">K–5</div>
+          <h3>Elementary</h3>
+          <p>Counting, addition and subtraction, times tables, fractions, decimals, place value, shapes and measurement.</p>
+          <div class="lp-grade-q"><span>Sample</span>7 × 8 = ?</div>
+        </div>
+      </article>
+
+      <article class="lp-grade" style="--accent:#a78bfa">
+        <div class="lp-grade-art" style="background:linear-gradient(160deg,#b9a3ff,#7c3aed)">
+          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="#fff" opacity=".3" font-family="Fredoka One,Nunito,sans-serif" font-size="26"><text x="26" y="58">x</text><text x="262" y="56">%</text><text x="34" y="158">3:4</text><text x="262" y="150">−5</text></g>
+            <circle cx="160" cy="214" r="98" fill="#fff" opacity=".2"/>
+            <!-- middle schooler: backpack, ruler -->
+            <rect x="108" y="124" width="22" height="64" rx="8" fill="#ff6b6b"/>
+            <rect x="116" y="122" width="88" height="94" rx="32" fill="#06d6a0"/>
+            <rect x="126" y="130" width="9" height="70" rx="4" fill="#ff6b6b"/>
+            <path d="M196 148 C222 140 236 124 240 104" stroke="#8d5a3b" stroke-width="13" stroke-linecap="round" fill="none"/>
+            <g transform="rotate(-62 242 92)"><rect x="210" y="84" width="70" height="16" rx="3" fill="#ffd93d"/><path d="M218 84 v6 M228 84 v9 M238 84 v6 M248 84 v9 M258 84 v6 M268 84 v9" stroke="#1c3a6e" stroke-width="1.6"/></g>
+            <rect x="150" y="106" width="20" height="20" fill="#8d5a3b"/>
+            <circle cx="160" cy="84" r="30" fill="#8d5a3b"/>
+            <path d="M130 82 C128 52 192 48 190 82 C184 70 170 64 156 66 C144 68 134 74 130 82Z" fill="#1a0f08"/>
+            <path d="M128 78 C132 58 176 50 192 70 L196 72 C200 68 206 70 204 76 L188 80Z" fill="#1c3a6e"/>
+            <circle cx="150" cy="88" r="3.4" fill="#1a0f08"/><circle cx="170" cy="88" r="3.4" fill="#1a0f08"/>
+            <path d="M151 99 Q160 105 169 99" stroke="#1a0f08" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="lp-grade-body">
+          <div class="lp-grade-range">6–8</div>
+          <h3>Middle School</h3>
+          <p>Ratios and percents, negative numbers, equations, statistics, probability and the Pythagorean theorem.</p>
+          <div class="lp-grade-q"><span>Sample</span>Solve 3x + 5 = 20</div>
+        </div>
+      </article>
+
+      <article class="lp-grade" style="--accent:#38bdf8">
+        <div class="lp-grade-art" style="background:linear-gradient(160deg,#5eead4,#0e7490)">
+          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="#fff" opacity=".3" font-family="Fredoka One,Nunito,sans-serif" font-size="26"><text x="24" y="58">∫</text><text x="258" y="54">sin θ</text><text x="30" y="160">f(x)</text><text x="268" y="150">π</text></g>
+            <circle cx="160" cy="214" r="104" fill="#fff" opacity=".18"/>
+            <!-- teen: taller, hoodie, headphones, graphing calculator -->
+            <rect x="110" y="112" width="100" height="104" rx="34" fill="#1c3a6e"/>
+            <path d="M146 118 L160 140 L174 118" fill="none" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M120 150 C100 160 104 176 126 178" stroke="#1c3a6e" stroke-width="14" stroke-linecap="round" fill="none"/>
+            <rect x="122" y="152" width="34" height="52" rx="5" fill="#2d3748"/><rect x="127" y="157" width="24" height="15" rx="2" fill="#9ae6b4"/>
+            <path d="M129 168 q5 -10 10 -2 t10 -4" stroke="#1c3a6e" stroke-width="1.6" fill="none"/>
+            <g fill="#a0aec0"><rect x="127" y="176" width="6" height="4" rx="1"/><rect x="136" y="176" width="6" height="4" rx="1"/><rect x="145" y="176" width="6" height="4" rx="1"/><rect x="127" y="184" width="6" height="4" rx="1"/><rect x="136" y="184" width="6" height="4" rx="1"/><rect x="145" y="184" width="6" height="4" rx="1"/></g>
+            <rect x="150" y="92" width="20" height="24" fill="#e0b08a"/>
+            <path d="M134 104 C134 124 186 124 186 104" stroke="#ff6b6b" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <circle cx="160" cy="70" r="28" fill="#e0b08a"/>
+            <path d="M132 70 C128 36 196 34 190 72 C186 56 176 48 160 50 C146 52 136 58 132 70Z" fill="#7a4a24"/>
+            <path d="M136 50 C150 36 178 38 186 54 C170 46 152 46 136 50Z" fill="#7a4a24"/>
+            <circle cx="150" cy="74" r="3.2" fill="#2b1a10"/><circle cx="170" cy="74" r="3.2" fill="#2b1a10"/>
+            <path d="M152 85 Q160 90 168 85" stroke="#2b1a10" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="lp-grade-body">
+          <div class="lp-grade-range">9–12</div>
+          <h3>High School</h3>
+          <p>Algebra I and II, geometry, trigonometry, pre-calculus, AP Calculus and AP Statistics, plus SAT/ACT practice.</p>
+          <div class="lp-grade-q"><span>Sample</span>d/dx (x³) = ?</div>
+        </div>
+      </article>
     </div>
   </section>
 

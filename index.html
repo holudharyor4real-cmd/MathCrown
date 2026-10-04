@@ -1638,9 +1638,25 @@ body{
 .lp-role-signin{background:none;border:none;color:var(--text2);font-weight:700;font-size:13px;cursor:pointer;
   text-decoration:underline;text-underline-offset:3px;font-family:'Nunito',sans-serif;padding:4px 0;}
 .lp-role-signin:hover{color:var(--text);}
-.lp-facts{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px;margin-top:20px;font-size:13px;font-weight:700;color:var(--text2);}
-.lp-facts span::before{content:"✓ ";color:var(--mint);}
-.lp-peek{margin-left:auto;background:none;border:none;color:var(--sky);font-weight:800;font-size:13px;cursor:pointer;font-family:'Nunito',sans-serif;padding:4px 0;}
+.lp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:28px;border-radius:24px;
+  background:linear-gradient(120deg,rgba(255,217,61,0.12),rgba(6,214,160,0.07) 55%,rgba(96,165,250,0.10));
+  border:1.5px solid rgba(255,217,61,0.3);overflow:hidden;}
+.lp-stat{padding:26px 20px;text-align:center;display:flex;flex-direction:column;gap:6px;min-width:0;}
+.lp-stat + .lp-stat{border-left:1px solid rgba(255,255,255,0.1);}
+.lp-stat b{font-family:'Fredoka One',cursive;font-weight:400;font-size:clamp(38px,4.6vw,58px);line-height:1;color:var(--accent);font-variant-numeric:tabular-nums;}
+.lp-stat span{font-size:clamp(14px,1.3vw,17px);font-weight:800;color:var(--text);opacity:.85;}
+.lp-peek-row{display:flex;justify-content:center;margin-top:22px;}
+.lp-peek{background:rgba(78,205,196,0.1);border:2px solid var(--sky);color:var(--sky);font-weight:900;font-size:17px;
+  padding:14px 30px;border-radius:100px;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .2s,transform .2s;}
+.lp-peek:hover{background:rgba(78,205,196,0.2);transform:translateY(-2px);}
+.lp-peek:focus-visible{outline:3px solid var(--sun);outline-offset:3px;}
+@media (max-width:760px){
+  .lp-stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .lp-stat{padding:20px 12px;}
+  .lp-stat:nth-child(3){border-left:none;}
+  .lp-stat:nth-child(n+3){border-top:1px solid rgba(255,255,255,0.1);}
+  .lp-peek{font-size:15px;padding:13px 22px;width:100%;}
+}
 .lp-sec{max-width:1240px;margin:0 auto;padding:52px clamp(16px,4vw,48px);text-align:left;border-top:1px solid rgba(255,255,255,0.06);}
 .lp-sec h2{font-family:'Fredoka One',cursive;font-weight:400;font-size:clamp(28px,3.4vw,40px);margin:0 0 8px;}
 .lp-sub{color:var(--text2);font-size:16px;line-height:1.6;max-width:42em;margin:0 0 30px;}
@@ -1695,7 +1711,6 @@ body{
   .lp-role-body{padding:12px 14px 14px;}
   .lp-role h3{font-size:21px;}
   .lp-role p{font-size:13px;}
-  .lp-peek{margin-left:0;}
   .lp-role-grid{grid-template-columns:minmax(0,1fr);}
   .lp-role-art{aspect-ratio:16/9;}
   .lp-role-art svg{object-fit:cover;}
@@ -1942,9 +1957,14 @@ body{
         </div>
       </div>
     </div>
-    <div class="lp-facts">
-      <span>19,000+ practice questions</span><span>53 topics</span><span>Grades K–12</span><span>Free to start</span>
-      <button class="lp-peek" id="preview-btn">Just looking? Take a peek inside →</button>
+    <div class="lp-stats">
+      <div class="lp-stat" style="--accent:#ffd93d"><b>19,000+</b><span>practice questions</span></div>
+      <div class="lp-stat" style="--accent:#06d6a0"><b>53</b><span>math topics</span></div>
+      <div class="lp-stat" style="--accent:#60a5fa"><b>K–12</b><span>every grade level</span></div>
+      <div class="lp-stat" style="--accent:#ff8a65"><b>$0</b><span>to start playing</span></div>
+    </div>
+    <div class="lp-peek-row">
+      <button class="lp-peek" id="preview-btn">👀 Just looking? Take a peek inside →</button>
     </div>
   </section>
 

@@ -2230,7 +2230,7 @@ body{
     <div class="footer-legal">
       © 2026 MathCrown™. All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
       Rewards delivered to verified parent accounts only, after parent approval. Students never handle money. MathCoins have no cash value.<br>
-      Questions sourced from Khan Academy, OpenStax, Illustrative Mathematics, SAT/ACT/AP released exams, STAAR, and Claude AI.
+      Questions sourced from Khan Academy, OpenStax, Illustrative Mathematics, SAT/ACT/AP released exams, STAAR, and original MathCrown practice sets.
     </div>
   </footer>
 </div>
@@ -2870,7 +2870,7 @@ body{
       <!-- Source strip -->
       <div class="source-strip">
         <span style="font-size:12px;color:var(--text2);font-weight:800">📡 SOURCES:</span>
-        <span class="badge b-purple">🤖 Claude AI</span>
+        <span class="badge b-purple">🤖 MathCrown AI</span>
         <span class="badge b-sky">📗 Khan Academy</span>
         <span class="badge b-sun">📝 SAT/ACT/AP</span>
         <span class="badge b-mint">🏫 STAAR/OpenStax</span>
@@ -2893,7 +2893,7 @@ body{
           <div style="font-family:'Fredoka One',cursive;font-size:24px;margin-bottom:8px;color:var(--sun)">Loading Questions...</div>
           <div style="color:var(--text2);font-size:14px;margin-bottom:20px">Generating fresh questions just for you!</div>
           <div class="source-strip" style="justify-content:center">
-            <span class="badge b-purple">🤖 Claude AI</span>
+            <span class="badge b-purple">🤖 MathCrown AI</span>
             <span class="badge b-sky">📗 Khan Academy</span>
             <span class="badge b-sun">📝 SAT/ACT/AP</span>
           </div>
@@ -3064,13 +3064,13 @@ body{
     <!-- ════ AI TUTOR ════ -->
     <div class="page" id="p-tutor">
       <div class="page-title" id="tutor-title">🤖 AI Math Tutor</div>
-      <div class="page-sub" id="tutor-sub">Your personal math coach · Available 24/7 · Powered by Claude AI</div>
+      <div class="page-sub" id="tutor-sub">Your personal math coach · Available 24/7</div>
 
       <div class="tutor-header">
         <div class="tutor-ava" id="tutor-ava">🤖</div>
         <div>
           <div class="tutor-name" id="tutor-name">Axiom</div>
-          <div class="tutor-tag" id="tutor-tag">Your AI Math Coach · Powered by Claude</div>
+          <div class="tutor-tag" id="tutor-tag">Your AI Math Coach</div>
           <div style="font-size:12px;color:var(--text2);margin-top:4px">Speaks your grade level · Explains step-by-step · Never judges mistakes</div>
         </div>
       </div>
@@ -4863,7 +4863,7 @@ var SOURCES = [
   {n:"SAT Practice Tests",   icon:"SAT", cnt:"20+"},
   {n:"AP Calculus AB/BC",    icon:"AP",  cnt:"15+"},
   {n:"AP Statistics",        icon:"AP",  cnt:"10+"},
-  {n:"Claude AI (Live)",     icon:"AI",  cnt:"unlimited"}
+  {n:"MathCrown AI (Live)",  icon:"AI",  cnt:"unlimited"}
 ];
 
 // ── UTILITIES ──────────────────────────────────────────
@@ -4983,10 +4983,10 @@ function applyTierCopy(tier){
     if(seedWho) seedWho.textContent = TIER_COPY.k5.axiomAvatar+" "+TIER_COPY.k5.axiomName;
   } else {
     setEl("tutor-title", "🤖 AI Math Tutor");
-    setEl("tutor-sub", "Your personal math coach · Available 24/7 · Powered by Claude AI");
+    setEl("tutor-sub", "Your personal math coach · Available 24/7");
     setEl("tutor-ava", "🤖");
     setEl("tutor-name", "Axiom");
-    setEl("tutor-tag", "Your AI Math Coach · Powered by Claude");
+    setEl("tutor-tag", "Your AI Math Coach");
     if(seedWho) seedWho.textContent = "🤖 Axiom";
   }
 }
@@ -5901,17 +5901,17 @@ async function loadTrivia(){
 async function genAIQuestions(gradeN, count, mode){
   var band=gradeN<=3?"1-3":gradeN<=5?"4-5":gradeN<=8?"6-8":gradeN<=10?"9-10":"11-12";
   var topicMap={"1-3":"Addition,Subtraction,Place Value","4-5":"Fractions,Decimals,Percentages","6-8":"Linear Equations,Geometry,Statistics","9-10":"Quadratic Equations,Trigonometry,Functions","11-12":"Derivatives,Integrals,AP Statistics"};
-  var prompt="Generate "+count+" math questions for grade "+gradeN+" on topics: "+topicMap[band]+". Return JSON array only: [{topic,question,choices:[A,B,C,D],correct,explanation,source}]";
+  var prompt="Generate "+count+" math questions for grade "+gradeN+" on topics: "+topicMap[band]+". Return JSON array only: [{topic,question,choices:[A,B,C,D],correct,explanation}]";
   try{
     var r=await fetch(MC_API_BASE + "/ai",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2500,messages:[{role:"user",content:prompt}]})
+      body:JSON.stringify({max_tokens:2500,messages:[{role:"user",content:prompt}]})
     });
     var d=await r.json();
     var raw=((d.content||[{text:"[]"}])[0].text||"[]").replace(/```json|```/g,"").trim();
     return JSON.parse(raw).map(function(q){
-      return {q:q.question,a:q.choices,c:typeof q.correct==="number"?q.correct:0,topic:q.topic,explanation:q.explanation||"",src:q.source||"AI Generated",ai:true};
+      return {q:q.question,a:q.choices,c:typeof q.correct==="number"?q.correct:0,topic:q.topic,explanation:q.explanation||"",src:"MathCrown AI",ai:true};
     });
   }catch(e){ return null; }
 }
@@ -7033,7 +7033,7 @@ async function sendMsg(){
     var r=await fetch(MC_API_BASE + "/ai",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,
+      body:JSON.stringify({max_tokens:800,
         system:sysPrompt,
         messages:[{role:"user",content:msg}]})
     });
@@ -9008,7 +9008,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">6. Third-Party Services</p>
       <ul style="margin:0 0 20px 20px">
         <li><strong style="color:#FFD93D">Google Firebase</strong> — Authentication and database storage</li>
-        <li><strong style="color:#FFD93D">Anthropic Claude API</strong> — Powers the Axiom AI math tutor</li>
+        <li><strong style="color:#FFD93D">AI service provider</strong> — Powers the Axiom AI math tutor and AI-generated practice questions. Messages sent to Axiom are processed by this provider only to generate a reply.</li>
         <li><strong style="color:#FFD93D">Web3Forms</strong> — Email capture for the founding family waitlist</li>
       </ul>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">7. Your Rights</p>
@@ -9066,7 +9066,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         <li>MathCrown may change or end the rewards program by updating the Official Rewards Rules; rewards already earned will be honored.</li>
       </ul>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">6. AI Tutor — Axiom</p>
-      <p style="margin-bottom:20px">Axiom is powered by Claude (Anthropic) and is intended for educational purposes only. While we strive for accuracy, AI responses may occasionally contain errors. Always verify important concepts with a qualified teacher.</p>
+      <p style="margin-bottom:20px">Axiom is powered by a third-party AI model and is intended for educational purposes only. While we strive for accuracy, AI responses may occasionally contain errors. Always verify important concepts with a qualified teacher.</p>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">7. Intellectual Property</p>
       <p style="margin-bottom:20px">All MathCrown content — including the name, logo, crown design, question bank, and software — is protected by copyright and trademark law. You may not reproduce or distribute any content without written permission.</p>
       <p style="color:#06D6A0;font-weight:700;margin-bottom:8px">8. Subscriptions and Payments</p>

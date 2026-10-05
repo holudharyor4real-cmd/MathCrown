@@ -1967,7 +1967,7 @@ body{
       </div>
     </div>
     <div class="lp-stats">
-      <div class="lp-stat" style="--accent:#ffd93d"><b>19,000+</b><span>practice questions</span></div>
+      <div class="lp-stat" style="--accent:#ffd93d"><b>18,000+</b><span>practice questions</span></div>
       <div class="lp-stat" style="--accent:#06d6a0"><b>53</b><span>math topics</span></div>
       <div class="lp-stat" style="--accent:#60a5fa"><b>K–12</b><span>every grade level</span></div>
       <div class="lp-stat" style="--accent:#ff8a65"><b>$0</b><span>to start playing</span></div>
@@ -2762,7 +2762,7 @@ body{
         <div class="card card-sun">
           <div class="stat-card">
             <div class="stat-icon" style="background:rgba(255,217,61,0.15)">🏆</div>
-            <div><div class="stat-num" id="stat-wins" style="color:var(--sun)">0</div><div class="stat-lbl">Wins This Month</div></div>
+            <div><div class="stat-num" id="stat-wins" style="color:var(--sun)">0</div><div class="stat-lbl">Battle Wins</div></div>
           </div>
         </div>
         <div class="card card-coral">
@@ -2831,11 +2831,11 @@ body{
         <div class="card card-sun" style="cursor:pointer" onclick="goPage('room',null)">
           <div style="font-size:36px;margin-bottom:10px">🌐</div>
           <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:6px">Daily Trivia</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:14px">3 fresh questions every day — AI + curated from top sources</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px">Quick 3-question rounds at your grade level. No repeats.</div>
           <div class="prog-wrap">
             <div class="prog-fill" id="daily-prog" style="width:0%;background:var(--sun)"></div>
           </div>
-          <div style="font-size:12px;color:var(--text2);margin-top:6px" id="daily-status">0 of 3 completed today</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:6px" id="daily-status">0 questions answered today</div>
         </div>
         <div class="card card-coral" style="cursor:pointer" onclick="goPage('challenge',null)">
           <div style="font-size:36px;margin-bottom:10px">⚔️</div>
@@ -2885,7 +2885,8 @@ body{
         <span class="badge b-coral">📐 Illustrative Math</span>
       </div>
 
-      <!-- Countdown -->
+      <!-- Countdown to the next Daily Crown (midnight US Eastern) -->
+      <div style="text-align:center;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Next Daily Crown in</div>
       <div class="q-countdown">
         <div class="cd-box"><div class="cd-num" id="cd-h">08</div><div class="cd-lbl">HRS</div></div>
         <div class="cd-sep">:</div>
@@ -2973,7 +2974,7 @@ body{
       </div>
 
       <div class="sec-head" style="margin-top:8px">
-        <div class="sec-title">📋 Demo Players — Practice Anytime</div>
+        <div class="sec-title">🤖 Practice Bots — Play Anytime</div>
         <div style="display:flex;gap:6px" id="grade-filter-btns">
           <span class="badge b-sky" style="cursor:pointer;border:2px solid var(--sky)" id="filter-same" onclick="filterOpponents('same',this)">Same Grade</span>
           <span class="badge b-coral" style="cursor:pointer" id="filter-higher" onclick="filterOpponents('higher',this)">Higher Grade</span>
@@ -3002,7 +3003,7 @@ body{
             <div class="battle-player right">
               <div class="b-avatar" id="b-opp-ava" style="background:linear-gradient(135deg,var(--coral),var(--pink))">👑</div>
               <div style="text-align:right">
-                <div class="b-pname" id="b-opp-name">Jordan K.</div>
+                <div class="b-pname" id="b-opp-name">Opponent</div>
                 <div class="b-ptier">Gold Tier</div>
                 <div class="b-score" id="b-opp-score" style="color:var(--coral)">0</div>
               </div>
@@ -3087,7 +3088,7 @@ body{
       <div class="chat-box" id="chat-box">
           <div class="chat-msg chat-bot">
             <div class="chat-who chat-who-bot">🤖 Axiom</div>
-            Hey there! I noticed you missed some fraction problems last week — want me to explain them in a way that actually makes sense? I promise, <strong>fractions are way easier than they look!</strong> 🎯
+            Hi! I'm Axiom, your math coach. Ask me about any problem you're stuck on, or tap a topic below. I'll explain it step by step. 🎯
           </div>
         </div>
         <div class="chat-input-row">
@@ -3101,7 +3102,7 @@ body{
       <div class="g3" style="margin-bottom:20px" id="quick-prompts"></div>
 
       <!-- Weak spots -->
-      <div class="sec-title" style="margin-bottom:14px">🎯 Your Weak Spots (AI Detected)</div>
+      <div class="sec-title" style="margin-bottom:14px">🎯 Your Weak Spots</div>
       <div id="weak-spots"></div>
     </div>
 
@@ -3124,14 +3125,13 @@ body{
 
       <div class="lb-tabs">
         <button class="lb-tab on" id="lb-grade-btn" onclick="setLBTab('grade',this)">🏫 My Grade</button>
-        <button class="lb-tab" onclick="setLBTab('school',this)">🏠 All Grades</button>
-        <button class="lb-tab" onclick="setLBTab('national',this)">🌎 National</button>
+        <button class="lb-tab" onclick="setLBTab('school',this)">🌎 All Grades</button>
         <button class="lb-tab" id="lb-weekly-btn" onclick="setLBTab('weekly',this)">🏆 This Week</button>
       </div>
 
       <!-- Podium -->
       <div class="lb-podium" id="lb-podium"></div>
-      <div id="lb-sample-note" style="display:none;font-size:12px;color:var(--text2);text-align:center;margin:-10px 0 12px">📋 Sample rankings shown until enough real students join this view — invite friends to fill it in!</div>
+      <div id="lb-sample-note" style="display:none"></div>
 
       <!-- Full list -->
       <div class="card" id="lb-full"></div>
@@ -3628,7 +3628,7 @@ function rewardsLive(){ return mcWeekId()>=REWARDS_START_WEEK; }
 
 function resetLearningState(){
   S.week=null; S.prevWeek=null; S.seasonProgress=null; S.lastPlayDay=""; S.streakShields=0;
-  S.owned=[]; S.titleId=""; S.lastMasteryPassMs=0; S.dailyCrown=null;
+  S.owned=[]; S.titleId=""; S.lastMasteryPassMs=0; S.dailyCrown=null; S.battleHistory=[]; S.today=null;
 }
 function restoreLearningState(d){
   d=d||{};
@@ -3636,6 +3636,7 @@ function restoreLearningState(d){
   S.lastPlayDay=d.lastPlayDay||""; S.streakShields=d.streakShields||0;
   S.owned=Array.isArray(d.owned)?d.owned:[]; S.titleId=d.titleId||""; S.lastMasteryPassMs=d.lastMasteryPassMs||0;
   S.dailyCrown=d.dailyCrown||null;
+  S.battleHistory=Array.isArray(d.battleHistory)?d.battleHistory:[]; S.today=d.today||null;
   // Avatars used to unlock by coin BALANCE; they're bought now. Keep
   // whatever was already equipped.
   var eq=AVATAR_CATALOG.find(function(a){ return a.id===S.avatarId; });
@@ -3648,7 +3649,8 @@ function restoreLearningState(d){
 function learningStateForSave(){
   return { week:S.week||null, prevWeek:S.prevWeek||null, seasonProgress:S.seasonProgress||null,
     lastPlayDay:S.lastPlayDay||"", streakShields:S.streakShields||0, owned:S.owned||[], titleId:S.titleId||"",
-    lastMasteryPassMs:S.lastMasteryPassMs||0, dailyCrown:S.dailyCrown||null };
+    lastMasteryPassMs:S.lastMasteryPassMs||0, dailyCrown:S.dailyCrown||null,
+    battleHistory:S.battleHistory||[], today:S.today||null };
 }
 
 function allTimeTotals(){
@@ -3692,8 +3694,17 @@ function updateStreak(){
 }
 
 // Called on every answered question (from recordTopicAnswer).
+// Real "questions answered today" for the home card (target: 10 a day).
+function renderTodayProgress(){
+  var n=(S.today && S.today.day===mcDayId()) ? S.today.n : 0;
+  var st=$$("daily-status"); if(st) st.textContent=n+" question"+(n===1?"":"s")+" answered today"+(n<10?" · goal 10":" · goal met! 🎉");
+  var pr=$$("daily-prog"); if(pr) pr.style.width=Math.min(100,n*10)+"%";
+}
+
 function trackLearningProgress(correct){
   if(!S.name || S.isPreview) return;
+  if(!S.today || S.today.day!==mcDayId()) S.today={day:mcDayId(), n:0};
+  S.today.n++;
   updateStreak();
   var w=currentWeek();
   w.answered++; if(correct) w.correct++;
@@ -4465,31 +4476,23 @@ function getRandQ(gradeN){ return drawQuestions(gradeBand(gradeN), null, 1)[0]; 
 // ── DATA ───────────────────────────────────────────────
 // QUESTION_BANK loaded externally from question_bank.js
 
+// Practice bots: computer opponents, labeled as bots everywhere. They
+// have no made-up win records or "online" status.
 var OPPS = [
-  {n:"Lily M.",   gradeN:2,  band:1, tier:"Bronze",   meta:"2nd Grade - 12 Wins",  wr:"55% Win Rate", winRate:0.55, e:"L", bg:"linear-gradient(135deg,#cd7f32,#a06020)"},
-  {n:"Noah B.",   gradeN:3,  band:1, tier:"Silver",   meta:"3rd Grade - 28 Wins",  wr:"61% Win Rate", winRate:0.61, e:"N", bg:"linear-gradient(135deg,#c0c0c0,#909090)"},
-  {n:"Mia T.",    gradeN:4,  band:2, tier:"Silver",   meta:"4th Grade - 35 Wins",  wr:"63% Win Rate", winRate:0.63, e:"M", bg:"linear-gradient(135deg,#06d6a0,#4ecdc4)"},
-  {n:"Ethan R.",  gradeN:5,  band:2, tier:"Gold",     meta:"5th Grade - 52 Wins",  wr:"70% Win Rate", winRate:0.70, e:"E", bg:"linear-gradient(135deg,#ffd93d,#ff9f1c)"},
-  {n:"Riley M.",  gradeN:6,  band:3, tier:"Silver",   meta:"6th Grade - 43 Wins",  wr:"65% Win Rate", winRate:0.65, e:"R", bg:"linear-gradient(135deg,#4ecdc4,#06d6a0)"},
-  {n:"Jordan K.", gradeN:7,  band:3, tier:"Gold",     meta:"7th Grade - 89 Wins",  wr:"78% Win Rate", winRate:0.78, e:"J", bg:"linear-gradient(135deg,#f5c842,#ff9f1c)"},
-  {n:"Sam P.",    gradeN:7,  band:3, tier:"Gold",     meta:"7th Grade - 74 Wins",  wr:"71% Win Rate", winRate:0.71, e:"S", bg:"linear-gradient(135deg,#ff6b6b,#f15bb5)"},
-  {n:"Chris W.",  gradeN:8,  band:3, tier:"Platinum", meta:"8th Grade - 102 Wins", wr:"83% Win Rate", winRate:0.83, e:"C", bg:"linear-gradient(135deg,#9b5de5,#4ecdc4)"},
-  {n:"Dana R.",   gradeN:9,  band:4, tier:"Diamond",  meta:"9th Grade - 145 Wins", wr:"91% Win Rate", winRate:0.91, e:"D", bg:"linear-gradient(135deg,#4ecdc4,#2196f3)"},
-  {n:"Alex K.",   gradeN:10, band:4, tier:"Platinum", meta:"10th Grade - 118 Wins",wr:"86% Win Rate", winRate:0.86, e:"A", bg:"linear-gradient(135deg,#9b5de5,#f15bb5)"},
-  {n:"Morgan L.", gradeN:11, band:5, tier:"Diamond",  meta:"11th Grade - 201 Wins",wr:"94% Win Rate", winRate:0.94, e:"M", bg:"linear-gradient(135deg,#ffd93d,#9b5de5)"},
-  {n:"Taylor B.", gradeN:12, band:5, tier:"Legend",   meta:"12th Grade - 312 Wins",wr:"97% Win Rate", winRate:0.97, e:"T", bg:"linear-gradient(135deg,#ff6b6b,#ffd93d)"}
+  {n:"Counting Cub",     gradeN:2,  band:1, tier:"Easy",   meta:"Practice bot", winRate:0.55, e:"🐻", bg:"linear-gradient(135deg,#cd7f32,#a06020)"},
+  {n:"Abacus Bot",       gradeN:3,  band:1, tier:"Easy",   meta:"Practice bot", winRate:0.6,  e:"🧮", bg:"linear-gradient(135deg,#c0c0c0,#909090)"},
+  {n:"Fraction Fox",     gradeN:4,  band:2, tier:"Medium", meta:"Practice bot", winRate:0.62, e:"🦊", bg:"linear-gradient(135deg,#06d6a0,#4ecdc4)"},
+  {n:"Decimal Dragon",   gradeN:5,  band:2, tier:"Medium", meta:"Practice bot", winRate:0.68, e:"🐲", bg:"linear-gradient(135deg,#ffd93d,#ff9f1c)"},
+  {n:"Ratio Robot",      gradeN:6,  band:3, tier:"Medium", meta:"Practice bot", winRate:0.65, e:"🤖", bg:"linear-gradient(135deg,#4ecdc4,#06d6a0)"},
+  {n:"Equation Eagle",   gradeN:7,  band:3, tier:"Hard",   meta:"Practice bot", winRate:0.75, e:"🦅", bg:"linear-gradient(135deg,#f5c842,#ff9f1c)"},
+  {n:"Integer Owl",      gradeN:7,  band:3, tier:"Medium", meta:"Practice bot", winRate:0.68, e:"🦉", bg:"linear-gradient(135deg,#ff6b6b,#f15bb5)"},
+  {n:"Geometry Golem",   gradeN:8,  band:3, tier:"Hard",   meta:"Practice bot", winRate:0.8,  e:"🗿", bg:"linear-gradient(135deg,#9b5de5,#4ecdc4)"},
+  {n:"Quadratic Knight", gradeN:9,  band:4, tier:"Hard",   meta:"Practice bot", winRate:0.85, e:"♞",  bg:"linear-gradient(135deg,#4ecdc4,#2196f3)"},
+  {n:"Function Falcon",  gradeN:10, band:4, tier:"Hard",   meta:"Practice bot", winRate:0.82, e:"🦉", bg:"linear-gradient(135deg,#9b5de5,#f15bb5)"},
+  {n:"Calculus Comet",   gradeN:11, band:5, tier:"Expert", meta:"Practice bot", winRate:0.9,  e:"☄️", bg:"linear-gradient(135deg,#ffd93d,#9b5de5)"},
+  {n:"Limit Lion",       gradeN:12, band:5, tier:"Expert", meta:"Practice bot", winRate:0.93, e:"🦁", bg:"linear-gradient(135deg,#ff6b6b,#ffd93d)"}
 ];
 
-var LB_DATA = [
-  {n:"Jordan K.", g:"7th", pts:5820, e:"J", chg:"+2", up:true},
-  {n:"Sam P.",    g:"7th", pts:5410, e:"S", chg:"+1", up:true},
-  {n:"Riley M.",  g:"7th", pts:5200, e:"R", chg:"0",  up:false},
-  {n:"Alex J.",   g:"7th", pts:3240, e:"A", chg:"+3", up:true},
-  {n:"Casey T.",  g:"7th", pts:3100, e:"C", chg:"-1", up:false},
-  {n:"Morgan L.", g:"7th", pts:2980, e:"M", chg:"+4", up:true},
-  {n:"Taylor B.", g:"7th", pts:2750, e:"T", chg:"-2", up:false},
-  {n:"Drew K.",   g:"7th", pts:2640, e:"D", chg:"+5", up:true}
-];
 
 // Mastery % used to be hardcoded (95, 90, 62...) for every single account,
 // including a brand-new signup with zero questions answered. These map
@@ -5115,7 +5118,8 @@ function goPage(id, el, mob){
 
 // ── ENTER APP ──────────────────────────────────────────
 function enterApp(name, grade, gradeNum, isPreview){
-  S.name=name; S.grade=grade; S.gradeNum=gradeNum; S.isPreview=isPreview;
+  S.name=name; S.grade=gradeOrdinal(gradeNum)||grade; S.gradeNum=gradeNum; S.isPreview=isPreview;
+  grade=S.grade;
   S.tier = tierFor(gradeNum);
   document.body.setAttribute("data-tier", S.tier);
   applyTierCopy(S.tier);
@@ -5128,10 +5132,10 @@ function enterApp(name, grade, gradeNum, isPreview){
   setEl("home-greet", tc ? tc.greet(name.split(" ")[0]) : "Welcome, "+name.split(" ")[0]+"! Earn Your Crown!");
   setEl("home-sub", tc ? tc.sub : "Complete your first trivia to start earning XP and MathCoins! 🚀");
   setEl("prof-name", name); setEl("prof-grade", grade+" - Math Champ");
-  setEl("stat-wins","0"); setEl("stat-streak",S.streak); setEl("stat-rank","--");
+  setEl("stat-wins",S.wins||0); setEl("stat-streak",S.streak); setEl("stat-rank","—");
   setEl("home-coins",S.coins.toLocaleString()); setEl("wallet-coins",S.coins.toLocaleString());
   setEl("xp-level-num",S.level); setEl("xp-nums-label",S.xp+" / "+S.level*500+" XP");
-  setEl("daily-status","0 of 3 completed today");
+  renderTodayProgress();
   var xpEl=$$("xp-prog"); if(xpEl) xpEl.style.width=Math.min(100,Math.round(S.xp/(S.level*500)*100))+"%";
   var land=$$("s-land"); if(land) land.classList.remove("active");
   var app=$$("s-app"); if(app) app.classList.add("active");
@@ -5407,6 +5411,9 @@ function renderHome(){
   renderUpgradeNudge();
   renderSeasonCards();
   renderDailyHomeCard();
+  renderTodayProgress();
+  var sw=$$("stat-wins"); if(sw) sw.textContent=S.wins||0;
+  var ss=$$("stat-streak"); if(ss) ss.textContent=S.streak||0;
 }
 
 // Free signed-in students only. Hidden in Preview Mode on purpose: a demo
@@ -5634,10 +5641,9 @@ function renderPiggyBank(){
 // default bot from OPPS if nobody has ever taken the title.
 var K5_CROWN_CACHE = {};
 
+// Nobody has won this grade's Crown yet: the title is guarded by a bot.
 function getCrownHolderDefault(gradeNum){
-  var opp = OPPS.find(function(o){ return o.gradeN===gradeNum; }) || OPPS[0];
-  var winsMatch = (opp.meta||"").match(/(\d+)\s*Wins/);
-  return {name:opp.n, e:opp.e, bg:opp.bg, winRate:opp.winRate||0.6, wins:winsMatch?parseInt(winsMatch[1]):10, isPlayer:false};
+  return {name:"Crown Guardian", e:"🛡️", bg:"linear-gradient(135deg,var(--sun),var(--sun2))", winRate:0.6, wins:0, isPlayer:false, isBot:true};
 }
 
 function getCrownHolder(gradeNum){
@@ -5677,11 +5683,12 @@ function setCrownHolder(gradeNum, holder){
 }
 
 function renderK5ChampionUI(ch){
-  var nameEl=$$("k5-champ-name"); if(nameEl) nameEl.textContent = ch.isPlayer ? "You!" : ch.name;
+  var nameEl=$$("k5-champ-name"); if(nameEl) nameEl.textContent = ch.isPlayer ? "You!" : ch.isBot ? "Unclaimed!" : ch.name;
   var subEl=$$("k5-champ-sub");
   if(subEl) subEl.textContent = ch.isPlayer
     ? "You hold the Crown! Defend it in Monster Woods."
-    : (ch.wins||10)+" wins · "+Math.round((ch.winRate||0.6)*100)+"% win rate";
+    : ch.isBot ? "Beat the Crown Guardian bot to become the first Crown Holder!"
+    : (ch.wins||1)+" Crown Clash win"+((ch.wins||1)===1?"":"s");
 }
 
 function renderK5Kingdom(){
@@ -5821,6 +5828,7 @@ function endK5CrownClash(bs){
   clearInterval(bs.timer); clearInterval(bs.oppTimer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?220:tie?110:60, coins=win?170:tie?85:30;
+  recordBattle(bs.opp.name, bs.myScore, bs.oppScore);
   S.xp+=xp; coins=awardCoins(coins, "Crown Clash "+(win?"win":tie?"tie":"battle")); if(win) S.wins=(S.wins||0)+1; saveSession();
   renderK5Rewards();
 
@@ -5851,20 +5859,24 @@ function endK5CrownClash(bs){
   showToast(becameChamp ? "👑 New Crown Holder! +"+coins+" MathCoins" : (win?"Victory! +"+coins+" MathCoins":"Good fight! +"+xp+" XP"));
 }
 
+// Top players in the student's grade, from real profiles. Also fills in
+// the home "Grade Rank" stat from the same data.
 function renderMiniLB(){
   var el=$$("mini-lb"); if(!el) return;
-  var html="";
-  LB_DATA.slice(0,4).forEach(function(p,i){
-    var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
-    html+="<div class='lb-row'>"
-      +"<div class='lb-rank'>"+rank+"</div>"
-      +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
-      +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div><div class='lb-grade'>"+p.g+"</div></div>"
-      +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
-      +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+p.chg+"</div></div>"
-      +"</div>";
+  if(!window.fetchLeaderboard || !S.name || S.isPreview){ el.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:14px'>Sign up to see your grade's top players.</div>"; return; }
+  window.fetchLeaderboard(S.gradeNum, 500).then(function(rows){
+    rows=rows||[];
+    var me=myUid(), idx=-1;
+    rows.forEach(function(r,i){ if(r.uid===me) idx=i; });
+    var rk=$$("stat-rank"); if(rk) rk.textContent = idx>-1 ? "#"+(idx+1) : "—";
+    if(!rows.length){ el.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:14px'>No "+gradeOrdinal(S.gradeNum)+" players on the board yet. Answer questions to be the first!</div>"; return; }
+    el.innerHTML=rows.slice(0,4).map(function(p,i){
+      return "<div class='lb-row'><div class='lb-rank'>"+(i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1))+"</div>"
+        +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+escHtml((p.name||"?")[0].toUpperCase())+"</div>"
+        +"<div class='lb-info'><div class='lb-name'>"+(p.uid===me?"⭐ ":"")+escHtml(p.name)+"</div><div class='lb-grade'>"+escHtml(gradeOrdinal(p.grade))+"</div></div>"
+        +"<div class='lb-pts-wrap'><div class='lb-pts'>"+(p.xp||0).toLocaleString()+"</div></div></div>";
+    }).join("");
   });
-  el.innerHTML = html;
 }
 
 // ── TRIVIA ─────────────────────────────────────────────
@@ -5880,15 +5892,18 @@ function renderRoom(){ renderRoomLB(); renderSourceList(); if(!session.qs.length
 
 function renderRoomLB(){
   var el=$$("room-lb"); if(!el) return;
-  var html="";
-  LB_DATA.slice(0,3).forEach(function(p,i){
-    var rank=i===0?"1st":i===1?"2nd":"3rd";
-    html+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
-      +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
-      +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div></div>"
-      +"<div class='lb-pts'>"+p.pts.toLocaleString()+" XP</div></div>";
+  if(!window.fetchLeaderboard || !S.name || S.isPreview){ el.innerHTML="<div style='font-size:13px;color:var(--text2);padding:10px'>Sign up to see your grade's top players.</div>"; return; }
+  window.fetchLeaderboard(S.gradeNum, 3).then(function(rows){
+    rows=rows||[];
+    if(!rows.length){ el.innerHTML="<div style='font-size:13px;color:var(--text2);padding:10px'>No players in your grade yet. You could be first!</div>"; return; }
+    var me=myUid();
+    el.innerHTML=rows.map(function(p,i){
+      return "<div class='lb-row'><div class='lb-rank'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
+        +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+escHtml((p.name||"?")[0].toUpperCase())+"</div>"
+        +"<div class='lb-info'><div class='lb-name'>"+(p.uid===me?"⭐ ":"")+escHtml(p.name)+"</div></div>"
+        +"<div class='lb-pts'>"+(p.xp||0).toLocaleString()+" XP</div></div>";
+    }).join("");
   });
-  el.innerHTML=html;
 }
 
 function renderSourceList(){
@@ -6034,110 +6049,27 @@ function filterOpponents(filter, btn){
 
 function renderOppList(){
   var el=$$("opp-list"); if(!el) return;
-  var myBand=getGradeBandNum(S.gradeNum||7);
   var myGrade=S.gradeNum||7;
-  var filtered=OPPS.filter(function(o){
-    if(CHALLENGE_FILTER==="same") return o.gradeN===myGrade;
+  var bots=OPPS.filter(function(o){
+    if(CHALLENGE_FILTER==="same") return Math.abs(o.gradeN-myGrade)<=1;
     if(CHALLENGE_FILTER==="higher") return o.gradeN>myGrade;
     return true;
   });
-  // Randomize AI opponent online status for demo
-  var aiOnlineNames=["Jordan K.","Sam P.","Dana R.","Morgan L."];
-  var allOpps=filtered.concat(SESSION_PLAYERS.filter(function(p){
-    var g=parseInt(p.grade)||myGrade;
-    if(CHALLENGE_FILTER==="same") return g===myGrade;
-    if(CHALLENGE_FILTER==="higher") return g>myGrade;
-    return true;
-  }).map(function(p){
-    return {n:p.name,gradeN:parseInt(p.grade)||myGrade,band:myBand,tier:"Level "+p.level,meta:p.grade+" - "+p.wins+" Wins",wr:(50+p.wins)+"% Win Rate",winRate:0.5,e:p.name[0],bg:"linear-gradient(135deg,var(--mint),var(--sky))",isReal:true,online:true};
-  }));
   el.innerHTML="";
-  if(allOpps.length===0){
-    var empty=document.createElement("div"); empty.className="card"; empty.style.cssText="text-align:center;padding:28px;color:var(--text2)";
-    empty.innerHTML="<div style='font-size:36px;margin-bottom:10px'>No opponents at this level</div><div>Try All Levels</div>";
-    el.appendChild(empty); return;
+  if(!bots.length){
+    el.innerHTML="<div class='card' style='text-align:center;padding:24px;color:var(--text2)'>No bots at this level. Try All Levels.</div>";
+    return;
   }
-  // Online count badge
-  var onlineCount=allOpps.filter(function(o){ return aiOnlineNames.indexOf(o.n)>-1||o.online; }).length;
-  var header=document.createElement("div");
-  header.style.cssText="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;font-weight:800;color:var(--text2)";
-  header.innerHTML="<span style='width:8px;height:8px;border-radius:50%;background:var(--mint);display:inline-block;box-shadow:0 0 6px var(--mint)'></span>"+onlineCount+" players currently online &nbsp;|&nbsp; <span style='color:var(--text2)'>Gray dot = offline</span>";
-  el.appendChild(header);
-  allOpps.forEach(function(o){
-    var isOnline=o.online||aiOnlineNames.indexOf(o.n)>-1||isPlayerOnline(o.n);
+  bots.forEach(function(o){
     var card=document.createElement("div"); card.className="opp-card"; card.style.cursor="pointer";
-    card.setAttribute("data-n",o.n); card.setAttribute("data-e",o.e); card.setAttribute("data-bg",o.bg); card.setAttribute("data-wr",o.winRate||0.72); card.setAttribute("data-online",isOnline?"1":"0");
-    var realBadge=o.isReal?"<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>":"<span class='badge b-sky' style='font-size:10px;margin-left:4px'>AI</span>";
-    var onlineDot="<span style='display:inline-block;width:10px;height:10px;border-radius:50%;background:"+(isOnline?"#06D6A0":"#666")+";box-shadow:"+(isOnline?"0 0 8px #06D6A0":"none")+"';flex-shrink:0;margin-right:4px' title='"+(isOnline?"Online":"Offline")+"'></span>";
-    var statusText=isOnline?"<span style='color:var(--mint);font-size:11px;font-weight:800'>● Online — Ready to battle!</span>":"<span style='color:#888;font-size:11px'>⬤ Offline</span>";
-    var actionBtn=isOnline
-      ?"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>⚔️ Challenge</button>"
-      :"<button class='btn btn-ghost btn-xs' style='flex-shrink:0;opacity:0.6'>Practice</button>";
-    card.innerHTML="<div style='position:relative;flex-shrink:0'>"
-      +"<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900'>"+o.e+"</div>"
-      +"<span style='position:absolute;bottom:0;right:0;width:13px;height:13px;border-radius:50%;background:"+(isOnline?"var(--mint)":"#555")+";border:2px solid var(--dark2);box-shadow:"+(isOnline?"0 0 6px var(--mint)":"none")+"'></span></div>"
-      +"<div class='opp-info'><div class='opp-name'>"+o.n+realBadge+"</div>"
-      +"<div class='opp-meta' style='margin-bottom:3px'>Grade "+o.gradeN+" · "+o.tier+" · "+o.meta.split(" - ").slice(-1)[0]+"</div>"
-      +"<div>"+statusText+"</div></div>"
-      +actionBtn;
-    card.addEventListener("click",function(){
-      var online=this.getAttribute("data-online")==="1";
-      if(online){
-        sendChallengeInvite(this.getAttribute("data-n"),this.getAttribute("data-e"),this.getAttribute("data-bg"),parseFloat(this.getAttribute("data-wr")));
-      } else {
-        showToast(this.getAttribute("data-n")+" is offline. Starting practice battle instead...");
-        startBattleWith(this.getAttribute("data-n"),this.getAttribute("data-e"),this.getAttribute("data-bg"),parseFloat(this.getAttribute("data-wr")));
-      }
-    });
+    card.innerHTML="<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0'>"+o.e+"</div>"
+      +"<div class='opp-info'><div class='opp-name'>"+escHtml(o.n)+"<span class='badge b-sky' style='font-size:10px;margin-left:6px'>BOT</span></div>"
+      +"<div class='opp-meta'>Grade "+o.gradeN+" questions · "+o.tier+" difficulty</div></div>"
+      +"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>⚔️ Practice</button>";
+    card.addEventListener("click",function(){ startBattleWith(o.n,o.e,o.bg,o.winRate); });
     el.appendChild(card);
   });
 }
-
-function sendChallengeInvite(name,emoji,bg,winRate){
-  // Show invite dialog
-  var overlay=document.createElement("div");
-  overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)";
-  overlay.id="challenge-invite-overlay";
-  var box=document.createElement("div");
-  box.style.cssText="background:linear-gradient(135deg,var(--dark2),var(--dark3));border:2px solid var(--coral);border-radius:24px;padding:28px;max-width:360px;width:90%;text-align:center;animation:pop-in .3s ease";
-  box.innerHTML="<div style='font-size:52px;margin-bottom:12px'>⚔️</div>"
-    +"<div style='font-family:Fredoka One,cursive;font-size:24px;margin-bottom:8px'>Challenge Sent!</div>"
-    +"<div style='font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.7'>"
-    +"<strong style='color:var(--sun)'>"+name+"</strong> has been notified of your challenge!<br><br>"
-    +"<span style='display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)'></span> "
-    +"<strong style='color:var(--mint)'>"+name+" is online</strong> and will accept shortly.<br><br>"
-    +"<span style='color:var(--text2);font-size:12px'>⏱️ Waiting for "+name+" to accept... (15 seconds)</span>"
-    +"</div>"
-    +"<div style='display:flex;gap:8px;justify-content:center'></div>";
-  var waitBar=document.createElement("div");
-  waitBar.style.cssText="height:6px;background:rgba(255,255,255,0.1);border-radius:100px;margin-bottom:20px;overflow:hidden";
-  var fill=document.createElement("div");
-  fill.style.cssText="height:100%;background:linear-gradient(90deg,var(--coral),var(--sun));border-radius:100px;transition:width 0.5s linear;width:100%";
-  waitBar.appendChild(fill);
-  box.insertBefore(waitBar,box.querySelector("div:last-child"));
-  var btnRow=box.querySelector("div:last-child");
-  var cancelBtn=document.createElement("button"); cancelBtn.className="btn btn-ghost btn-sm"; cancelBtn.textContent="Cancel";
-  cancelBtn.addEventListener("click",function(){ overlay.remove(); clearInterval(inviteTimer); showToast("Challenge cancelled."); });
-  var fightBtn=document.createElement("button"); fightBtn.className="btn btn-coral btn-sm"; fightBtn.textContent="Start Now!";
-  fightBtn.addEventListener("click",function(){ overlay.remove(); clearInterval(inviteTimer); startBattleWith(name,emoji,bg,winRate); });
-  btnRow.appendChild(cancelBtn); btnRow.appendChild(fightBtn);
-  overlay.appendChild(box); document.body.appendChild(overlay);
-  // Countdown — simulate opponent accepting after 3-5s
-  var timeLeft=15, accepted=false;
-  var acceptTime=3+Math.floor(Math.random()*5);
-  var inviteTimer=setInterval(function(){
-    timeLeft--;
-    fill.style.width=(timeLeft/15*100)+"%";
-    if(timeLeft<=acceptTime&&!accepted){
-      accepted=true;
-      box.querySelector("div:nth-child(3)").innerHTML="<strong style='color:var(--mint);font-size:16px'>✅ "+name+" accepted your challenge!</strong><br><br><span style='color:var(--text2)'>Battle starting now...</span>";
-      fill.style.background="var(--mint)";
-      setTimeout(function(){ overlay.remove(); clearInterval(inviteTimer); startBattleWith(name,emoji,bg,winRate); },1500);
-    }
-    if(timeLeft<=0){ clearInterval(inviteTimer); if(!accepted){ overlay.remove(); showToast(name+" didn't respond. Try Quick Match!"); } }
-  },1000);
-}
-
 
 // ═══ REAL-TIME MULTIPLAYER SYSTEM ════════════════════════════
 
@@ -6191,7 +6123,7 @@ window.renderLivePlayers = function(players){
       var card = document.createElement("div");
       card.className = "opp-card";
       if(p.inBattle) card.style.opacity = "0.55";
-      var gradeLabel = p.grade ? p.grade + "th Grade" : "K-12";
+      var gradeLabel = p.grade ? gradeOrdinal(p.grade) : "K-12";
       var rightHtml = p.inBattle
         ? "<span style='color:var(--coral);font-size:11px;font-weight:700'>IN BATTLE</span>"
         : "<button class='btn btn-xs btn-coral challenge-btn'>Challenge &#x2694;&#xFE0F;</button>";
@@ -6259,7 +6191,7 @@ window.showIncomingChallenge = function(fromUid, fromName, fromGrade, callback){
     + "<div style='font-size:16px;letter-spacing:2px;color:var(--mint);font-weight:700;margin-bottom:8px'>INCOMING CHALLENGE</div>"
     + "<div style='font-size:52px;margin-bottom:12px'>⚔️</div>"
     + "<div style='font-family:Fredoka One,cursive;font-size:24px;color:var(--sun);margin-bottom:4px'>"+fromName+"</div>"
-    + "<div style='font-size:13px;color:var(--text2);margin-bottom:4px'>"+(fromGrade ? fromGrade+"th Grade" : "")+" · wants to battle you!</div>"
+    + "<div style='font-size:13px;color:var(--text2);margin-bottom:4px'>"+(fromGrade ? gradeOrdinal(fromGrade) : "")+" · wants to battle you!</div>"
     + "<div style='font-size:28px;font-weight:900;color:var(--sun);margin:16px 0' id='challenge-countdown'>"+countdown+"</div>"
     + "<div style='background:rgba(255,255,255,0.08);border-radius:100px;height:5px;overflow:hidden;margin-bottom:20px'>"
     + "<div id='incoming-prog' style='width:100%;height:100%;background:linear-gradient(90deg,var(--mint),var(--sun));transition:width 20s linear'></div></div>"
@@ -6456,20 +6388,25 @@ function renderChallenge(){
     window.renderLivePlayers(window.LIVE_PLAYERS);
   }
   renderOppList();
+  renderBattleHistory();
+}
+
+// The player's own recent battles (saved with their progress).
+function recordBattle(opp, myScore, oppScore){
+  var r=myScore>oppScore?"Win":myScore===oppScore?"Draw":"Loss";
+  S.battleHistory=[{o:opp, r:r, sc:myScore+" - "+oppScore, t:Date.now()}].concat(S.battleHistory||[]).slice(0,10);
+}
+function renderBattleHistory(){
   var hist=$$("battle-hist"); if(!hist) return;
-  var histData=[
-    {o:"Jordan K.",r:"Win",sc:"4/5 vs 3/5",d:"Today",c:"var(--mint)"},
-    {o:"Riley M.",r:"Loss",sc:"2/5 vs 4/5",d:"Yesterday",c:"var(--coral)"},
-    {o:"Sam P.",r:"Win",sc:"5/5 vs 2/5",d:"Mar 21",c:"var(--mint)"}
-  ];
-  var html="";
-  histData.forEach(function(h){
-    html+="<div class='hist-row'><div class='hist-dot' style='background:"+h.c+"'></div>"
-      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>vs "+h.o+"</div>"
-      +"<div style='font-size:12px;color:var(--text2)'>"+h.sc+" - "+h.d+"</div></div>"
-      +"<span class='badge "+(h.r==="Win"?"b-mint":"b-coral")+"'>"+h.r+"</span></div>";
-  });
-  hist.innerHTML=html;
+  var list=(S.name && !S.isPreview) ? (S.battleHistory||[]) : [];
+  if(!list.length){ hist.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:14px'>No battles yet. Pick a practice bot or an online player to start!</div>"; return; }
+  hist.innerHTML=list.map(function(h){
+    var c=h.r==="Win"?"var(--mint)":h.r==="Draw"?"var(--sun)":"var(--coral)";
+    return "<div class='hist-row'><div class='hist-dot' style='background:"+c+"'></div>"
+      +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>vs "+escHtml(h.o)+"</div>"
+      +"<div style='font-size:12px;color:var(--text2)'>"+escHtml(h.sc)+" · "+new Date(h.t).toLocaleDateString()+"</div></div>"
+      +"<span class='badge "+(h.r==="Win"?"b-mint":h.r==="Draw"?"b-sun":"b-coral")+"'>"+h.r+"</span></div>";
+  }).join("");
 }
 
 function challengeOpp(name,emoji,bg,winRate){
@@ -6573,6 +6510,7 @@ function endBattle(bs){
   clearInterval(bs.timer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?200:tie?100:50, coins=win?150:tie?75:25;
+  recordBattle(bs.opp.name, bs.myScore, bs.oppScore);
   S.xp+=xp; coins=awardCoins(coins, "Practice Battle "+(win?"win":tie?"tie":"loss")); saveSession();
   if(S.tier==="k5") renderK5Rewards();
   var wrap=$$("battle-q-wrap"); if(!wrap) return;
@@ -6625,7 +6563,7 @@ function searchPlayers(queryStr){
         var isBusy=p.online && p.inBattle;
         var borderColor=isOnline?"rgba(6,214,160,0.3)":"rgba(255,255,255,0.08)";
         var bgColor=isOnline?"rgba(6,214,160,0.05)":"rgba(255,255,255,0.03)";
-        var gradeLabel=p.grade?p.grade+"th Grade":"K-12";
+        var gradeLabel=p.grade?gradeOrdinal(p.grade):"K-12";
         var statusDot=isOnline
           ?"<span style='display:inline-block;width:8px;height:8px;background:var(--mint);border-radius:50%;margin-right:4px'></span><span style='color:var(--mint);font-weight:700'>Online now</span>"
           :isBusy
@@ -6736,78 +6674,36 @@ function setLBTab(tab,btn){
   if(btn) btn.classList.add("on");
   window.currentLBTab = tab;
   var gb=document.getElementById("lb-grade-btn");
-  if(gb) gb.textContent="\u{1F3EB} My Grade ("+(S.gradeNum||7)+"th)";
+  if(gb) gb.textContent="\u{1F3EB} My Grade ("+(gradeOrdinal(S.gradeNum||7).replace(" Grade",""))+")";
   renderLeaderboard();
 }
 
-// Sample data shown only as a placeholder: while a real query is in
-// flight, if it fails, or (during early rollout) if there simply aren't
-// enough real students in a grade yet to fill a leaderboard.
-function leaderboardSampleData(tab, gn){
-  var gl=gn+"th";
-  var BASE=[
-    {n:"Jordan K.",g:gl,  pts:5820,e:"J",chg:"",up:true},
-    {n:"Sam P.",   g:gl,  pts:5410,e:"S",chg:"",up:true},
-    {n:"Riley M.", g:gl,  pts:5200,e:"R",chg:"",up:false},
-    {n:"Alex J.",  g:gl,  pts:3240,e:"A",chg:"",up:true},
-    {n:"Casey T.", g:gl,  pts:3100,e:"C",chg:"",up:false},
-    {n:"Morgan L.",g:gl,  pts:2980,e:"M",chg:"",up:true},
-    {n:"Taylor B.",g:gl,  pts:2750,e:"T",chg:"",up:false},
-    {n:"Drew K.",  g:gl,  pts:2640,e:"D",chg:"",up:true}
-  ];
-  var ALL=[
-    {n:"Priya S.", g:"11th",pts:8200,e:"P",chg:"+3",up:true},
-    {n:"Sam P.",   g:"7th", pts:7500,e:"S",chg:"+1",up:true},
-    {n:"Jordan K.",g:"5th", pts:6800,e:"J",chg:"+2",up:true},
-    {n:"Riley M.", g:"9th", pts:5200,e:"R",chg:"0", up:false},
-    {n:"Alex J.",  g:"11th",pts:4800,e:"A",chg:"+4",up:true},
-    {n:"Casey T.", g:"3rd", pts:4100,e:"C",chg:"-1",up:false},
-    {n:"Morgan L.",g:"6th", pts:3900,e:"M",chg:"+2",up:true},
-    {n:"Taylor B.",g:"10th",pts:3200,e:"T",chg:"-2",up:false}
-  ];
-  var NAT=[
-    {n:"Mathew K.",g:"12th",pts:18200,e:"M",chg:"",up:true},
-    {n:"Priya S.", g:"11th",pts:15800,e:"P",chg:"",up:true},
-    {n:"Jordan K.",g:"5th", pts:14200,e:"J",chg:"",up:true},
-    {n:"Devon R.", g:"9th", pts:11900,e:"D",chg:"",up:false},
-    {n:"Sam P.",   g:"7th", pts:10500,e:"S",chg:"",up:true},
-    {n:"Riley M.", g:"8th", pts:9800, e:"R",chg:"",up:false},
-    {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"",up:true},
-    {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"",up:true}
-  ];
-  return tab==="national"?NAT:tab==="school"?ALL:BASE;
+function showLeaderboardMessage(msg){
+  var note=$$("lb-sample-note"); if(note) note.style.display="none";
+  var pod=$$("lb-podium"); if(pod) pod.innerHTML="";
+  var full=$$("lb-full"); if(full) full.innerHTML="<div style='font-size:13px;color:var(--text2);text-align:center;padding:18px'>"+msg+"</div>";
 }
 
+// Real players only (public_profiles). An empty board says so instead
+// of showing made-up names.
 function renderLeaderboard(){
   var tab=window.currentLBTab||"grade";
   var gn=S.gradeNum||7;
-
-  // "My Grade", "National" and "This Week" are backed by real
-  // public_profiles data. "School" stays sample data for now — there's no
-  // school/roster data model yet to make it real.
   if(tab==="weekly"){ renderWeeklyLeaderboard(); return; }
-  if(tab!=="grade" && tab!=="national"){
-    renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
-    return;
-  }
-  if(!window.fetchLeaderboard){
-    renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
-    return;
-  }
-  var gradeFilter = tab==="grade" ? gn : null;
-  var requestedTab = tab; // guard against a stale response after a tab switch
-  window.fetchLeaderboard(gradeFilter, 20).then(function(real){
+  if(!window.fetchLeaderboard){ showLeaderboardMessage("Sign in to see the leaderboard."); return; }
+  showLeaderboardMessage("Loading the leaderboard…");
+  var requestedTab=tab;
+  window.fetchLeaderboard(tab==="grade" ? gn : null, 20).then(function(real){
     if(window.currentLBTab!==requestedTab) return;
-    if(real && real.length){
-      renderLeaderboardRows(real.map(function(p){
-        return {n:p.name, g:(p.grade||gn)+"th", pts:p.xp||0, e:(p.name||"?")[0].toUpperCase(), chg:"", up:true};
-      }), false);
-    } else {
-      renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
-    }
+    if(real===null){ showLeaderboardMessage("Couldn't load the leaderboard. Check your connection and try again."); return; }
+    if(!real.length){ showLeaderboardMessage(tab==="grade" ? "No "+gradeOrdinal(gn)+" players on the board yet. Answer questions to be the first!" : "No players on the board yet. Be the first!"); return; }
+    var me=myUid();
+    renderLeaderboardRows(real.map(function(p){
+      return {n:(p.uid===me?"⭐ ":"")+p.name, g:gradeOrdinal(p.grade)||"", pts:p.xp||0, e:(p.name||"?")[0].toUpperCase(), chg:"", up:true};
+    }), false);
   }).catch(function(){
     if(window.currentLBTab!==requestedTab) return;
-    renderLeaderboardRows(leaderboardSampleData(tab, gn), true);
+    showLeaderboardMessage("Couldn't load the leaderboard. Check your connection and try again.");
   });
 }
 
@@ -6829,7 +6725,7 @@ function renderWeeklyLeaderboard(){
     var list=rows.filter(function(r){ return mcDivision(r.grade)===div && (r.wkAnswered||0)>0 && (r.wkAnswered||0)<=WEEKLY_MAX_ANSWERS; })
       .map(function(r){
         var a=r.wkAnswered||0, c=Math.min(r.wkCorrect||0, a), acc=a?c/a:0;
-        return {n:r.displayLabel||"Player", g:(r.grade||"")+"th", pts:Math.round(c*acc), e:(r.displayLabel||"P")[0].toUpperCase(),
+        return {n:r.displayLabel||"Player", g:gradeOrdinal(r.grade)||"", pts:Math.round(c*acc), e:(r.displayLabel||"P")[0].toUpperCase(),
           q:(a>=WEEKLY_MIN_ANSWERS && acc>=WEEKLY_MIN_ACCURACY), chg:Math.round(acc*100)+"% acc", up:acc>=WEEKLY_MIN_ACCURACY};
       })
       .sort(function(x,y){ return (y.q-x.q) || (y.pts-x.pts); });
@@ -6944,8 +6840,26 @@ function registerForFeaturedTournament(){
 }
 
 // ── AI TUTOR ───────────────────────────────────────────
+// Topics with the lowest accuracy, from this student's real answers.
+function prettyTopic(t){ return String(t).replace(/([a-z])([A-Z0-9])/g,"$1 $2").replace(/I I$/,"II"); }
+function renderWeakSpots(){
+  var el=$$("weak-spots"); if(!el) return;
+  var weak=(S.name && !S.isPreview) ? getWeakTopics(S.topicStats||{}, 5, 3).filter(function(r){ return r.accuracy<0.85; }) : [];
+  if(!weak.length){
+    el.innerHTML="<div class='card' style='font-size:13px;color:var(--text2);text-align:center;padding:16px'>Answer at least 5 questions in a topic and your weakest topics will show up here.</div>";
+    return;
+  }
+  el.innerHTML=weak.map(function(r){
+    var name=prettyTopic(r.topic);
+    return "<div class='card' style='display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:14px'>"
+      +"<div style='flex:1'><div style='font-weight:800'>"+escHtml(name)+"</div><div style='font-size:12px;color:var(--text2)'>"+Math.round(r.accuracy*100)+"% correct · "+r.attempted+" questions</div></div>"
+      +"<button class='btn btn-sun btn-xs' onclick=\"askTutor('Help me understand "+escHtml(name).replace(/'/g,"")+" with an easy example')\">Ask Axiom</button></div>";
+  }).join("");
+}
+
 function renderTutor(){
   updateAxiomCounter();
+  renderWeakSpots();
   var qp=$$("quick-prompts"); if(!qp) return;
   qp.innerHTML="";
   QUICK_PROMPTS.forEach(function(p){
@@ -7951,9 +7865,8 @@ function showMobNav(show){
 
 // ── COUNTDOWN ──────────────────────────────────────────
 function startCountdown(){
-  var secs=8*3600+23*60+41;
   setInterval(function(){
-    if(secs>0) secs--;
+    var secs=Math.floor(msUntilNextDaily()/1000);
     var h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
     var hh=$$("cd-h"),mm=$$("cd-m"),ss=$$("cd-s");
     if(hh) hh.textContent=String(h).padStart(2,"0");
@@ -8800,12 +8713,14 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   // public_profiles mirror, never the private users collection.
   window.fetchLeaderboard = async function(gradeNum, topN) {
     try {
-      const clauses = [collection(db, "public_profiles")];
-      if (gradeNum) clauses.push(where("grade", "==", String(gradeNum)));
-      clauses.push(orderBy("xp", "desc"));
-      clauses.push(limit(topN || 20));
-      const snap = await getDocs(query.apply(null, clauses));
-      return snap.docs.map((d, i) => ({
+      // A grade filter is sorted here in the browser, so this works without
+      // a composite Firestore index.
+      const q = gradeNum
+        ? query(collection(db, "public_profiles"), where("grade", "==", String(gradeNum)), limit(500))
+        : query(collection(db, "public_profiles"), orderBy("xp", "desc"), limit(topN || 20));
+      const snap = await getDocs(q);
+      const docs = snap.docs.slice().sort((a, b) => (b.data().xp || 0) - (a.data().xp || 0)).slice(0, topN || 20);
+      return docs.map((d, i) => ({
         rank: i + 1, uid: d.id, name: d.data().displayLabel || "Player",
         xp: d.data().xp || 0, level: d.data().level || 1,
         wins: d.data().wins || 0, grade: d.data().grade || ""

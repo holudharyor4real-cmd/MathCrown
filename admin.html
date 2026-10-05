@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>MathCrown Founder Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+/* Founder dashboard: one dark brand surface, KPI row first, then the
+   action queue (rewards to send), then charts and tables. */
+:root{
+  --bg:#080f1e; --panel:#0f2242; --panel2:#132a50; --line:rgba(255,255,255,0.08);
+  --ink:#f0f6ff; --ink2:rgba(224,236,255,0.68); --ink3:rgba(224,236,255,0.45);
+  --gold:#ffd93d; --bar:#3d8bff; --good:#06d6a0; --warn:#ffb020; --bad:#ff6b6b;
+  --display:'Fredoka One','Nunito',system-ui,sans-serif; --body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding:0 16px 48px;}
+button{font:inherit}
+.wrap{max-width:1240px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font:400 24px var(--display);margin:0}
+.brand h1 em{color:var(--gold);font-style:normal}
+.brand small{display:block;color:var(--ink3);font-size:12px;font-weight:700}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer}
+.btn:hover{border-color:rgba(255,255,255,0.25)}
+.btn.gold{background:var(--gold);color:#0b1629;border-color:var(--gold)}
+.btn:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:default}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;min-width:0}
+h2{font:400 20px var(--display);margin:0 0 4px}
+.sub{color:var(--ink2);font-size:13px;margin:0 0 14px}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.kpis{grid-template-columns:minmax(0,1fr)}}
+.kpi .v{font:400 34px var(--display);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.kpi .n{font-size:12px;color:var(--ink3);margin-top:2px}
+.two{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);margin-bottom:16px}
+.three{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}
+@media (max-width:900px){.two,.three{grid-template-columns:minmax(0,1fr)}}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);text-align:left;font-weight:800;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right}
+.tbl{overflow-x:auto}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,0.07);color:var(--ink2)}
+.pill.good{background:rgba(6,214,160,0.14);color:var(--good)}
+.pill.warn{background:rgba(255,176,32,0.14);color:var(--warn)}
+.empty{color:var(--ink3);font-size:13px;padding:12px 0}
+.urgent{border-color:rgba(255,217,61,0.45);background:linear-gradient(135deg,rgba(255,217,61,0.08),transparent 60%),var(--panel)}
+/* bar charts */
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.axis text{fill:var(--ink3);font:600 11px var(--body)}
+.grid-line{stroke:rgba(255,255,255,0.07);stroke-width:1}
+.barmark{fill:var(--bar)}
+.barmark:hover,.barmark.on{fill:#6aa6ff}
+.tip{position:absolute;pointer-events:none;background:#0b1629;border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--ink);white-space:nowrap;transform:translate(-50%,-110%);display:none;z-index:5}
+.tip b{display:block;font-size:13px}
+.hbar{display:grid;grid-template-columns:minmax(110px,40%) 1fr auto;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+.hbar .track{height:14px;border-radius:4px;background:rgba(255,255,255,0.05);overflow:hidden}
+.hbar .fill{height:100%;border-radius:0 4px 4px 0;background:var(--bar)}
+.hbar .val{font-weight:800;font-variant-numeric:tabular-nums;min-width:64px;text-align:right}
+.hbar .val small{color:var(--ink3);font-weight:700;margin-left:4px}
+.note{font-size:12px;color:var(--ink3);margin-top:10px}
+/* sign-in */
+.signin{max-width:420px;margin:60px auto}
+.signin label{display:block;font-size:12px;font-weight:800;color:var(--ink2);margin:12px 0 4px}
+.signin input{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);background:#0b1629;color:var(--ink);font:inherit}
+.msg{margin-top:12px;font-size:13px;color:var(--bad)}
+.uid{font-family:ui-monospace,Menlo,monospace;background:#0b1629;border:1px solid var(--line);border-radius:8px;padding:8px 10px;word-break:break-all;margin:8px 0;user-select:all}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg width="36" height="36" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#1C3A6E" stroke="#FFD93D" stroke-width="3"/><path d="M28 80 V48 l14 14 18-30 18 30 14-14 V80z" fill="#FFD93D"/><rect x="28" y="82" width="64" height="8" rx="3" fill="#FFD93D"/></svg>
+      <div><h1>Math<em>Crown</em> Founder Dashboard</h1><small id="stamp">Private · admins only</small></div>
+    </div>
+    <div class="actions" id="topActions" hidden>
+      <button class="btn" id="refreshBtn">↻ Refresh</button>
+      <button class="btn" id="signOutBtn">Sign out</button>
+    </div>
+  </header>
+
+  <section class="card signin" id="signin" hidden>
+    <h2>Sign in</h2>
+    <p class="sub">Use your MathCrown account. Only accounts listed as admins can see this dashboard.</p>
+    <form id="signinForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <div style="margin-top:16px"><button class="btn gold" type="submit" id="signinBtn">Sign in</button></div>
+    </form>
+    <div class="msg" id="signinMsg"></div>
+  </section>
+
+  <section class="card signin" id="notAdmin" hidden>
+    <h2>Almost there</h2>
+    <p class="sub">This account isn't set up as an admin yet. Copy your account ID below, then in Cloudflare open the <strong>mathcrown-api</strong> Worker → Settings → Variables and Secrets, add a variable named <strong>ADMIN_UIDS</strong> with this ID as its value, and deploy.</p>
+    <div class="uid" id="myUid"></div>
+    <button class="btn" id="copyUid">Copy ID</button>
+    <button class="btn" id="retryBtn">I've added it, try again</button>
+  </section>
+
+  <div id="loading" class="empty" hidden>Loading the latest numbers…</div>
+  <div id="loadError" class="card" hidden></div>
+
+  <main id="dash" hidden>
+    <div class="grid kpis" id="kpis"></div>
+
+    <section class="card urgent" style="margin-bottom:16px">
+      <h2>Rewards to send</h2>
+      <p class="sub">Parent-approved rewards. Send each one to the parent's email (or ask for a mailing address for supply kits), then mark it as sent.</p>
+      <div class="tbl" id="toSend"></div>
+      <div class="note" id="waitingNote"></div>
+    </section>
+
+    <div class="grid two">
+      <section class="card">
+        <h2>New accounts</h2>
+        <p class="sub">Last 30 days, all account types. Hover a bar for the breakdown.</p>
+        <div class="chart" id="signupChart"></div>
+      </section>
+      <section class="card">
+        <h2>Student funnel</h2>
+        <p class="sub">From sign-up to paying. Percent is of the step above.</p>
+        <div id="funnel"></div>
+      </section>
+    </div>
+
+    <div class="grid three">
+      <section class="card">
+        <h2>Learning</h2>
+        <p class="sub">Is it working?</p>
+        <div class="tbl"><table id="learning"></table></div>
+      </section>
+      <section class="card">
+        <h2>Students by grade</h2>
+        <p class="sub">Accounts per grade group.</p>
+        <div id="bands"></div>
+      </section>
+      <section class="card">
+        <h2>Coming back</h2>
+        <p class="sub">The numbers investors ask about first.</p>
+        <div class="tbl"><table id="retention"></table></div>
+      </section>
+    </div>
+
+    <div class="grid two">
+      <section class="card">
+        <h2>Subscriptions</h2>
+        <p class="sub" id="subSource">From Stripe.</p>
+        <div class="tbl" id="subs"></div>
+      </section>
+      <section class="card">
+        <h2>Last week's Weekly Champions</h2>
+        <p class="sub" id="weeklySub">Top Scorer and Most Improved per division.</p>
+        <div class="tbl" id="weekly"></div>
+      </section>
+    </div>
+
+    <div class="grid two">
+      <section class="card">
+        <h2>Newest accounts</h2>
+        <p class="sub">First name and last initial only.</p>
+        <div class="tbl" id="recent"></div>
+      </section>
+      <section class="card">
+        <h2>Families &amp; classrooms</h2>
+        <p class="sub">Parents linking kids and teachers bringing classes.</p>
+        <div class="tbl"><table id="families"></table></div>
+      </section>
+    </div>
+    <p class="note">Activity (active days, questions today, Weekly Goals) is tracked from October 3, 2026 onward; students who haven't played since then show as not yet active.</p>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const API = "https://mathcrown-api.holudharyor4real.workers.dev";
+const app = initializeApp({
+  apiKey: "AIzaSyBPSvyqDq5Rl-2omowIqo86OGvrJdrP-no",
+  authDomain: "mathchamp-adbd6.firebaseapp.com",
+  projectId: "mathchamp-adbd6",
+  storageBucket: "mathchamp-adbd6.appspot.com",
+  messagingSenderId: "452357170807",
+  appId: "1:452357170807:web:c8316419bda136ec628872"
+});
+const auth = getAuth(app);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString());
+const pct = (n) => (n == null ? "—" : n + "%");
+const date = (ms) => (ms ? new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—");
+const show = (id, on) => { $(id).hidden = !on; };
+
+async function post(path, body) {
+  const idToken = await auth.currentUser.getIdToken();
+  const res = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ idToken }, body || {})) });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+async function load() {
+  ["signin", "notAdmin", "loadError"].forEach((id) => show(id, false));
+  show("loading", true);
+  const r = await post("/admin/overview").catch(() => ({ ok: false, status: 0, data: { error: "Couldn't reach the server." } }));
+  show("loading", false);
+  if (r.status === 403) { $("myUid").textContent = auth.currentUser.uid; show("notAdmin", true); show("dash", false); return; }
+  if (!r.ok) { $("loadError").innerHTML = "<h2>Couldn't load the dashboard</h2><p class='sub'>" + esc(r.data.error || ("Server error " + r.status)) + "</p><p class='sub'>If the Worker hasn't been redeployed with the latest code yet, do that first: /health should show version 11 or later.</p>"; show("loadError", true); return; }
+  render(r.data);
+  show("dash", true);
+}
+
+function kpi(label, value, note) {
+  return `<div class="card kpi"><div class="l">${esc(label)}</div><div class="v">${value}</div>${note ? `<div class="n">${note}</div>` : ""}</div>`;
+}
+
+function render(d) {
+  $("stamp").textContent = "Updated " + new Date(d.generatedAt).toLocaleString() + " · Season " + d.seasonId;
+  const st = d.subscriptions.stripe || {};
+  const a = d.accounts, act = d.activity, L = d.learning;
+  $("kpis").innerHTML = [
+    kpi("Students", fmt(a.student), `${fmt(a.parent)} parents · ${fmt(a.teacher)} teachers`),
+    kpi("Active today", fmt(act.activeToday), `${fmt(act.dailyCrownToday)} played the Daily Crown`),
+    kpi("Active last 7 days", fmt(act.active7), `${fmt(act.active30)} in the last 30 days`),
+    kpi("Questions this week", fmt(L.questionsThisWeek), `${fmt(L.questionsToday)} today · ${fmt(L.questionsAllTime)} all time`),
+    kpi("Accuracy this week", pct(L.accuracyThisWeek), L.avgAccuracyChange == null ? "Change vs usual: not enough data yet" : `${L.avgAccuracyChange > 0 ? "+" : ""}${L.avgAccuracyChange} pts vs usual (${L.accuracyChangeStudents} students)`),
+    st.available ? kpi("Paying subscriptions", fmt((st.counts.active || 0) + (st.counts.past_due || 0)), `${fmt(st.counts.trialing)} in free trial`) : kpi("Paid students", fmt(d.subscriptions.paidStudents), "Stripe not connected"),
+    st.available ? kpi("Monthly revenue", "$" + Number(st.mrr || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), "Active subscriptions, before fees") : "",
+    kpi("Rewards to send", fmt(d.rewards.counts.approved), `${fmt(d.rewards.counts.pending)} waiting on parents · $${fmt(d.rewards.valueSentUsd)} sent so far`)
+  ].join("");
+
+  renderToSend(d.rewards);
+  renderSignups(d.signupsByDay);
+  renderFunnel(d.funnel);
+  $("learning").innerHTML = rows([
+    ["Questions answered today", fmt(L.questionsToday)],
+    ["Questions this week", fmt(L.questionsThisWeek)],
+    ["Accuracy this week", pct(L.accuracyThisWeek)],
+    ["Accuracy change vs usual", L.avgAccuracyChange == null ? "—" : (L.avgAccuracyChange > 0 ? "+" : "") + L.avgAccuracyChange + " pts"],
+    ["Weekly Goals met this week", fmt(L.weeklyGoalsThisWeek)],
+    ["Season path: 1+ goals", fmt(L.season.atLeast1)],
+    ["Season path: 4+ goals", fmt(L.season.atLeast4)],
+    ["Season path complete (8)", fmt(L.season.completed)]
+  ]);
+  renderHBars("bands", Object.entries(d.bands).map(([k, v]) => ({ label: "Grades " + k, n: v })), null);
+  $("retention").innerHTML = rows([
+    ["Played at least once", fmt(act.played)],
+    ["Came back on a later day", act.returnedPct == null ? "—" : `${fmt(act.returnedLaterDay)} (${act.returnedPct}%)`],
+    ["Active this week, of students who joined 7+ days ago", act.retention7.pct == null ? "Not enough data yet" : `${fmt(act.retention7.retained)} of ${fmt(act.retention7.eligible)} (${act.retention7.pct}%)`],
+    ["Active in the last 30 days", fmt(act.active30)]
+  ]);
+  renderSubs(d.subscriptions);
+  renderWeekly(d.weekly);
+  $("recent").innerHTML = d.recentSignups.length ? `<table><thead><tr><th>Name</th><th>Type</th><th>Grade</th><th class="num">Joined</th></tr></thead><tbody>${d.recentSignups.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.role)}</td><td>${esc(r.grade || "—")}</td><td class="num">${date(r.created)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">No accounts yet.</div>`;
+  $("families").innerHTML = rows([
+    ["Parent accounts", fmt(a.parent)],
+    ["Parents with a linked child", fmt(a.parentsWithLinkedChild)],
+    ["Parent–child links", fmt(a.links)],
+    ["Teacher accounts", fmt(a.teacher)],
+    ["Classrooms created", fmt(a.classes)],
+    ["Students in a class", fmt(a.studentsInClass)]
+  ]);
+}
+
+function rows(list) { return "<tbody>" + list.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num"><strong>${v}</strong></td></tr>`).join("") + "</tbody>"; }
+
+function renderToSend(rw) {
+  const list = rw.toSend || [];
+  $("toSend").innerHTML = list.length ? `<table><thead><tr><th>Student</th><th>Reward</th><th>Send to</th><th>Approved</th><th></th></tr></thead><tbody>${list.map((r) => `
+    <tr><td><strong>${esc(r.child)}</strong><br><span class="pill">${r.grade ? "Grade " + esc(r.grade) : "—"}</span> <span class="pill ${r.type === "weekly" ? "warn" : "good"}">${r.type === "weekly" ? "Weekly Champion" : "Season Reward"}</span></td>
+    <td>${esc(r.prize)}<br><span style="color:var(--ink3)">${esc(r.value)}</span></td>
+    <td>${r.parentEmail ? `<span style="user-select:all">${esc(r.parentEmail)}</span><br><span style="color:var(--ink3)">${esc(r.parentName)}</span>` : `<span style="color:var(--warn)">No parent email found</span>`}</td>
+    <td>${date(r.respondedAt)}</td>
+    <td><button class="btn gold" data-send="${esc(r.id)}">Mark as sent</button></td></tr>`).join("")}</tbody></table>` : `<div class="empty">Nothing to send right now. 🎉</div>`;
+  $("waitingNote").textContent = (rw.waiting || []).length ? `${rw.waiting.length} more reward claim${rw.waiting.length === 1 ? " is" : "s are"} waiting for a parent to approve.` : "";
+  document.querySelectorAll("[data-send]").forEach((b) => b.addEventListener("click", async () => {
+    b.disabled = true; b.textContent = "Saving…";
+    const r = await post("/admin/reward-status", { id: b.getAttribute("data-send") });
+    if (r.ok) { b.textContent = "Sent ✓"; b.closest("tr").style.opacity = "0.5"; }
+    else { b.disabled = false; b.textContent = "Mark as sent"; alert(r.data.error || "Couldn't update."); }
+  }));
+}
+
+// Single-series column chart (one hue, no legend; the title names it).
+function renderSignups(days) {
+  const el = $("signupChart");
+  const W = 640, H = 220, P = { l: 30, r: 8, t: 10, b: 26 };
+  const totals = days.map((d) => (d.student || 0) + (d.parent || 0) + (d.teacher || 0));
+  const max = Math.max(1, ...totals), step = niceStep(max);
+  const top = Math.ceil(max / step) * step;
+  const iw = W - P.l - P.r, ih = H - P.t - P.b, bw = iw / days.length;
+  let g = "";
+  for (let v = 0; v <= top; v += step) { const y = P.t + ih - v / top * ih; g += `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${y}" y2="${y}"/><text x="${P.l - 6}" y="${y + 4}" text-anchor="end">${v}</text>`; }
+  let bars = "";
+  days.forEach((d, i) => {
+    const t = totals[i], h = t / top * ih, x = P.l + i * bw + 1, w = Math.max(2, bw - 2), y = P.t + ih - h;
+    if (t) bars += `<path class="barmark" data-i="${i}" d="M${x},${P.t + ih} V${y + Math.min(4, h)} q0,-${Math.min(4, h)} ${Math.min(4, w / 2)},-${Math.min(4, h)} H${x + w - Math.min(4, w / 2)} q${Math.min(4, w / 2)},0 ${Math.min(4, w / 2)},${Math.min(4, h)} V${P.t + ih} Z"/>`;
+    bars += `<rect data-i="${i}" x="${P.l + i * bw}" y="${P.t}" width="${bw}" height="${ih}" fill="transparent"/>`;
+  });
+  const labels = days.map((d, i) => (i % 5 === 0 || i === days.length - 1) ? `<text x="${P.l + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${date(Date.parse(d.day + "T12:00:00Z"))}</text>` : "").join("");
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="New accounts per day, last 30 days"><g class="axis">${g}${labels}</g>${bars}</svg><div class="tip" id="sTip"></div>`;
+  const tip = el.querySelector("#sTip"), svg = el.querySelector("svg");
+  svg.addEventListener("mousemove", (e) => {
+    const i = e.target.getAttribute && e.target.getAttribute("data-i"); if (i == null) { tip.style.display = "none"; return; }
+    const d = days[+i], r = el.getBoundingClientRect();
+    tip.innerHTML = `<b>${date(Date.parse(d.day + "T12:00:00Z"))}: ${totals[+i]} new</b>${d.student || 0} students · ${d.parent || 0} parents · ${d.teacher || 0} teachers`;
+    tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px"; tip.style.display = "block";
+    svg.querySelectorAll(".barmark").forEach((b) => b.classList.toggle("on", b.getAttribute("data-i") === i));
+  });
+  svg.addEventListener("mouseleave", () => { tip.style.display = "none"; svg.querySelectorAll(".barmark.on").forEach((b) => b.classList.remove("on")); });
+  if (!totals.some(Boolean)) el.insertAdjacentHTML("beforeend", `<div class="empty">No new accounts in the last 30 days.</div>`);
+}
+function niceStep(max) { const raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw || 1))); const n = raw / p; return Math.max(1, (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p); }
+
+function renderHBars(id, items, pctOfPrev) {
+  const max = Math.max(1, ...items.map((x) => x.n));
+  $(id).innerHTML = items.map((x, i) => {
+    const share = pctOfPrev && i > 0 && items[i - 1].n ? Math.round(x.n / items[i - 1].n * 100) + "%" : "";
+    return `<div class="hbar" title="${esc(x.label)}: ${x.n}"><span>${esc(x.label)}</span><div class="track"><div class="fill" style="width:${x.n / max * 100}%"></div></div><span class="val">${fmt(x.n)}${share ? `<small>${share}</small>` : ""}</span></div>`;
+  }).join("");
+}
+function renderFunnel(f) { renderHBars("funnel", f.map((s) => ({ label: s.step, n: s.n })), true); }
+
+function renderSubs(s) {
+  const st = s.stripe || {};
+  if (!st.available) {
+    $("subSource").textContent = "Stripe isn't reachable from the Worker (" + (st.reason || "unknown") + "). Showing the plans recorded on accounts instead.";
+    $("subs").innerHTML = `<table>${rows(Object.entries(s.entitlements || {}).map(([k, v]) => [k, fmt(v)]).concat([["Students on a paid plan", fmt(s.paidStudents)]]))}</table>`;
+    return;
+  }
+  $("subSource").textContent = "Live from Stripe" + (st.hasMore ? " (first 100 subscriptions)" : "") + ".";
+  const plans = { premium: "Premium · $9.99", family: "Family · $14.99", max: "Max + AI · $19.99" };
+  $("subs").innerHTML = `<table><thead><tr><th>Plan</th><th class="num">Paying</th><th class="num">In trial</th></tr></thead><tbody>${Object.keys(plans).map((k) => `<tr><td>${plans[k]}</td><td class="num">${fmt((st.byPlan[k] || {}).active || 0)}</td><td class="num">${fmt((st.byPlan[k] || {}).trialing || 0)}</td></tr>`).join("")}</tbody></table>
+    <table style="margin-top:10px">${rows([["Monthly revenue (active, before fees)", "$" + Number(st.mrr || 0).toFixed(2)], ["New subscriptions, last 30 days", fmt(st.newLast30)], ["Cancellations, last 30 days", fmt(st.canceledLast30)], ["Payment problems (past due)", fmt(st.counts.past_due)], ["Students on a paid plan", fmt(s.paidStudents)]])}</table>`;
+}
+
+function renderWeekly(w) {
+  if (!w || !w.divisions) { $("weekly").innerHTML = `<div class="empty">Results will show here.</div>`; return; }
+  $("weeklySub").textContent = "Week of " + date(Date.parse(w.weekId + "T12:00:00Z")) + (w.prizeWeek ? " · real prizes" : " · practice week (no prizes)") + ".";
+  const names = { k5: "Grades K–5", "68": "Grades 6–8", "912": "Grades 9–12" };
+  $("weekly").innerHTML = `<table><thead><tr><th>Division</th><th>Top Scorer</th><th>Most Improved</th></tr></thead><tbody>${["k5", "68", "912"].map((k) => {
+    const x = w.divisions[k] || {};
+    return `<tr><td>${names[k]}</td><td>${x.champion ? esc(x.champion.label) + ` <span style="color:var(--ink3)">${x.champion.score} pts</span>` : "<span style='color:var(--ink3)'>No qualifier</span>"}</td><td>${x.improved ? esc(x.improved.label) + ` <span style="color:var(--ink3)">+${x.improved.gain}%</span>` : "<span style='color:var(--ink3)'>No qualifier</span>"}</td></tr>`;
+  }).join("")}</tbody></table>`;
+}
+
+$("signinForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("signinMsg").textContent = ""; $("signinBtn").disabled = true;
+  try { await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value); }
+  catch (err) { $("signinMsg").textContent = /invalid|wrong|not-found/i.test(err.code || err.message) ? "Wrong email or password." : (err.message || "Sign-in failed."); }
+  $("signinBtn").disabled = false;
+});
+$("refreshBtn").addEventListener("click", load);
+$("retryBtn").addEventListener("click", load);
+$("signOutBtn").addEventListener("click", () => signOut(auth));
+$("copyUid").addEventListener("click", () => { navigator.clipboard && navigator.clipboard.writeText($("myUid").textContent).then(() => { $("copyUid").textContent = "Copied ✓"; }).catch(() => {}); });
+
+onAuthStateChanged(auth, (user) => {
+  show("topActions", !!user);
+  if (!user) { ["dash", "notAdmin", "loadError", "loading"].forEach((id) => show(id, false)); show("signin", true); return; }
+  load();
+});
+</script>
+</body>
+</html>

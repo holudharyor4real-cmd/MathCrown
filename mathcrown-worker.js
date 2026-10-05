@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v10 - AI replies no longer expose provider details)
+ * MathCrown API Worker  (v11 - + founder dashboard endpoints)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -1147,6 +1147,223 @@ async function handleUnsubscribe(request, env, url) {
   return page("You're unsubscribed from weekly reports. You can turn them back on in your Parent Dashboard.");
 }
 
+// ══ FOUNDER DASHBOARD (admin-only) ══════════════════════════════
+// Business numbers for admin.html, read with the service account so no
+// client ever needs read access to other users' data. Only accounts whose
+// Firebase uid is listed in the ADMIN_UIDS Worker setting (comma-separated,
+// set in the Cloudflare dashboard) get an answer.
+function isAdminUid(env, uid) {
+  return String(env.ADMIN_UIDS || "").split(",").map((s) => s.trim()).filter(Boolean).includes(uid);
+}
+
+async function fsListAll(env, collection, max) {
+  const out = [];
+  let pageToken = "";
+  while (out.length < (max || 3000)) {
+    const res = await fsFetch(env, `/${collection}?pageSize=300${pageToken ? "&pageToken=" + encodeURIComponent(pageToken) : ""}`, { method: "GET" });
+    if (!res.ok) throw new Error(`Firestore list ${collection} failed: ${res.status}`);
+    const data = await res.json();
+    (data.documents || []).forEach((d) => out.push({ id: d.name.split("/").pop(), path: d.name, createTime: d.createTime, data: fsData(d) }));
+    if (!data.nextPageToken) break;
+    pageToken = data.nextPageToken;
+  }
+  return out;
+}
+
+async function fsCollectionGroup(env, collectionId, max) {
+  const res = await fsFetch(env, ":runQuery", {
+    method: "POST",
+    body: JSON.stringify({ structuredQuery: { from: [{ collectionId, allDescendants: true }], limit: max || 5000 } })
+  });
+  if (!res.ok) throw new Error(`Firestore group query ${collectionId} failed: ${res.status}`);
+  const rows = await res.json();
+  return (rows || []).filter((r) => r.document).map((r) => ({ path: r.document.name, createTime: r.document.createTime, data: fsData(r.document) }));
+}
+
+function etDay(ms) { return new Date(ms + MC_TZ_OFFSET_MS).toISOString().slice(0, 10); }
+function shortName(full) {
+  const parts = String(full || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "Player";
+  return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.` : parts[0];
+}
+function tsMs(v) { const t = Date.parse(v || ""); return isNaN(t) ? 0 : t; }
+
+const PLAN_PRICE_USD = { premium: 9.99, family: 14.99, max: 19.99 };
+
+async function stripeSummary(env) {
+  if (!env.STRIPE_SECRET_KEY) return { available: false, reason: "Stripe key not set" };
+  const r = await stripeRequest(env, "GET", "/subscriptions", { status: "all", limit: 100 });
+  _subrequests++;
+  if (!r.ok) return { available: false, reason: "Stripe returned " + r.status };
+  const counts = { active: 0, trialing: 0, past_due: 0, canceled: 0, other: 0 };
+  const byPlan = {};
+  let mrr = 0, canceledLast30 = 0, newLast30 = 0;
+  const now = Date.now() / 1000;
+  for (const sub of r.data.data || []) {
+    const item = sub.items && sub.items.data && sub.items.data[0];
+    const plan = PRICE_ID_TO_PLAN[item && item.price && item.price.id] || "other";
+    const st = counts[sub.status] !== undefined ? sub.status : "other";
+    counts[st]++;
+    if (sub.status === "active" || sub.status === "trialing" || sub.status === "past_due") {
+      byPlan[plan] = byPlan[plan] || { active: 0, trialing: 0 };
+      byPlan[plan][sub.status === "trialing" ? "trialing" : "active"]++;
+    }
+    if (sub.status === "active" && item && item.price && item.price.unit_amount) {
+      const per = item.price.recurring && item.price.recurring.interval === "year" ? 12 : 1;
+      mrr += item.price.unit_amount / 100 / per * (item.quantity || 1);
+    }
+    if (sub.created > now - 30 * 86400) newLast30++;
+    if (sub.canceled_at && sub.canceled_at > now - 30 * 86400) canceledLast30++;
+  }
+  return { available: true, counts, byPlan, mrr: Math.round(mrr * 100) / 100, newLast30, canceledLast30, hasMore: !!r.data.has_more };
+}
+
+async function handleAdminOverview(request, env, origin) {
+  const { uid, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  if (!isAdminUid(env, uid)) return json({ error: "This account isn't a MathCrown admin.", uid }, 403, origin);
+  try {
+    _subrequests = 0;
+    const now = Date.now(), today = etDay(now), thisWeek = weekIdFor(now), seasonId = seasonIdForWeek(thisWeek);
+    const daysAgo = (n) => etDay(now - n * 864e5);
+    const [users, ents, requests, links, classes, stripe] = await Promise.all([
+      fsListAll(env, "users", 5000),
+      fsListAll(env, "entitlements", 2000).catch(() => []),
+      fsListAll(env, "redemption_requests", 2000).catch(() => []),
+      fsCollectionGroup(env, "children", 5000).catch(() => []),
+      fsListAll(env, "classrooms", 1000).catch(() => []),
+      stripeSummary(env).catch((e) => ({ available: false, reason: e.message }))
+    ]);
+
+    const roles = { student: 0, parent: 0, teacher: 0, other: 0 };
+    const signups = {};
+    for (let i = 29; i >= 0; i--) signups[daysAgo(i)] = { day: daysAgo(i), student: 0, parent: 0, teacher: 0 };
+    const bands = { "K–3": 0, "4–5": 0, "6–8": 0, "9–10": 0, "11–12": 0 };
+    const s = { played: 0, activeToday: 0, active7: 0, active30: 0, returned: 0, eligible7: 0, retained7: 0,
+      qToday: 0, qWeek: 0, cWeek: 0, qAll: 0, goalsWeek: 0, dailyCrownToday: 0, paid: 0, inClass: 0,
+      gainSum: 0, gainN: 0, season1: 0, season4: 0, season8: 0 };
+    const recent = [];
+    const byUid = {};
+    for (const u of users) {
+      byUid[u.id] = u;
+      const d = u.data, role = d.role || "other";
+      roles[roles[role] !== undefined ? role : "other"]++;
+      const created = tsMs(u.createTime), createdDay = created ? etDay(created) : "";
+      if (signups[createdDay]) signups[createdDay][role] = (signups[createdDay][role] || 0) + 1;
+      recent.push({ name: shortName(d.name || d.displayName), role, grade: d.grade || "", created });
+      if (role !== "student") continue;
+      const g = d.grade === "K" ? 0 : parseInt(d.grade, 10);
+      const band = isNaN(g) ? null : g <= 3 ? "K–3" : g <= 5 ? "4–5" : g <= 8 ? "6–8" : g <= 10 ? "9–10" : "11–12";
+      if (band) bands[band]++;
+      const last = d.lastPlayDay || "";
+      if (last) s.played++;
+      if (last === today) s.activeToday++;
+      if (last && last >= daysAgo(6)) s.active7++;
+      if (last && last >= daysAgo(29)) s.active30++;
+      if (last && createdDay && last > createdDay) s.returned++;
+      if (created && created <= now - 7 * 864e5) { s.eligible7++; if (last && last >= daysAgo(6)) s.retained7++; }
+      if (d.today && d.today.day === today) s.qToday += Number(d.today.n) || 0;
+      if (d.week && d.week.id === thisWeek) {
+        const a = Number(d.week.answered) || 0, c = Number(d.week.correct) || 0;
+        s.qWeek += a; s.cWeek += c;
+        if (d.week.goalMet) s.goalsWeek++;
+        if (a >= 10 && Number(d.week.baseN) >= 30) { s.gainSum += c / a - Number(d.week.baseAcc || 0); s.gainN++; }
+      }
+      for (const t of Object.values(d.topicStats || {})) s.qAll += Number(t && t.attempted) || 0;
+      if (d.dailyCrown && d.dailyCrown.day === today) s.dailyCrownToday++;
+      if (d.plan && d.plan !== "free") s.paid++;
+      if (d.classCode) s.inClass++;
+      const sp = d.seasonProgress;
+      const done = sp && sp.id === seasonId && Array.isArray(sp.weeks) ? sp.weeks.filter((w) => w >= REWARDS_START_WEEK).length : 0;
+      if (done >= 1) s.season1++;
+      if (done >= 4) s.season4++;
+      if (done >= 8) s.season8++;
+    }
+    recent.sort((a, b) => b.created - a.created);
+
+    // parent <-> child links: parent_links/{parent}/children/{child}
+    const parentsOf = {};
+    const parentsWithKids = new Set();
+    for (const l of links) {
+      const parts = l.path.split("/"), childUid = parts.pop(); parts.pop(); const parentUid = parts.pop();
+      (parentsOf[childUid] = parentsOf[childUid] || []).push(parentUid);
+      parentsWithKids.add(parentUid);
+    }
+    const entCounts = {};
+    for (const e of ents) { const k = (e.data.plan || "free") + (e.data.status ? " · " + e.data.status : ""); entCounts[k] = (entCounts[k] || 0) + 1; }
+
+    // rewards: what's waiting on parents, and what's approved and needs sending
+    const rewardCounts = { pending: 0, approved: 0, fulfilled: 0, denied: 0 };
+    const toSend = [], waiting = [];
+    let rewardValueSent = 0;
+    for (const r of requests) {
+      const d = r.data, st = d.status || "pending";
+      if (rewardCounts[st] !== undefined) rewardCounts[st]++;
+      if (st === "fulfilled") rewardValueSent += parseFloat(String(d.prizeValue || "").replace(/[^\d.]/g, "")) || 0;
+      if (st !== "approved" && st !== "pending") continue;
+      const child = byUid[d.uid] && byUid[d.uid].data || {};
+      const parentUid = d.approvedBy || (parentsOf[d.uid] || [])[0] || "";
+      const parent = byUid[parentUid] && byUid[parentUid].data || {};
+      const row = { id: r.id, child: shortName(child.name || child.displayName || d.name), grade: child.grade || d.grade || "",
+        prize: d.prizeName || "", value: d.prizeValue || "", type: d.type || "", requestedAt: tsMs(d.requestedAt),
+        respondedAt: tsMs(d.respondedAt), parentEmail: parent.email || "", parentName: shortName(parent.name || parent.displayName) };
+      (st === "approved" ? toSend : waiting).push(row);
+    }
+    toSend.sort((a, b) => a.respondedAt - b.respondedAt);
+    waiting.sort((a, b) => a.requestedAt - b.requestedAt);
+
+    let weekly = null;
+    try { const lw = prevWeekId(thisWeek); weekly = { weekId: lw, prizeWeek: lw >= REWARDS_START_WEEK, divisions: await computeWeeklyWinners(env, lw) }; } catch (e) { weekly = null; }
+
+    const pct = (a, b) => (b ? Math.round(a / b * 1000) / 10 : null);
+    return json({
+      generatedAt: now, today, week: thisWeek, seasonId,
+      accounts: { total: users.length, ...roles, parentsWithLinkedChild: parentsWithKids.size, links: links.length, classes: classes.length, studentsInClass: s.inClass },
+      signupsByDay: Object.values(signups),
+      bands,
+      activity: { played: s.played, activeToday: s.activeToday, active7: s.active7, active30: s.active30,
+        returnedLaterDay: s.returned, returnedPct: pct(s.returned, s.played),
+        retention7: { eligible: s.eligible7, retained: s.retained7, pct: pct(s.retained7, s.eligible7) },
+        dailyCrownToday: s.dailyCrownToday },
+      learning: { questionsToday: s.qToday, questionsThisWeek: s.qWeek, questionsAllTime: s.qAll,
+        accuracyThisWeek: pct(s.cWeek, s.qWeek), avgAccuracyChange: s.gainN ? Math.round(s.gainSum / s.gainN * 1000) / 10 : null, accuracyChangeStudents: s.gainN,
+        weeklyGoalsThisWeek: s.goalsWeek, season: { atLeast1: s.season1, atLeast4: s.season4, completed: s.season8 } },
+      funnel: [
+        { step: "Student accounts", n: roles.student },
+        { step: "Played at least once", n: s.played },
+        { step: "Active in the last 7 days", n: s.active7 },
+        { step: "Met a Weekly Goal this week", n: s.goalsWeek },
+        { step: "On a paid plan", n: s.paid }
+      ],
+      subscriptions: { stripe, entitlements: entCounts, paidStudents: s.paid },
+      rewards: { counts: rewardCounts, valueSentUsd: rewardValueSent, toSend, waiting: waiting.slice(0, 50) },
+      weekly,
+      recentSignups: recent.slice(0, 15).map((r) => ({ name: r.name, role: r.role, grade: r.grade, created: r.created })),
+      subrequestsUsed: _subrequests
+    }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not build the dashboard: " + err.message }, 502, origin);
+  }
+}
+
+// Marks an approved reward as sent once you've delivered it.
+async function handleAdminRewardStatus(request, env, origin) {
+  const { uid, payload, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  if (!isAdminUid(env, uid)) return json({ error: "This account isn't a MathCrown admin." }, 403, origin);
+  const id = payload.id;
+  if (typeof id !== "string" || !/^[A-Za-z0-9_\-]{1,200}$/.test(id)) return json({ error: "id required" }, 400, origin);
+  try {
+    const path = `/redemption_requests/${id}`;
+    const req = fsData(await fsGetDoc(env, path));
+    if (req.status !== "approved") return json({ error: "Only parent-approved rewards can be marked as sent." }, 409, origin);
+    await fsPatch(env, path, { status: "fulfilled", fulfilledAt: { timestamp: new Date().toISOString() }, fulfilledBy: uid }, true);
+    return json({ ok: true }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not update the reward: " + err.message }, 502, origin);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -1157,7 +1374,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 10 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 11 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it
@@ -1194,6 +1411,8 @@ export default {
       if (url.pathname === "/rewards/weekly") return handleWeeklyClaim(request, env, origin);
       if (url.pathname === "/rewards/weekly-results") return handleWeeklyResults(request, env, origin);
       if (url.pathname === "/weekly-report/preview") return handleReportPreview(request, env, origin);
+      if (url.pathname === "/admin/overview") return handleAdminOverview(request, env, origin);
+      if (url.pathname === "/admin/reward-status") return handleAdminRewardStatus(request, env, origin);
     }
 
     if (url.pathname !== "/ai" || request.method !== "POST") {

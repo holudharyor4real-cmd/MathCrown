@@ -762,6 +762,7 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
 .btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:14px;padding:12px 16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:box-shadow .2s,background .2s;}
 .btn-google:hover{background:#f8faff;box-shadow:0 2px 10px rgba(0,0,0,0.25);}
 .btn-google:disabled{opacity:.6;cursor:wait;}
+.su-step{font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--sun);margin:4px 0 10px;}
 .or-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text2);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;}
 .or-divider::before,.or-divider::after{content:"";flex:1;height:1px;background:var(--border);}
 .nav-new{
@@ -2271,8 +2272,7 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
     <div id="tab-student">
       <div class="modal-title">Join MathCrown! 🎉</div>
       <div class="modal-sub">Create your player profile — it's free!</div>
-      <button type="button" class="btn-google" onclick="googleAuth('student')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign up with Google</button>
-      <div class="or-divider"><span>or use email</span></div>
+      <div class="su-step">1 · About you</div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">First Name</label>
@@ -2295,6 +2295,12 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
           <option value="11">11th Grade</option><option value="12">12th Grade</option>
         </select>
       </div>
+      <div class="consent">
+        <strong>👋 Parents!</strong> By signing up, you confirm a parent or guardian has approved this account. A parent account is needed to approve rewards and manage privacy settings. We comply with COPPA — no data is ever sold.
+      </div>
+      <div class="su-step">2 · Create your login</div>
+      <button type="button" class="btn-google" onclick="googleAuth('student')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign up with Google</button>
+      <div class="or-divider"><span>or create a password</span></div>
       <div class="form-group">
         <label class="form-label">Email Address</label>
         <input class="form-input" type="email" id="s-email" placeholder="student@email.com">
@@ -2302,9 +2308,6 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
       <div class="form-group">
         <label class="form-label">Create Password</label>
         <input class="form-input" type="password" id="s-password" placeholder="Minimum 6 characters">
-      </div>
-      <div class="consent">
-        <strong>👋 Parents!</strong> By signing up, you confirm a parent or guardian has approved this account. A parent account is needed to approve rewards and manage privacy settings. We comply with COPPA — no data is ever sold.
       </div>
       <button class="btn btn-sun" style="width:100%" onclick="signupStudent()">🚀 Create My Profile — Free!</button>
     </div>
@@ -2399,9 +2402,6 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
       </div>
       <button class="btn btn-coral" style="width:100%" onclick="submitTeacherSignup()">🏫 Create Teacher Account</button>
     </div>
-    <button class="mob-item" onclick="logout()" style="color:var(--coral)">
-      <span class="mob-icon">🚪</span>Exit
-    </button>
   </div>
 </div>
 
@@ -2410,10 +2410,16 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
   <div class="modal" style="max-width:440px">
     <button class="modal-close" onclick="cancelFinishProfile()">✕</button>
     <div class="modal-title">One last step! 🎮</div>
-    <div class="modal-sub">Tell us your first name and grade so you get the right questions.</div>
-    <div class="form-group">
-      <label class="form-label">First Name</label>
-      <input class="form-input" type="text" id="f-fn" placeholder="Your first name">
+    <div class="modal-sub">Tell us your name and grade so you get the right questions for your grade.</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" type="text" id="f-fn" placeholder="Your first name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name <span style="font-weight:600;opacity:.7">(optional)</span></label>
+        <input class="form-input" type="text" id="f-ln" placeholder="Johnson">
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">School Grade</label>
@@ -5473,15 +5479,23 @@ async function googleAuth(tabRole){
   catch(e){ showToast("Signed in, but your account didn't load: "+((e.message||"").replace("Firebase: ","").split(" (")[0]||"please try again")); }
 }
 
-// New student via Google: just first name + grade, then into the game.
-var FINISH_LAST_NAME="";
+// New student via Google: name + grade come from the sign-up form when
+// they filled it in first; otherwise (or from the sign-in tab) one short
+// step asks for them before the account is made.
 function openFinishProfile(user){
   var parts=String(user.displayName||"").trim().split(/\s+/).filter(Boolean);
-  FINISH_LAST_NAME=parts.length>1?parts[parts.length-1]:"";
-  var sfn=$$("s-fn"), sgr=$$("s-grade");
   var fromForm=signupTabOpen("student");
-  var fn=$$("f-fn"); if(fn) fn.value=(fromForm&&sfn&&sfn.value.trim())||parts[0]||"";
-  var gr=$$("f-grade"); if(gr) gr.value=(fromForm&&sgr&&sgr.value)||"";
+  var formVal=function(id){ var e=$$(id); return fromForm&&e ? e.value.trim() : ""; };
+  var fn=formVal("s-fn")||parts[0]||"", ln=formVal("s-ln")||(parts.length>1?parts[parts.length-1]:""), gr=formVal("s-grade");
+  if(fn && gr){
+    var set=function(id,v){ var e=$$(id); if(e) e.value=v; };
+    set("f-fn",fn); set("f-ln",ln); set("f-grade",gr);
+    closeModal();
+    completeFinishProfile();
+    return;
+  }
+  var set2=function(id,v){ var e=$$(id); if(e) e.value=v; };
+  set2("f-fn",fn); set2("f-ln",ln); set2("f-grade",gr);
   closeLoginModal(); closeModal();
   var m=$$("finish-modal"); if(m) m.classList.add("open");
 }
@@ -5495,7 +5509,8 @@ async function completeFinishProfile(){
   if(!fn||!gr){ showToast("Please fill in your first name and grade!"); return; }
   var btn=$$("f-submit"); if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
   try{
-    var fullName=fn+(FINISH_LAST_NAME?" "+FINISH_LAST_NAME:"");
+    var ln=$$("f-ln")?$$("f-ln").value.trim():"";
+    var fullName=fn+(ln?" "+ln:"");
     await window.createProfileForCurrentUser("student", fullName, gr);
     var data=await window.loadProgress();
     var m=$$("finish-modal"); if(m) m.classList.remove("open");
@@ -5504,6 +5519,7 @@ async function completeFinishProfile(){
     showToast("Account created! Welcome, "+fn+"! 🎉");
     resumePendingCheckoutIfAny();
   }catch(e){
+    var fm=$$("finish-modal"); if(fm) fm.classList.add("open"); // let them retry
     showToast("Couldn't create your profile: "+((e.message||"").replace("Firebase: ","").split(" (")[0]||"please try again"));
   }finally{
     if(btn){ btn.textContent="🚀 Start Playing"; btn.disabled=false; }

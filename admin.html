@@ -33,6 +33,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 .btn.gold{background:var(--gold);color:#0b1629;border-color:var(--gold)}
 .btn:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .btn[disabled]{opacity:.5;cursor:default}
+.btn.google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#1f1f1f;border-color:#dadce0;padding:10px 16px;font-size:14px}
+.or{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--ink3);font-size:12px;font-weight:800}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;min-width:0}
 h2{font:400 20px var(--display);margin:0 0 4px}
 .sub{color:var(--ink2);font-size:13px;margin:0 0 14px}
@@ -96,6 +99,8 @@ td.num,th.num{text-align:right}
   <section class="card signin" id="signin" hidden>
     <h2>Sign in</h2>
     <p class="sub">Use your MathCrown account. Only accounts listed as admins can see this dashboard.</p>
+    <button class="btn google" type="button" id="googleBtn"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google</button>
+    <div class="or">or use email</div>
     <form id="signinForm">
       <label for="email">Email</label>
       <input id="email" type="email" autocomplete="username" required>
@@ -189,7 +194,7 @@ td.num,th.num{text-align:right}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const API = "https://mathcrown-api.holudharyor4real.workers.dev";
 const app = initializeApp({
@@ -366,6 +371,13 @@ $("signinForm").addEventListener("submit", async (e) => {
   try { await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value); }
   catch (err) { $("signinMsg").textContent = /invalid|wrong|not-found/i.test(err.code || err.message) ? "Wrong email or password." : (err.message || "Sign-in failed."); }
   $("signinBtn").disabled = false;
+});
+$("googleBtn").addEventListener("click", async () => {
+  $("signinMsg").textContent = "";
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  try { await signInWithPopup(auth, provider); }
+  catch (err) { if (!/popup-closed|cancelled-popup/.test(err.code || "")) $("signinMsg").textContent = /operation-not-allowed|unauthorized-domain/.test(err.code || "") ? "Google sign-in isn't switched on yet. Use email for now." : (err.message || "Sign-in failed."); }
 });
 $("refreshBtn").addEventListener("click", load);
 $("retryBtn").addEventListener("click", load);

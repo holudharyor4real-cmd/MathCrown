@@ -751,6 +751,19 @@ body{
   font-size:11px;font-weight:800;
   padding:2px 8px;border-radius:100px;
 }
+/* Account roles: parents and teachers get their own menu, not the student game */
+.role-parent,.role-teacher{display:none!important;}
+body[data-role="parent"] .role-parent,body[data-role="teacher"] .role-teacher{display:flex!important;}
+body[data-role="parent"] .nav-section.role-parent,body[data-role="teacher"] .nav-section.role-teacher{display:block!important;}
+body[data-role="parent"] .stu-only,body[data-role="teacher"] .stu-only,
+body[data-role="parent"] #music-btn,body[data-role="teacher"] #music-btn,
+body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:none!important;}
+/* Continue with Google (white button per Google's sign-in branding) */
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:14px;padding:12px 16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:box-shadow .2s,background .2s;}
+.btn-google:hover{background:#f8faff;box-shadow:0 2px 10px rgba(0,0,0,0.25);}
+.btn-google:disabled{opacity:.6;cursor:wait;}
+.or-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text2);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;}
+.or-divider::before,.or-divider::after{content:"";flex:1;height:1px;background:var(--border);}
 .nav-new{
   margin-left:auto;background:var(--mint);color:var(--dark);
   font-size:10px;font-weight:800;
@@ -1438,6 +1451,7 @@ body{
 .mob-icon{font-size:22px;}
 
 /* ── TOAST ── */
+@media (max-width:600px){ body .toast{white-space:normal;text-align:center;justify-content:center;border-radius:18px;width:max-content;} }
 .toast{
   position:fixed;bottom:90px;left:50%;
   transform:translateX(-50%) translateY(120px);
@@ -2257,13 +2271,15 @@ body{
     <div id="tab-student">
       <div class="modal-title">Join MathCrown! 🎉</div>
       <div class="modal-sub">Create your player profile — it's free!</div>
+      <button type="button" class="btn-google" onclick="googleAuth('student')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign up with Google</button>
+      <div class="or-divider"><span>or use email</span></div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">First Name</label>
           <input class="form-input" type="text" id="s-fn" placeholder="Alex">
         </div>
         <div class="form-group">
-          <label class="form-label">Last Name</label>
+          <label class="form-label">Last Name <span style="font-weight:600;opacity:.7">(optional)</span></label>
           <input class="form-input" type="text" id="s-ln" placeholder="Johnson">
         </div>
       </div>
@@ -2278,10 +2294,6 @@ body{
           <option value="9">9th Grade</option><option value="10">10th Grade</option>
           <option value="11">11th Grade</option><option value="12">12th Grade</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Date of Birth</label>
-        <input class="form-input" type="date" id="s-dob">
       </div>
       <div class="form-group">
         <label class="form-label">Email Address</label>
@@ -2300,6 +2312,8 @@ body{
     <div id="tab-parent" style="display:none">
       <div class="modal-title">Parent Account 🛡️</div>
       <div class="modal-sub">Manage your child's learning, rewards & safety</div>
+      <button type="button" class="btn-google" onclick="googleAuth('parent')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign up with Google</button>
+      <div class="or-divider"><span>or use email</span></div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">First Name</label>
@@ -2315,7 +2329,7 @@ body{
         <input class="form-input" type="email" placeholder="parent@email.com">
       </div>
       <div class="form-group">
-        <label class="form-label">Phone Number</label>
+        <label class="form-label">Phone Number <span style="font-weight:600;opacity:.7">(optional)</span></label>
         <input class="form-input" type="tel" placeholder="(555) 000-0000">
       </div>
       <div class="form-group">
@@ -2356,6 +2370,8 @@ body{
     <div id="tab-teacher" style="display:none">
       <div class="modal-title">Teacher / Classroom Account 🏫</div>
       <div class="modal-sub">Get a class code, then track your whole class's progress</div>
+      <button type="button" class="btn-google" onclick="googleAuth('teacher')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign up with Google</button>
+      <div class="or-divider"><span>or use email</span></div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">First Name</label>
@@ -2386,6 +2402,35 @@ body{
     <button class="mob-item" onclick="logout()" style="color:var(--coral)">
       <span class="mob-icon">🚪</span>Exit
     </button>
+  </div>
+</div>
+
+<!-- ═══════════════ FINISH PROFILE (new student via Google) ═══════════════ -->
+<div class="modal-overlay" id="finish-modal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="cancelFinishProfile()">✕</button>
+    <div class="modal-title">One last step! 🎮</div>
+    <div class="modal-sub">Tell us your first name and grade so you get the right questions.</div>
+    <div class="form-group">
+      <label class="form-label">First Name</label>
+      <input class="form-input" type="text" id="f-fn" placeholder="Your first name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">School Grade</label>
+      <select class="form-select" id="f-grade">
+        <option value="">Pick your grade...</option>
+        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
+        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
+        <option value="5">5th Grade</option><option value="6">6th Grade</option>
+        <option value="7">7th Grade</option><option value="8">8th Grade</option>
+        <option value="9">9th Grade</option><option value="10">10th Grade</option>
+        <option value="11">11th Grade</option><option value="12">12th Grade</option>
+      </select>
+    </div>
+    <div class="consent">
+      <strong>👋 Parents!</strong> By continuing, you confirm a parent or guardian has approved this account. A parent account is needed to approve rewards and manage privacy settings. We comply with COPPA — no data is ever sold.
+    </div>
+    <button class="btn btn-sun" style="width:100%" id="f-submit" onclick="completeFinishProfile()">🚀 Start Playing</button>
   </div>
 </div>
 
@@ -2465,29 +2510,15 @@ body{
 
     <!-- Student Login -->
     <div id="login-tab-student">
-      <div class="form-group">
-        <label class="form-label">First Name</label>
-        <input class="form-input" type="text" id="l-fn" placeholder="Your first name">
-      </div>
-      <div class="form-group">
-        <label class="form-label">School Grade</label>
-        <select class="form-select" id="l-grade">
-          <option value="">Pick your grade...</option>
-          <option value="1">1st Grade</option><option value="2">2nd Grade</option>
-          <option value="3">3rd Grade</option><option value="4">4th Grade</option>
-          <option value="5">5th Grade</option><option value="6">6th Grade</option>
-          <option value="7">7th Grade</option><option value="8">8th Grade</option>
-          <option value="9">9th Grade</option><option value="10">10th Grade</option>
-          <option value="11">11th Grade</option><option value="12">12th Grade</option>
-        </select>
-      </div>
+      <button type="button" class="btn-google" onclick="googleAuth('student')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google</button>
+      <div class="or-divider"><span>or use email</span></div>
       <div class="form-group">
         <label class="form-label">Email Address</label>
-        <input class="form-input" type="email" id="l-email" placeholder="your@email.com">
+        <input class="form-input" type="email" id="l-email" placeholder="your@email.com" autocomplete="email">
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="l-password" placeholder="Your password">
+        <input class="form-input" type="password" id="l-password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginStudent()">
       </div>
       <button class="btn btn-sun" style="width:100%;margin-bottom:8px" onclick="loginStudent()">
         🚀 Go to My Dashboard
@@ -2501,13 +2532,15 @@ body{
 
     <!-- Parent Login -->
     <div id="login-tab-parent" style="display:none">
+      <button type="button" class="btn-google" onclick="googleAuth('parent')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google</button>
+      <div class="or-divider"><span>or use email</span></div>
       <div class="form-group">
         <label class="form-label">Your Email</label>
         <input class="form-input" type="email" id="l-parent-email" placeholder="Email used during signup">
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="l-parent-password" placeholder="Your password">
+        <input class="form-input" type="password" id="l-parent-password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginParent()">
       </div>
       <button class="btn btn-mint" style="width:100%;color:var(--dark);margin-bottom:8px" onclick="loginParent()">
         👨‍👩‍👧 Go to Parent Dashboard
@@ -2521,13 +2554,15 @@ body{
 
     <!-- Teacher Login -->
     <div id="login-tab-teacher" style="display:none">
+      <button type="button" class="btn-google" onclick="googleAuth('teacher')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google</button>
+      <div class="or-divider"><span>or use email</span></div>
       <div class="form-group">
         <label class="form-label">Your Email</label>
         <input class="form-input" type="email" id="l-teacher-email" placeholder="Email used during signup">
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="l-teacher-password" placeholder="Your password">
+        <input class="form-input" type="password" id="l-teacher-password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginTeacher()">
       </div>
       <button class="btn btn-coral" style="width:100%;margin-bottom:8px" onclick="loginTeacher()">
         🏫 Go to Teacher Dashboard
@@ -2564,51 +2599,63 @@ body{
       </div>
     </div>
 
-    <div class="nav-section">🎮 Play</div>
-    <button class="nav-item on" onclick="goPage('home',this)">
+    <div class="nav-section stu-only">🎮 Play</div>
+    <button class="nav-item stu-only on" onclick="goPage('home',this)">
       <span class="nav-icon">🏠</span> Home
     </button>
-    <button class="nav-item" onclick="goPage('room',this)">
+    <button class="nav-item stu-only" onclick="goPage('room',this)">
       <span class="nav-icon">🌐</span> <span data-nav="room">Common Room</span>
       <span class="nav-badge" id="room-badge" style="display:none">0</span>
     </button>
-    <button class="nav-item" onclick="goPage('challenge',this)">
+    <button class="nav-item stu-only" onclick="goPage('challenge',this)">
       <span class="nav-icon">⚔️</span> <span data-nav="challenge">Challenge</span>
     </button>
-    <button class="nav-item" onclick="goPage('tournament',this)">
+    <button class="nav-item stu-only" onclick="goPage('tournament',this)">
       <span class="nav-icon">🏆</span> Tournaments
       <span class="nav-new">NEW</span>
     </button>
 
-    <div class="nav-section">📚 Learn</div>
-    <button class="nav-item" onclick="goPage('tutor',this)">
+    <div class="nav-section stu-only">📚 Learn</div>
+    <button class="nav-item stu-only" onclick="goPage('tutor',this)">
       <span class="nav-icon">🤖</span> AI Tutor
     </button>
-    <button class="nav-item" onclick="goPage('skills',this)">
+    <button class="nav-item stu-only" onclick="goPage('skills',this)">
       <span class="nav-icon">🌱</span> Skills Tree
     </button>
-    <button class="nav-item" onclick="goPage('practice',this)">
+    <button class="nav-item stu-only" onclick="goPage('practice',this)">
       <span class="nav-icon">📝</span> Practice Mode
     </button>
 
-    <div class="nav-section">🏅 Progress</div>
-    <button class="nav-item" onclick="goPage('leaderboard',this)">
+    <div class="nav-section stu-only">🏅 Progress</div>
+    <button class="nav-item stu-only" onclick="goPage('leaderboard',this)">
       <span class="nav-icon">📊</span> Leaderboard
     </button>
-    <button class="nav-item" onclick="goPage('wallet',this)">
+    <button class="nav-item stu-only" onclick="goPage('wallet',this)">
       <span class="nav-icon">💰</span> <span data-nav="wallet">Rewards Wallet</span>
     </button>
-    <button class="nav-item" onclick="goPage('profile',this)">
+    <button class="nav-item stu-only" onclick="goPage('profile',this)">
       <span class="nav-icon">👤</span> My Profile
     </button>
-    <button class="nav-item" id="nav-go-premium" onclick="goToUpgradeOptions()" style="display:none;color:var(--sun)">
+    <button class="nav-item stu-only" id="nav-go-premium" onclick="goToUpgradeOptions()" style="display:none;color:var(--sun)">
       <span class="nav-icon">⭐</span> Upgrade Plan
     </button>
-    <button class="nav-item" id="nav-parent-dash" onclick="goPage('parentdash',this)" style="display:none">
+    <div class="nav-section role-parent">👨‍👩‍👧 Family</div>
+    <div class="nav-section role-teacher">🏫 Classroom</div>
+    <button class="nav-item role-parent" id="nav-parent-dash" onclick="goPage('parentdash',this)">
       <span class="nav-icon">👨‍👩‍👧</span> Parent Dashboard
     </button>
-    <button class="nav-item" id="nav-teacher-dash" onclick="goPage('teacherdash',this)" style="display:none">
+    <button class="nav-item role-teacher" id="nav-teacher-dash" onclick="goPage('teacherdash',this)">
       <span class="nav-icon">🏫</span> Teacher Dashboard
+    </button>
+    <div class="nav-section role-parent">🎲 Play Together</div>
+    <button class="nav-item role-parent role-teacher" onclick="openDailyCrown()">
+      <span class="nav-icon">👑</span> Daily Crown
+    </button>
+    <button class="nav-item role-parent" onclick="openFamilyDuel()">
+      <span class="nav-icon">⚔️</span> Family Duel
+    </button>
+    <button class="nav-item role-parent role-teacher" onclick="openRewardsRules()">
+      <span class="nav-icon">📋</span> Rewards Rules
     </button>
 
     <div class="sb-user">
@@ -3460,15 +3507,18 @@ body{
 <!-- MOBILE NAV -->
 <div class="mobile-nav" id="mob-nav">
   <div class="mob-items">
-    <button class="mob-item on" onclick="goPage('home',this,true)"><span class="mob-icon">🏠</span>Home</button>
-    <button class="mob-item" onclick="goPage('room',this,true)"><span class="mob-icon">🌐</span>Room</button>
-    <button class="mob-item" onclick="goPage('challenge',this,true)"><span class="mob-icon">⚔️</span>Battle</button>
-    <button class="mob-item" onclick="goPage('wallet',this,true)"><span class="mob-icon">💰</span>Wallet</button>
-    <button class="mob-item" onclick="goPage('profile',this,true)"><span class="mob-icon">👤</span>Me</button>
+    <button class="mob-item stu-only on" onclick="goPage('home',this,true)"><span class="mob-icon">🏠</span>Home</button>
+    <button class="mob-item stu-only" onclick="goPage('room',this,true)"><span class="mob-icon">🌐</span>Room</button>
+    <button class="mob-item stu-only" onclick="goPage('challenge',this,true)"><span class="mob-icon">⚔️</span>Battle</button>
+    <button class="mob-item stu-only" onclick="goPage('wallet',this,true)"><span class="mob-icon">💰</span>Wallet</button>
+    <button class="mob-item stu-only" onclick="goPage('profile',this,true)"><span class="mob-icon">👤</span>Me</button>
+    <button class="mob-item role-parent on" onclick="goPage('parentdash',this,true)"><span class="mob-icon">👨‍👩‍👧</span>Dashboard</button>
+    <button class="mob-item role-teacher on" onclick="goPage('teacherdash',this,true)"><span class="mob-icon">🏫</span>Class</button>
+    <button class="mob-item role-parent role-teacher" onclick="openDailyCrown()"><span class="mob-icon">👑</span>Daily</button>
+    <button class="mob-item role-parent" onclick="openFamilyDuel()"><span class="mob-icon">⚔️</span>Duel</button>
+    <button class="mob-item role-parent role-teacher" onclick="openRewardsRules()"><span class="mob-icon">📋</span>Rules</button>
+    <button class="mob-item" onclick="logout()" style="color:var(--coral)"><span class="mob-icon">🚪</span>Exit</button>
   </div>
-  <button onclick="logout()" style="position:absolute;top:8px;right:10px;background:rgba(255,107,107,0.15);border:1px solid rgba(61,139,255,0.25);border-radius:20px;padding:4px 10px;color:var(--coral);font-size:11px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif">
-    🚪 Exit
-  </button>
 </div>
 
 <!-- TOAST -->
@@ -5100,6 +5150,11 @@ function closeLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.
 
 // ── NAVIGATION ─────────────────────────────────────────
 function goPage(id, el, mob){
+  // Parents and teachers only ever see their own dashboard; any leftover
+  // link to a student page (e.g. "Home") lands them back there.
+  var role=document.body.getAttribute("data-role");
+  if(role==="parent" && id!=="parentdash"){ id="parentdash"; el=$$("nav-parent-dash"); mob=false; }
+  if(role==="teacher" && id!=="teacherdash"){ id="teacherdash"; el=$$("nav-teacher-dash"); mob=false; }
   if(id!=="teacherdash" && typeof sessionLeaderboardTimer!=="undefined"){ clearInterval(sessionLeaderboardTimer); }
   document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("on"); });
   var pg = $$("p-"+id); if(pg) pg.classList.add("on");
@@ -5118,6 +5173,7 @@ function goPage(id, el, mob){
 
 // ── ENTER APP ──────────────────────────────────────────
 function enterApp(name, grade, gradeNum, isPreview){
+  setAppRole("student");
   S.name=name; S.grade=gradeOrdinal(gradeNum)||grade; S.gradeNum=gradeNum; S.isPreview=isPreview;
   grade=S.grade;
   S.tier = tierFor(gradeNum);
@@ -5251,122 +5307,207 @@ function switchLoginTab(t, btn){
   if(btn) btn.classList.add("on");
 }
 
-async function loginParent(){
-  var email=$$("l-parent-email")?$$("l-parent-email").value.trim():"";
-  var password=$$("l-parent-password")?$$("l-parent-password").value:"";
-  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
-  if(!password){ showToast("Please enter your password!"); return; }
-  var loginBtn=document.querySelector("#login-tab-parent .btn-mint");
-  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
-  if(window.firebaseLogin){
-    try{
-      await window.firebaseLogin(email, password);
-      var fn=email.split("@")[0];
-      PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
-      try{
-        var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
-        var saved=localStorage.getItem(pKey);
-        if(saved){ var d=JSON.parse(saved); PARENT.plan=d.plan||"Free"; PARENT.name=d.name||fn; }
-      }catch(e){}
-      var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
-      closeLoginModal();
-      var land=$$("s-land"); if(land) land.classList.remove("active");
-      var app=$$("s-app"); if(app) app.classList.add("active");
-      showMobNav(true); showMusicBtn(true); showSfxBtn(true);
-      goPage("parentdash",$$("nav-parent-dash"),false);
-      showToast("Welcome back, "+PARENT.name.split(" ")[0]+"! Here is your parent dashboard.");
-      return;
-    }catch(e){
-      var msg=e.message||"";
-      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
-      else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
-      if(loginBtn){ loginBtn.textContent="👨‍👩‍👧 Go to Parent Dashboard"; loginBtn.disabled=false; }
-      return;
-    }
-  }
-  // Fallback
-  var fn2=email.split("@")[0];
-  PARENT.name=fn2; PARENT.email=email; PARENT.isLoggedIn=true;
+// ── SIGN-IN (email or Google), shared by all three account types ──
+// Whichever tab someone used, they land in the experience their account
+// was created for: a parent who signs in on the Student tab still gets
+// the Parent Dashboard.
+function setAppRole(role){
+  if(role) document.body.setAttribute("data-role", role);
+  else document.body.removeAttribute("data-role");
+}
+function showAppShell(){
+  var land=$$("s-land"); if(land) land.classList.remove("active");
+  var app=$$("s-app"); if(app) app.classList.add("active");
+  showMobNav(true);
+}
+function setSidebarUser(name, subtitle){
+  var set=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  set("sb-avatar", (name||"?").trim().charAt(0).toUpperCase()||"?");
+  set("sb-name", displayLabel(name||""));
+  set("sb-ulevel", subtitle);
+}
+function parentStoreKey(email){ return "mc_parent_"+String(email||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+
+function enterParentApp(data, email){
+  data=data||{};
+  email=data.email||email||"";
+  var name=data.displayName||data.name||"", plan="Free";
   try{
-    var pKey2="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
-    var saved2=localStorage.getItem(pKey2);
-    if(saved2){ var d2=JSON.parse(saved2); PARENT.plan=d2.plan||"Free"; PARENT.name=d2.name||fn2; }
+    var saved=localStorage.getItem(parentStoreKey(email));
+    if(saved){ var d=JSON.parse(saved); plan=d.plan||"Free"; if(!name) name=d.name||""; }
   }catch(e){}
-  var nav2=$$("nav-parent-dash"); if(nav2) nav2.style.display="flex";
-  closeLoginModal();
-  var land2=$$("s-land"); if(land2) land2.classList.remove("active");
-  var app2=$$("s-app"); if(app2) app2.classList.add("active");
-  showMobNav(true); showMusicBtn(true); showSfxBtn(true);
-  goPage("parentdash",$$("nav-parent-dash"),false);
-  showToast("Welcome back, "+PARENT.name.split(" ")[0]+"!");
+  PARENT.name=name||email.split("@")[0]; PARENT.email=email; PARENT.plan=plan; PARENT.isLoggedIn=true;
+  setAppRole("parent");
+  setSidebarUser(PARENT.name, "👨‍👩‍👧 Parent account");
+  showAppShell(); showMusicBtn(false); showSfxBtn(false);
+  goPage("parentdash", $$("nav-parent-dash"), false);
 }
 
-async function loginStudent(){
-  var fn=$$("l-fn")?$$("l-fn").value.trim():"";
-  var gr=$$("l-grade")?$$("l-grade").value:"";
-  var email=$$("l-email")?$$("l-email").value.trim():"";
-  var password=$$("l-password")?$$("l-password").value:"";
-  if(!fn){ showToast("Please enter your first name!"); return; }
-  if(!gr){ showToast("Please select your grade!"); return; }
-  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
-  if(!password){ showToast("Please enter your password!"); return; }
+async function enterTeacherApp(data, email){
+  data=data||{};
+  TEACHER.name=data.displayName||data.name||String(email||"").split("@")[0];
+  TEACHER.email=data.email||email||""; TEACHER.school=data.school||"";
+  TEACHER.classCode=data.classCode||""; TEACHER.isLoggedIn=true;
+  if(!TEACHER.classCode && window.createClassroom){
+    try{ TEACHER.classCode=await window.createClassroom(TEACHER.name, TEACHER.school); }catch(e){}
+  }
+  setAppRole("teacher");
+  setSidebarUser(TEACHER.name, "🏫 Teacher account");
+  showAppShell(); showMusicBtn(false); showSfxBtn(false);
+  goPage("teacherdash", $$("nav-teacher-dash"), false);
+}
+
+function enterStudentFromProfile(data){
+  data=data||{};
   S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0; S.problemsSolved=0; S.avatarId="";
   resetLearningState();
-  var loginBtn=document.querySelector("#login-tab-student .btn-sun");
-  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
-  if(window.firebaseLogin){
-    try{
-      await window.firebaseLogin(email, password);
-      var data=await window.loadProgress();
-      if(data){
-        S.xp=data.xp||0; S.level=data.level||1;
-        S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
-        S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
-        S.classCode=data.classCode||""; S.vault=data.vault||null; S.topicStats=data.topicStats||{};
-        S.plan=data.plan||"free";
-        S.coinCapDate=data.coinCapDate||""; S.coinCapEarned=data.coinCapEarned||0;
-        S.recentEarnings=data.recentEarnings||[];
-        restoreLearningState(data);
-        fn=data.displayName||fn;
-        if(data.grade){ gr=String(data.grade); }
-        // Restore linkCode from Firestore
-        if(data.linkCode){
-          S.linkCode=data.linkCode;
-          if(window.ensureLinkCode && window.auth && window.auth.currentUser) window.ensureLinkCode(data.linkCode, window.auth.currentUser.uid);
-        } else {
-          // Existing users: generate and save linkCode now
-          var newCode=Math.floor(100000+Math.random()*900000).toString();
-          S.linkCode=newCode;
-          try{ await window.saveProgress(S.xp,S.coins,S.level,S.streak,newCode); }catch(e){}
-          if(window.ensureLinkCode && window.auth && window.auth.currentUser) window.ensureLinkCode(newCode, window.auth.currentUser.uid);
-        }
-      }
-      closeLoginModal();
-      enterApp(fn, (parseInt(gr)||7)+"th Grade", parseInt(gr)||7, false);
-      showToast("Welcome back, "+fn.split(" ")[0]+"! Progress loaded! 🎉");
-      return;
-    }catch(e){
-      var msg=e.message||"";
-      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
-      else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
-      if(loginBtn){ loginBtn.textContent="🚀 Go to My Dashboard"; loginBtn.disabled=false; }
-      return;
-    }
+  S.xp=data.xp||0; S.level=data.level||1;
+  S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
+  S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
+  S.classCode=data.classCode||""; S.vault=data.vault||null; S.topicStats=data.topicStats||{};
+  S.plan=data.plan||"free"; S.email=data.email||"";
+  S.coinCapDate=data.coinCapDate||""; S.coinCapEarned=data.coinCapEarned||0;
+  S.recentEarnings=data.recentEarnings||[];
+  restoreLearningState(data);
+  var uid=window.auth && window.auth.currentUser ? window.auth.currentUser.uid : "";
+  if(data.linkCode){
+    S.linkCode=data.linkCode;
+  } else {
+    // Older accounts made before link codes: create and save one now.
+    S.linkCode=Math.floor(100000+Math.random()*900000).toString();
+    if(window.saveProgress) window.saveProgress(S.xp,S.coins,S.level,S.streak,S.linkCode).catch(function(){});
   }
-  try{
-    var saved=localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
-    if(saved){
-      var d=JSON.parse(saved);
-      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
-      S.wins=d.wins||0; S.problemsSolved=d.problemsSolved||0; S.avatarId=d.avatarId||"";
-      S.vault=d.vault||null; S.topicStats=d.topicStats||{};
-      restoreLearningState(d.learning);
-      if(d.gradeNum){ gr=String(d.gradeNum); }
+  if(uid && window.ensureLinkCode) window.ensureLinkCode(S.linkCode, uid);
+  var gr=parseInt(data.grade,10)||7;
+  enterApp(data.displayName||data.name||"Player", gr+"th Grade", gr, false);
+}
+
+// Paid plan picked on the parent sign-up form (null for Free).
+function selectedParentPlanKey(){
+  var card=document.querySelector("#tab-parent .plan-card.sel .plan-name");
+  var lc=card?card.textContent.trim().toLowerCase():"";
+  return lc.indexOf("family")>-1 ? "family" : lc.indexOf("max")>-1 ? "max" : lc.indexOf("premium")>-1 ? "premium" : null;
+}
+function signupTabOpen(role){
+  var m=$$("signup-modal"), t=$$("tab-"+role);
+  return !!(m && m.classList.contains("open") && t && t.style.display!=="none");
+}
+
+// After Firebase sign-in: load the account and open the right dashboard.
+// A brand-new Google account has no profile yet, so one is created for
+// the tab they used (students first pick their grade).
+async function routeSignedIn(tabRole, user){
+  var data=await window.loadProgress();
+  var firstName=function(n){ return String(n||"").trim().split(/\s+/)[0]||"there"; };
+  if(!data){
+    if(tabRole==="student"){ openFinishProfile(user); return; }
+    var name=user.displayName||String(user.email||"").split("@")[0];
+    var extra={};
+    var planKey=null;
+    if(tabRole==="teacher"){ var sch=$$("t-school"); if(sch && sch.value.trim()) extra.school=sch.value.trim(); }
+    if(tabRole==="parent" && signupTabOpen("parent")) planKey=selectedParentPlanKey();
+    await window.createProfileForCurrentUser(tabRole, name, "", extra);
+    data=await window.loadProgress()||{ role:tabRole, displayName:name, email:user.email||"" };
+    closeLoginModal(); closeModal();
+    if(tabRole==="parent"){
+      try{ localStorage.setItem(parentStoreKey(user.email),JSON.stringify({name:name,email:user.email||"",plan:"Free",children:[]})); }catch(e){}
+      sendToWeb3Forms({subject:"New Parent Account (Google)",name:name,email:user.email||"",message:"NEW PARENT ACCOUNT via Google | Name: "+name+" | Email: "+(user.email||"")}).catch(function(){});
+      enterParentApp(data, user.email);
+      showToast("Account created! Welcome, "+firstName(name)+"! 🎉");
+      if(planKey) openCheckout(planKey);
+    } else {
+      await enterTeacherApp(data, user.email);
+      showToast("Class created! Your Class Code is "+TEACHER.classCode+" 🎉",4500);
     }
-  }catch(e){}
-  closeLoginModal();
-  enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
-  showToast("Welcome back, "+fn+"!");
+    return;
+  }
+  var role=data.role||tabRole;
+  closeLoginModal(); closeModal();
+  var name2=firstName(data.displayName||data.name);
+  var note = role!==tabRole ? "This is a "+role+" account, so we opened "+(role==="student"?"the game":"your "+role+" dashboard")+". " : "";
+  if(role==="parent"){ enterParentApp(data, user.email); showToast(note||("Welcome back, "+name2+"! Here is your parent dashboard."),4000); }
+  else if(role==="teacher"){ await enterTeacherApp(data, user.email); showToast(note||("Welcome back, "+name2+"!"),4000); }
+  else { enterStudentFromProfile(data); showToast(note||("Welcome back, "+name2+"! Progress loaded! 🎉"),4000); }
+}
+
+function loginErrorToast(e){
+  var msg=(e&&(e.code||"")+" "+(e.message||""))||"";
+  if(/invalid-credential|wrong-password|user-not-found|invalid-login/.test(msg)) showToast("Wrong email or password. If you signed up with Google, use Continue with Google.",4500);
+  else if(/too-many-requests/.test(msg)) showToast("Too many tries. Wait a minute, or reset your password.",4500);
+  else if(/network-request-failed/.test(msg)) showToast("Network error. Check your connection and try again.");
+  else showToast("Login failed: "+(((e&&e.message)||"").replace("Firebase: ","").split(" (")[0]||"please try again"));
+}
+
+async function emailSignIn(tabRole, emailId, passId, btnSel){
+  var email=$$(emailId)?$$(emailId).value.trim():"";
+  var password=$$(passId)?$$(passId).value:"";
+  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
+  if(!password){ showToast("Please enter your password!"); return; }
+  if(!window.firebaseLogin){ showToast("Sign-in is still loading. Try again in a moment."); return; }
+  var btn=document.querySelector(btnSel), label=btn?btn.textContent:"";
+  if(btn){ btn.textContent="Signing in..."; btn.disabled=true; }
+  try{
+    var user=await window.firebaseLogin(email, password);
+    await routeSignedIn(tabRole, user);
+  }catch(e){ loginErrorToast(e); }
+  finally{ if(btn){ btn.textContent=label; btn.disabled=false; } }
+}
+function loginStudent(){ return emailSignIn("student","l-email","l-password","#login-tab-student .btn-sun"); }
+function loginParent(){ return emailSignIn("parent","l-parent-email","l-parent-password","#login-tab-parent .btn-mint"); }
+function loginTeacher(){ return emailSignIn("teacher","l-teacher-email","l-teacher-password","#login-tab-teacher .btn-coral"); }
+
+async function googleAuth(tabRole){
+  if(!window.firebaseGoogleSignIn){ showToast("Sign-in is still loading. Try again in a moment."); return; }
+  var user;
+  try{ user=await window.firebaseGoogleSignIn(); }
+  catch(e){
+    var c=e.code||"";
+    if(c==="auth/popup-closed-by-user"||c==="auth/cancelled-popup-request") return;
+    if(c==="auth/popup-blocked") showToast("Your browser blocked the Google window. Allow pop-ups for this site and try again.",4500);
+    else if(c==="auth/operation-not-allowed"||c==="auth/unauthorized-domain") showToast("Google sign-in isn't switched on yet. Please use email for now.",4500);
+    else if(c==="auth/network-request-failed") showToast("Network error. Check your connection and try again.");
+    else showToast("Google sign-in failed: "+(((e.message||"").replace("Firebase: ","").split(" (")[0])||"please try again"));
+    return;
+  }
+  try{ await routeSignedIn(tabRole, user); }
+  catch(e){ showToast("Signed in, but your account didn't load: "+((e.message||"").replace("Firebase: ","").split(" (")[0]||"please try again")); }
+}
+
+// New student via Google: just first name + grade, then into the game.
+var FINISH_LAST_NAME="";
+function openFinishProfile(user){
+  var parts=String(user.displayName||"").trim().split(/\s+/).filter(Boolean);
+  FINISH_LAST_NAME=parts.length>1?parts[parts.length-1]:"";
+  var sfn=$$("s-fn"), sgr=$$("s-grade");
+  var fromForm=signupTabOpen("student");
+  var fn=$$("f-fn"); if(fn) fn.value=(fromForm&&sfn&&sfn.value.trim())||parts[0]||"";
+  var gr=$$("f-grade"); if(gr) gr.value=(fromForm&&sgr&&sgr.value)||"";
+  closeLoginModal(); closeModal();
+  var m=$$("finish-modal"); if(m) m.classList.add("open");
+}
+function cancelFinishProfile(){
+  var m=$$("finish-modal"); if(m) m.classList.remove("open");
+  if(window.firebaseLogout) window.firebaseLogout().catch(function(){});
+}
+async function completeFinishProfile(){
+  var fn=$$("f-fn")?$$("f-fn").value.trim():"";
+  var gr=$$("f-grade")?$$("f-grade").value:"";
+  if(!fn||!gr){ showToast("Please fill in your first name and grade!"); return; }
+  var btn=$$("f-submit"); if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+  try{
+    var fullName=fn+(FINISH_LAST_NAME?" "+FINISH_LAST_NAME:"");
+    await window.createProfileForCurrentUser("student", fullName, gr);
+    var data=await window.loadProgress();
+    var m=$$("finish-modal"); if(m) m.classList.remove("open");
+    enterStudentFromProfile(data||{ displayName:fullName, grade:gr });
+    saveSession();
+    showToast("Account created! Welcome, "+fn+"! 🎉");
+    resumePendingCheckoutIfAny();
+  }catch(e){
+    showToast("Couldn't create your profile: "+((e.message||"").replace("Firebase: ","").split(" (")[0]||"please try again"));
+  }finally{
+    if(btn){ btn.textContent="🚀 Start Playing"; btn.disabled=false; }
+  }
 }
 
 function logout(){
@@ -5375,6 +5516,8 @@ function logout(){
   S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[]; S.recentEarnings=[]; S.plan="free";
   resetLearningState();
   document.body.removeAttribute("data-tier");
+  setAppRole(null);
+  var fm=$$("finish-modal"); if(fm) fm.classList.remove("open");
   var goPrem=$$("nav-go-premium"); if(goPrem) goPrem.style.display="none";
   // Reset parent state
   PARENT.isLoggedIn=false; PARENT.plan="Free"; PARENT.children=[]; PARENT.coveredChildren=[];
@@ -7423,11 +7566,7 @@ async function submitParentSignup(){
 
   if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
   closeModal();
-  var land=$$("s-land"); if(land) land.classList.remove("active");
-  var app=$$("s-app"); if(app) app.classList.add("active");
-  var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
-  showMobNav(true); showMusicBtn(true); showSfxBtn(true);
-  goPage("parentdash",$$("nav-parent-dash"),false);
+  enterParentApp({ displayName:fullName, email:email }, email);
   showToast("Account created! Welcome, "+firstName+"! 🎉");
 
   if(planKey){
@@ -7459,7 +7598,7 @@ async function submitTeacherSignup(){
   }
 
   try{
-    await window.firebaseSignUp(email, password, fullName, "teacher", "");
+    await window.firebaseSignUp(email, password, fullName, "teacher", "", school ? { school:school } : null);
     TEACHER.classCode = await window.createClassroom(fullName, school);
   }catch(e){
     var code=e.code||"", msg=e.message||"";
@@ -7473,52 +7612,10 @@ async function submitTeacherSignup(){
     return;
   }
 
-  TEACHER.name=fullName; TEACHER.email=email; TEACHER.school=school; TEACHER.isLoggedIn=true;
   if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
   closeModal();
-  var land=$$("s-land"); if(land) land.classList.remove("active");
-  var app=$$("s-app"); if(app) app.classList.add("active");
-  var nav=$$("nav-teacher-dash"); if(nav) nav.style.display="flex";
-  showMobNav(true); showMusicBtn(true); showSfxBtn(true);
-  goPage("teacherdash",$$("nav-teacher-dash"),false);
+  await enterTeacherApp({ displayName:fullName, email:email, school:school, classCode:TEACHER.classCode }, email);
   showToast("Class created! Your Class Code is "+TEACHER.classCode+" 🎉",4500);
-}
-
-async function loginTeacher(){
-  var email=$$("l-teacher-email")?$$("l-teacher-email").value.trim():"";
-  var password=$$("l-teacher-password")?$$("l-teacher-password").value:"";
-  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
-  if(!password){ showToast("Please enter your password!"); return; }
-  var loginBtn=document.querySelector("#login-tab-teacher .btn-coral");
-  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
-  if(!window.firebaseLogin){
-    showToast("Login is temporarily unavailable — please try again in a moment.");
-    if(loginBtn){ loginBtn.textContent="🏫 Go to Teacher Dashboard"; loginBtn.disabled=false; }
-    return;
-  }
-  try{
-    await window.firebaseLogin(email, password);
-    var data=await window.loadProgress();
-    TEACHER.name=(data&&data.displayName)||email.split("@")[0];
-    TEACHER.email=email; TEACHER.school=(data&&data.school)||"";
-    TEACHER.classCode=(data&&data.classCode)||"";
-    TEACHER.isLoggedIn=true;
-    if(!TEACHER.classCode && window.createClassroom){
-      TEACHER.classCode=await window.createClassroom(TEACHER.name, TEACHER.school);
-    }
-    var nav=$$("nav-teacher-dash"); if(nav) nav.style.display="flex";
-    closeLoginModal();
-    var land=$$("s-land"); if(land) land.classList.remove("active");
-    var app=$$("s-app"); if(app) app.classList.add("active");
-    showMobNav(true); showMusicBtn(true); showSfxBtn(true);
-    goPage("teacherdash",$$("nav-teacher-dash"),false);
-    showToast("Welcome back, "+TEACHER.name.split(" ")[0]+"!");
-  }catch(e){
-    var msg=e.message||"";
-    if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
-    else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
-    if(loginBtn){ loginBtn.textContent="🏫 Go to Teacher Dashboard"; loginBtn.disabled=false; }
-  }
 }
 
 async function renderTeacherDash(){
@@ -7984,7 +8081,8 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
 </div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+           GoogleAuthProvider, signInWithPopup }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc,
            collection, query, orderBy, limit, onSnapshot, where, getDocs, serverTimestamp, addDoc }
@@ -8261,10 +8359,11 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   };
 
   // ── EXISTING FUNCTIONS ────────────────────────────────────────
-  window.firebaseSignUp = async function(email, password, displayName, role, grade) {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
+  // Profile docs for a new account, whether it signed up with email or Google.
+  async function createProfileDocs(user, displayName, email, role, grade, extra) {
     const linkCode = Math.floor(100000 + Math.random() * 900000).toString();
-    await setDoc(doc(db, "users", cred.user.uid), {
+    await setDoc(doc(db, "users", user.uid), {
+      ...(extra || {}),
       name: displayName, displayName, email, role,
       grade: grade || "",
       linkCode: linkCode,
@@ -8274,7 +8373,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     // Public, privacy-safe mirror (first name + last-initial only — never the
     // full name/email) used by the leaderboard, Crown Holder, and search.
     if (role === "student") {
-      await setDoc(doc(db, "public_profiles", cred.user.uid), {
+      await setDoc(doc(db, "public_profiles", user.uid), {
         displayLabel: safeLabel(displayName),
         grade: grade || "",
         xp: 0, level: 1, wins: 0, coins: 0,
@@ -8283,9 +8382,27 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       // code -> uid lookup so a parent who only has the 6-digit code can
       // find this account without read access to the private users/{uid}
       // doc (see link_codes in firestore.rules).
-      await setDoc(doc(db, "link_codes", linkCode), { studentUid: cred.user.uid });
+      await setDoc(doc(db, "link_codes", linkCode), { studentUid: user.uid });
     }
+  }
+
+  window.firebaseSignUp = async function(email, password, displayName, role, grade, extra) {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await createProfileDocs(cred.user, displayName, email, role, grade, extra);
     return cred.user;
+  };
+
+  window.firebaseGoogleSignIn = async function() {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" }); // shared family computers
+    const cred = await signInWithPopup(auth, provider);
+    return cred.user;
+  };
+
+  window.createProfileForCurrentUser = async function(role, displayName, grade, extra) {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not signed in.");
+    await createProfileDocs(user, displayName, user.email || "", role, grade, extra);
   };
 
   // Idempotent: only writes if this code has no lookup doc yet, since

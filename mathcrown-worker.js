@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v11 - + founder dashboard endpoints)
+ * MathCrown API Worker  (v12 - founder dashboard; sample-report wording)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -1018,7 +1018,7 @@ function childBlockHtml(c) {
   const change = c.change === null ? "—" : (c.change > 0 ? "+" : "") + c.change + "%";
   const lines = [];
   if (!c.answered) {
-    lines.push(`${escHtml(c.name)} didn't practice this week. Ten minutes a day is enough to keep skills fresh: try today's Daily Crown together.`);
+    lines.push(`${escHtml(c.name)} ${c.soFar ? "hasn't practiced yet this week" : "didn't practice this week"}. Ten minutes a day is enough to keep skills fresh: try today's Daily Crown together.`);
   } else {
     lines.push(c.goalMet ? `🎯 Weekly Goal complete (50 questions at 75%+ accuracy).` : `🎯 Weekly Goal: ${c.answered}/50 questions${c.acc < 75 ? `, accuracy ${c.acc}% (goal 75%)` : ""}.`);
   }
@@ -1035,14 +1035,14 @@ function childBlockHtml(c) {
 }
 
 function childBlockText(c) {
-  const parts = [`${c.name}: ${c.answered} questions, ${c.answered ? c.acc + "% accuracy" : "no practice"}` + (c.change === null ? "" : `, ${c.change > 0 ? "+" : ""}${c.change}% vs. usual`) + "."];
+  const parts = [`${c.name}: ${c.answered} questions, ${c.answered ? c.acc + "% accuracy" : (c.soFar ? "no practice yet" : "no practice")}` + (c.change === null ? "" : `, ${c.change > 0 ? "+" : ""}${c.change}% vs. usual`) + "."];
   if (c.answered) parts.push(c.goalMet ? "Weekly Goal complete." : `Weekly Goal: ${c.answered}/50.`);
   if (c.seasonActive) parts.push(`Season path: ${c.seasonDone}/${SEASON_WEEKS_REQUIRED}.`);
   if (c.weak) parts.push(`Needs practice: ${c.weak.name} (${c.weak.pct}%).`);
   return parts.join(" ");
 }
 
-async function buildParentReport(env, parentUid, weekId, label) {
+async function buildParentReport(env, parentUid, weekId, label, soFar = false) {
   const res = await countedFetch(FS_BASE + `/parent_links/${parentUid}/children?pageSize=10`, {
     headers: { "Authorization": "Bearer " + await getFirestoreAccessToken(env) }
   });
@@ -1052,7 +1052,7 @@ async function buildParentReport(env, parentUid, weekId, label) {
   for (const childUid of links) {
     const child = fsData(await fsGetDoc(env, `/users/${childUid}`));
     if (child.role && child.role !== "student") continue;
-    kids.push(childSummary(child, weekId));
+    kids.push({ ...childSummary(child, weekId), soFar });
   }
   if (!kids.length) return null;
   const unsub = `https://mathcrown-api.holudharyor4real.workers.dev/unsubscribe?u=${parentUid}&t=${await unsubscribeToken(env, parentUid)}`;
@@ -1126,7 +1126,7 @@ async function handleReportPreview(request, env, origin) {
       return json({ error: "A sample was just sent. Check your inbox (and spam folder)." }, 429, origin);
     }
     const weekId = weekIdFor();
-    const report = await buildParentReport(env, uid, weekId, weekLabel(weekId) + " (so far)");
+    const report = await buildParentReport(env, uid, weekId, weekLabel(weekId) + " (so far)", true);
     if (!report) return json({ error: "Link a child first, then we can send a report." }, 400, origin);
     await sendEmail(env, parent.email, report);
     await fsSet(env, `/report_log/${uid}`, { lastPreviewAtMs: Date.now() });
@@ -1374,7 +1374,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 11 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 12 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it

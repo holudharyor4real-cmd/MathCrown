@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v12 - founder dashboard; sample-report wording)
+ * MathCrown API Worker  (v13 - founder dashboard; tidier Mastery Check questions)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -640,7 +640,7 @@ const MASTERY_GENERATORS = {
   2: [
     () => { const a = rint(12, 49), b = rint(3, 9); return { q: `${a} × ${b} = ?`, a: a * b, wrong: [a * b + b, a * b - a, a * (b + 1), a * b + 10] }; },
     () => { const b = rint(3, 12), q = rint(3, 15); return { q: `${b * q} ÷ ${b} = ?`, a: q, wrong: [q + 1, q - 1, q + 2, b] }; },
-    () => { const d = rint(5, 12), n1 = rint(1, d - 3), n2 = rint(1, d - 1 - n1); return { q: `${n1}/${d} + ${n2}/${d} = ?`, a: `${n1 + n2}/${d}`, wrong: [`${n1 + n2}/${2 * d}`, `${n1 * n2}/${d}`, `${n1 + n2 + 1}/${d}`, `${Math.abs(n1 - n2)}/${d}`] }; },
+    () => { const d = rint(5, 12), n1 = rint(1, d - 3); let n2 = rint(1, d - 1 - n1); if (n2 === n1) n2 = n1 + 1 <= d - 1 - n1 ? n1 + 1 : Math.max(1, n1 - 1); if (n2 === n1) n2 = 1; return { q: `${n1}/${d} + ${n2}/${d} = ?`, a: `${n1 + n2}/${d}`, wrong: [`${n1 + n2}/${2 * d}`, `${n1 * n2}/${d}`, `${n1 + n2 + 1}/${d}`, `${Math.abs(n1 - n2)}/${d}`] }; },
     () => { const a = rint(11, 89), b = rint(11, 89); const s = (a + b) / 10; return { q: `${(a / 10).toFixed(1)} + ${(b / 10).toFixed(1)} = ?`, a: s.toFixed(1), wrong: [(s + 0.1).toFixed(1), (s - 0.1).toFixed(1), (s + 1).toFixed(1), (s - 1).toFixed(1)] }; },
     () => { const l = rint(4, 15), w = rint(3, 12); return { q: `A rectangle is ${l} cm long and ${w} cm wide. What is its area in cm²?`, a: l * w, wrong: [2 * (l + w), l + w, l * w + l, l * w - w] }; }
   ],
@@ -653,7 +653,7 @@ const MASTERY_GENERATORS = {
     () => { const a = rint(2, 20), b = rint(2, 9), c = rint(2, 9); return { q: `${a} + ${b} × ${c} = ?`, a: a + b * c, wrong: [(a + b) * c, a + b + c, a * b + c, a + b * c + 1] }; }
   ],
   4: [
-    () => { const x = rint(-8, 8); let a = rint(2, 9), c = rint(1, 9); if (a === c) a++; const b = rint(-12, 12), d = a * x + b - c * x; return { q: `Solve for x: ${a}x ${signed(b)} = ${c}x ${signed(d)}`, a: x, wrong: [-x, x + 1, x - 1, x + 2] }; },
+    () => { const x = rint(-8, 8); let a = rint(2, 9), c = rint(2, 9); if (a === c) a = a === 9 ? 2 : a + 1; const b = rint(-12, 12), d = a * x + b - c * x; return { q: `Solve for x: ${a}x ${signed(b)} = ${c}x ${signed(d)}`, a: x, wrong: [-x, x + 1, x - 1, x + 2] }; },
     () => {
       // Non-zero, distinct, non-opposite roots, so every distractor differs.
       const roots = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -1374,7 +1374,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 12 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 13 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it

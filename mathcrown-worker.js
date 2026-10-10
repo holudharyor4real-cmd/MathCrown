@@ -454,7 +454,7 @@ const FIREBASE_WEB_API_KEY = "AIzaSyBPSvyqDq5Rl-2omowIqo86OGvrJdrP-no";
 
 // First week whose results pay real prizes (Season 1 = 2026-Q4). Earlier
 // weeks still show standings, but are practice only.
-const REWARDS_START_WEEK = "2026-10-05";
+const REWARDS_START_WEEK = "2026-11-02";
 const REWARD_VALUE_LABEL = "$5 value";
 const SEASON_WEEKS_REQUIRED = 8;
 const SEASON_REWARD_SLOTS = { premium: 1, family: 2, max: 2 };
@@ -808,7 +808,7 @@ async function handleSeasonClaim(request, env, origin) {
 
     const thisWeek = weekIdFor();
     const seasonId = seasonIdForWeek(thisWeek);
-    if (thisWeek < REWARDS_START_WEEK) return json({ error: "Season 1 starts Monday, October 5." }, 403, origin);
+    if (thisWeek < REWARDS_START_WEEK) return json({ error: "Season 1 starts Monday, November 2." }, 403, origin);
     const sp = user.seasonProgress || {};
     const weeks = new Set((sp.id === seasonId && Array.isArray(sp.weeks) ? sp.weeks : [])
       .filter((w) => isWeekId(w) && w <= thisWeek && seasonIdForWeek(w) === seasonId));
@@ -905,7 +905,7 @@ async function handleWeeklyClaim(request, env, origin) {
   if (!REWARD_CHOICES[choiceKey]) return json({ error: "Pick a reward first." }, 400, origin);
   try {
     const weekId = prevWeekId(weekIdFor());
-    if (weekId < REWARDS_START_WEEK) return json({ error: "Weekly prizes start with the week of October 5 — this week is practice." }, 403, origin);
+    if (weekId < REWARDS_START_WEEK) return json({ error: "Weekly prizes start with the week of November 2 — this week is practice." }, 403, origin);
     const winners = await computeWeeklyWinners(env, weekId);
     let division = "", category = "";
     for (const [div, w] of Object.entries(winners)) {

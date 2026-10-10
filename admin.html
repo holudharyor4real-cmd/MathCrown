@@ -245,7 +245,7 @@ function render(d) {
     kpi("Active last 7 days", fmt(act.active7), `${fmt(act.active30)} in the last 30 days`),
     kpi("Questions this week", fmt(L.questionsThisWeek), `${fmt(L.questionsToday)} today · ${fmt(L.questionsAllTime)} all time`),
     kpi("Accuracy this week", pct(L.accuracyThisWeek), L.avgAccuracyChange == null ? "Change vs usual: not enough data yet" : `${L.avgAccuracyChange > 0 ? "+" : ""}${L.avgAccuracyChange} pts vs usual (${L.accuracyChangeStudents} students)`),
-    st.available ? kpi("Paying subscriptions", fmt((st.counts.active || 0) + (st.counts.past_due || 0)), `${fmt(st.counts.trialing)} in free trial`) : kpi("Paid students", fmt(d.subscriptions.paidStudents), "Stripe not connected"),
+    st.available ? kpi("Paying subscriptions", fmt((st.counts.active || 0) + (st.counts.past_due || 0)), `${fmt(st.counts.trialing)} in free trial`) : kpi("Paid students", fmt(d.subscriptions.paidStudents), "Stripe not reachable: " + (st.reason || "unknown")),
     st.available ? kpi("Monthly revenue", "$" + Number(st.mrr || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), "Active subscriptions, before fees") : "",
     kpi("Rewards to send", fmt(d.rewards.counts.approved), `${fmt(d.rewards.counts.pending)} waiting on parents · $${fmt(d.rewards.valueSentUsd)} sent so far`)
   ].join("");

@@ -2486,10 +2486,10 @@ body[data-role="parent"] #sfx-btn,body[data-role="teacher"] #sfx-btn{display:non
     <h4>2. Who can take part</h4>
     <p>Students with a MathCrown account who live in the United States. Rewards are delivered only to the student's linked parent or guardian account, and only after that parent approves the request. Void where prohibited.</p>
     <h4>3. Season Mastery Reward (Premium, Family &amp; Max plans)</h4>
-    <p>Seasons follow the calendar quarter; Season 1 runs Monday, Oct 5, 2026 to Sunday, Jan 3, 2027. Weeks run Monday to Sunday, US Eastern time. A <strong>Weekly Goal</strong> is 50 questions in a week at 75% accuracy or better. Complete <strong>8 Weekly Goals</strong> in a season, then pass a <strong>Mastery Check</strong> (10 new questions at your grade level, 8 correct to pass, 15 minutes, up to 3 tries a day) to claim one reward worth $5: a school supplies kit, a $5 Target eGift Card or a $5 Amazon eGift Card.</p>
+    <p>Seasons follow the calendar quarter; Season 1 runs Monday, Nov 2, 2026 to Sunday, Jan 3, 2027; weeks before Nov 2 are practice weeks. Weeks run Monday to Sunday, US Eastern time. A <strong>Weekly Goal</strong> is 50 questions in a week at 75% accuracy or better. Complete <strong>8 Weekly Goals</strong> in a season, then pass a <strong>Mastery Check</strong> (10 new questions at your grade level, 8 correct to pass, 15 minutes, up to 3 tries a day) to claim one reward worth $5: a school supplies kit, a $5 Target eGift Card or a $5 Amazon eGift Card.</p>
     <p>Limits: one Season Reward per student per season (up to $20 a year), and per subscription per season: Premium 1, Family 2, Max 2 (shared among the plan's children, first claimed first served). Claim before the season ends. Season Rewards are a thank-you for learning, not a refund, rebate or return on your subscription.</p>
     <h4>4. Weekly Champions (free, no purchase necessary)</h4>
-    <p>Free and paid players compete equally in three divisions: Grades K–5, 6–8 and 9–12. Each week, in each division, two players win a reward worth $5: the <strong>Top Scorer</strong> (highest Weekly Score = correct answers × accuracy, with at least 30 questions at 60%+ accuracy) and the <strong>Most Improved</strong> (biggest accuracy gain over their own earlier accuracy, at least 30 questions that week and 30 before it). One prize per player per week; ties go to higher accuracy. That's at most 6 prizes ($30) a week. Winners verify with a Mastery Check and claim by the following Sunday; unclaimed prizes aren't re-awarded. Prizes start with the week of Oct 5, 2026.</p>
+    <p>Free and paid players compete equally in three divisions: Grades K–5, 6–8 and 9–12. Each week, in each division, two players win a reward worth $5: the <strong>Top Scorer</strong> (highest Weekly Score = correct answers × accuracy, with at least 30 questions at 60%+ accuracy) and the <strong>Most Improved</strong> (biggest accuracy gain over their own earlier accuracy, at least 30 questions that week and 30 before it). One prize per player per week; ties go to higher accuracy. That's at most 6 prizes ($30) a week. Winners verify with a Mastery Check and claim by the following Sunday; unclaimed prizes aren't re-awarded. Prizes start with the week of Nov 2, 2026; weeks before that are practice weeks with no prizes.</p>
     <h4>5. Delivery</h4>
     <p>After parent approval, eGift Cards are emailed to the parent and supplies kits are mailed to a US address the parent provides, usually within 14 days. Target and Amazon are not sponsors of MathCrown; their names and marks belong to their owners.</p>
     <h4>6. Fair play</h4>
@@ -3628,7 +3628,7 @@ function awardCoins(amount, reason){
 //     season + a passed Mastery Check → one $5 reward, capped per plan.
 //   • Weekly Champions (everyone, no purchase necessary): per division,
 //     a Top Scorer and a Most Improved win a $5 reward each week.
-var REWARDS_START_WEEK = "2026-10-05";
+var REWARDS_START_WEEK = "2026-11-02";
 var WEEKLY_GOAL_ANSWERS = 50;
 var WEEKLY_GOAL_ACCURACY = 0.75;
 var SEASON_WEEKS_REQUIRED = 8;
@@ -3846,7 +3846,7 @@ function seasonCardHtml(compact){
   var paid=isPaidPlan();
   var h="<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap'>"
     +"<div style='font-family:\"Fredoka One\",cursive;font-size:19px'>🎯 Season Mastery Path</div>"
-    +"<span class='badge b-mint'>"+(live?mcSeasonLabel(sid)+" · ends "+mcSeasonEnds(sid):"Season 1 starts Mon, Oct 5")+"</span></div>";
+    +"<span class='badge b-mint'>"+(live?mcSeasonLabel(sid)+" · ends "+mcSeasonEnds(sid):"Season 1 starts Mon, Nov 2")+"</span></div>";
   h+="<div style='font-size:13px;margin-top:10px'><strong>This week's goal:</strong> "+WEEKLY_GOAL_ANSWERS+" questions at "+Math.round(WEEKLY_GOAL_ACCURACY*100)+"%+ accuracy"
     +(w.goalMet?" <span class='badge b-mint'>✅ Done</span>":"")+"</div>"
     +progressBar(w.goalMet?100:goalPct, w.goalMet?"var(--mint)":"var(--sun)")
@@ -3866,7 +3866,7 @@ function seasonCardHtml(compact){
     foot="🔒 <strong>Season Rewards come with Premium, Family &amp; Max.</strong> Finish the path and pass a Mastery Check to earn a real $5 reward (school supplies or a gift card) each season. Weekly Goals still count for MathCoins and Weekly Champions on the free plan."
       +"<div style='margin-top:10px'><button class='btn btn-sun btn-sm' onclick='goToUpgradeOptions()'>⭐ See plans</button></div>";
   } else if(!live){
-    foot="Weeks from Monday, October 5 count toward Season 1. Use this weekend to warm up!";
+    foot="Weeks from Monday, November 2 count toward Season 1. Until then, practice weeks still earn MathCoins, so build the habit now!";
   } else if(claimed){
     foot="✅ <strong>"+escHtml(claimed.prizeName)+"</strong> claimed for this season. Status: "+escHtml(claimed.status)+". Next season starts after "+mcSeasonEnds(sid)+".";
   } else if(done<SEASON_WEEKS_REQUIRED){
@@ -3909,7 +3909,7 @@ function renderWeeklyCard(){
   var qualified=w.answered>=WEEKLY_MIN_ANSWERS && acc>=WEEKLY_MIN_ACCURACY*100;
   var h="<div style='font-family:\"Fredoka One\",cursive;font-size:19px'>🏆 Weekly Champions</div>"
     +"<div style='font-size:13px;color:var(--text2);margin:6px 0 12px;line-height:1.6'>Every week, in each division, the <strong>Top Scorer</strong> and the <strong>Most Improved</strong> player each win a real $5 reward. "
-    +"Free to compete, no purchase necessary. Score = correct answers × accuracy, so careful beats fast."+(rewardsLive()?"":" <strong>Prizes start with the week of Oct 5. This week is practice.</strong>")+"</div>";
+    +"Free to compete, no purchase necessary. Score = correct answers × accuracy, so careful beats fast."+(rewardsLive()?"":" <strong>Prizes start with the week of Nov 2. This week is practice.</strong>")+"</div>";
   if(S.name && !S.isPreview){
     h+="<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-bottom:12px'>"
       +"<div class='card' style='padding:10px'><div style='font-size:20px;font-weight:900;color:var(--sun)'>"+weeklyScore(w)+"</div><div style='font-size:11px;color:var(--text2)'>Your score</div></div>"
@@ -3933,7 +3933,7 @@ function renderWeeklyCard(){
     var win=myWeeklyWin();
     if(win){
       var what=win.category==="champion"?"Top Scorer":"Most Improved";
-      if(!win.prizeWeek) h+="<div style='margin-top:12px;font-size:13px'>🎉 You were "+what+" in the practice week. Do it again from Oct 5 to win a real prize!</div>";
+      if(!win.prizeWeek) h+="<div style='margin-top:12px;font-size:13px'>🎉 You were "+what+" in the practice week. Do it again from Nov 2 to win a real prize!</div>";
       else if(win.claimed) h+="<div style='margin-top:12px;font-size:13px'>✅ You claimed your "+what+" prize. Amazing work!</div>";
       else h+="<div style='margin-top:12px'><div style='font-size:14px;font-weight:800;margin-bottom:8px'>🎉 You were last week's "+what+"!</div>"
         +"<button class='btn btn-sun btn-sm' onclick=\"openRewardClaim('weekly')\">🎁 Verify &amp; claim your prize</button>"

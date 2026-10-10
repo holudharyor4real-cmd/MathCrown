@@ -1,5 +1,5 @@
 /**
- * MathCrown API Worker  (v13 - founder dashboard; tidier Mastery Check questions)
+ * MathCrown API Worker  (v14 - founder dashboard: remove an account on request)
  * Secure server-side proxy for the Axiom AI tutor, plus subscription checkout.
  */
 
@@ -224,7 +224,7 @@ async function getFirestoreAccessToken(env) {
   const header = { alg: "RS256", typ: "JWT" };
   const claim = {
     iss: sa.client_email,
-    scope: "https://www.googleapis.com/auth/datastore",
+    scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/identitytoolkit",
     aud: sa.token_uri || "https://oauth2.googleapis.com/token",
     exp: now + 3600,
     iat: now
@@ -1250,7 +1250,7 @@ async function handleAdminOverview(request, env, origin) {
       roles[roles[role] !== undefined ? role : "other"]++;
       const created = tsMs(u.createTime), createdDay = created ? etDay(created) : "";
       if (signups[createdDay]) signups[createdDay][role] = (signups[createdDay][role] || 0) + 1;
-      recent.push({ name: shortName(d.name || d.displayName), role, grade: d.grade || "", created });
+      recent.push({ id: u.id, name: shortName(d.name || d.displayName), role, grade: d.grade || "", created, email: d.email || "", lastPlayDay: d.lastPlayDay || "", admin: isAdminUid(env, u.id) });
       if (role !== "student") continue;
       const g = d.grade === "K" ? 0 : parseInt(d.grade, 10);
       const band = isNaN(g) ? null : g <= 3 ? "K–3" : g <= 5 ? "4–5" : g <= 8 ? "6–8" : g <= 10 ? "9–10" : "11–12";
@@ -1339,10 +1339,79 @@ async function handleAdminOverview(request, env, origin) {
       rewards: { counts: rewardCounts, valueSentUsd: rewardValueSent, toSend, waiting: waiting.slice(0, 50) },
       weekly,
       recentSignups: recent.slice(0, 15).map((r) => ({ name: r.name, role: r.role, grade: r.grade, created: r.created })),
+      // Every account, for the "Manage accounts" list (admin-only response).
+      accountList: recent.slice(0, 1000),
       subrequestsUsed: _subrequests
     }, 200, origin);
   } catch (err) {
     return json({ error: "Could not build the dashboard: " + err.message }, 502, origin);
+  }
+}
+
+// Removes ONE account when the admin clicks Remove and confirms: its
+// sign-in (Firebase Auth) and personal data (profile, progress, presence,
+// link code, parent/child links, pending reward requests). For clearing
+// test accounts and honouring a parent's deletion request. Never runs on
+// its own, and admin accounts can't be removed. Server-side reward audit
+// records (reward_claims, mastery_*) are kept; they hold no names or emails.
+async function handleAdminDeleteAccount(request, env, origin) {
+  const { uid, payload, error } = await readAuthedJson(request, env, origin);
+  if (error) return error;
+  if (!isAdminUid(env, uid)) return json({ error: "This account isn't a MathCrown admin." }, 403, origin);
+  const id = payload.id;
+  if (!isValidUid(id)) return json({ error: "Account id required." }, 400, origin);
+  if (id === uid || isAdminUid(env, id)) return json({ error: "Admin accounts can't be removed here." }, 409, origin);
+  _subrequests = 0;
+  const removed = [], failed = [];
+  const rel = (name) => name.slice(name.indexOf("/documents") + "/documents".length);
+  try {
+    const user = fsData(await fsGetDoc(env, `/users/${id}`));
+    const [ownLinks, allChildLinks, requests, crowns] = await Promise.all([
+      fsFetch(env, `/parent_links/${id}/children?pageSize=50`, { method: "GET" })
+        .then((r) => (r.ok ? r.json() : {})).then((j) => (j.documents || []).map((d) => rel(d.name))),
+      fsCollectionGroup(env, "children", 5000).catch(() => []),
+      fsQueryEq(env, "redemption_requests", "uid", id, 200).catch(() => []),
+      fsQueryEq(env, "crown_holders", "uid", id, 20).catch(() => [])
+    ]);
+    const paths = [
+      `/users/${id}`, `/public_profiles/${id}`, `/presence/${id}`, `/topic_stats/${id}`,
+      `/entitlements/${id}`, `/report_log/${id}`, `/challenges/${id}`, `/challenges/${id}_notify`
+    ];
+    if (/^\d{6}$/.test(String(user.linkCode || ""))) {
+      const lc = fsData(await fsGetDoc(env, `/link_codes/${user.linkCode}`));
+      if (lc.studentUid === id) paths.push(`/link_codes/${user.linkCode}`);
+    }
+    if (user.role === "teacher" && /^\d{6}$/.test(String(user.classCode || ""))) {
+      const room = fsData(await fsGetDoc(env, `/classrooms/${user.classCode}`));
+      if (room.teacherUid === id) paths.push(`/classrooms/${user.classCode}`);
+    }
+    ownLinks.forEach((p) => paths.push(p));
+    allChildLinks.filter((l) => (l.path || "").endsWith(`/children/${id}`)).forEach((l) => paths.push(rel(l.path)));
+    requests.forEach((r) => paths.push(`/redemption_requests/${r.id}`));
+    crowns.forEach((c) => paths.push(`/crown_holders/${c.id}`));
+    for (const path of [...new Set(paths)]) {
+      try {
+        const res = await fsFetch(env, path, { method: "DELETE" });
+        if (res.ok || res.status === 404) removed.push(path); else failed.push(`${path} (${res.status})`);
+      } catch (e) { failed.push(`${path} (${e.message})`); }
+    }
+    // The sign-in itself.
+    let authRemoved = false, authError = "";
+    try {
+      const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+      _subrequests++;
+      const res = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${sa.project_id}/accounts:delete`, {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + await getFirestoreAccessToken(env), "Content-Type": "application/json" },
+        body: JSON.stringify({ localId: id })
+      });
+      const text = res.ok ? "" : await res.text();
+      authRemoved = res.ok || /USER_NOT_FOUND/.test(text);
+      if (!authRemoved) authError = `Firebase Auth returned ${res.status}`;
+    } catch (e) { authError = e.message; }
+    return json({ ok: failed.length === 0 && authRemoved, removed: removed.length, failed, authRemoved, authError }, 200, origin);
+  } catch (err) {
+    return json({ error: "Could not remove the account: " + err.message }, 502, origin);
   }
 }
 
@@ -1374,7 +1443,7 @@ export default {
     }
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "mathcrown-api", version: 13 }, 200, origin);
+      return json({ ok: true, service: "mathcrown-api", version: 14 }, 200, origin);
     }
 
     // Stripe calls this server-to-server — no browser Origin header, so it
@@ -1413,6 +1482,7 @@ export default {
       if (url.pathname === "/weekly-report/preview") return handleReportPreview(request, env, origin);
       if (url.pathname === "/admin/overview") return handleAdminOverview(request, env, origin);
       if (url.pathname === "/admin/reward-status") return handleAdminRewardStatus(request, env, origin);
+      if (url.pathname === "/admin/delete-account") return handleAdminDeleteAccount(request, env, origin);
     }
 
     if (url.pathname !== "/ai" || request.method !== "POST") {

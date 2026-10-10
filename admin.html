@@ -188,6 +188,16 @@ td.num,th.num{text-align:right}
         <div class="tbl"><table id="families"></table></div>
       </section>
     </div>
+    <section class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+        <div>
+          <h2>Manage accounts</h2>
+          <p class="sub" style="margin-bottom:0">Every account, newest first. <strong>Remove</strong> permanently deletes that one account's sign-in, profile and progress (for test accounts or a parent's deletion request). Admin accounts can't be removed.</p>
+        </div>
+        <input id="acctFilter" type="search" placeholder="Search name, email or type" aria-label="Search accounts" style="background:var(--bg);border:1.5px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;min-width:220px">
+      </div>
+      <div class="tbl" id="acctList" style="margin-top:12px;max-height:520px;overflow-y:auto"></div>
+    </section>
     <p class="note">Activity (active days, questions today, Weekly Goals) is tracked from October 3, 2026 onward; students who haven't played since then show as not yet active.</p>
   </main>
 </div>
@@ -272,6 +282,8 @@ function render(d) {
   ]);
   renderSubs(d.subscriptions);
   renderWeekly(d.weekly);
+  ACCOUNTS = d.accountList || [];
+  renderAccounts();
   $("recent").innerHTML = d.recentSignups.length ? `<table><thead><tr><th>Name</th><th>Type</th><th>Grade</th><th class="num">Joined</th></tr></thead><tbody>${d.recentSignups.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.role)}</td><td>${esc(r.grade || "—")}</td><td class="num">${date(r.created)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">No accounts yet.</div>`;
   $("families").innerHTML = rows([
     ["Parent accounts", fmt(a.parent)],
@@ -301,6 +313,33 @@ function renderToSend(rw) {
     else { b.disabled = false; b.textContent = "Mark as sent"; alert(r.data.error || "Couldn't update."); }
   }));
 }
+
+// ── Manage accounts ── one Remove button per account; nothing is ever removed without a click + confirm.
+let ACCOUNTS = [];
+function renderAccounts() {
+  const q = ($("acctFilter").value || "").trim().toLowerCase();
+  const rows = ACCOUNTS.filter((a) => !q || [a.name, a.email, a.role].join(" ").toLowerCase().includes(q));
+  $("acctList").innerHTML = rows.length ? `<table><thead><tr><th>Name</th><th>Type</th><th>Grade</th><th>Email</th><th>Joined</th><th>Last played</th><th></th></tr></thead><tbody>${rows.map((a) => `
+    <tr><td><strong>${esc(a.name)}</strong></td><td>${esc(a.role)}</td><td>${esc(a.grade || "—")}</td>
+    <td style="word-break:break-all">${esc(a.email || "—")}</td><td>${date(a.created)}</td><td>${esc(a.lastPlayDay || "—")}</td>
+    <td class="num">${a.admin ? `<span class="pill good">Admin</span>` : `<button class="btn" data-remove="${esc(a.id)}" style="border-color:rgba(255,107,107,0.5);color:var(--bad)">Remove</button>`}</td></tr>`).join("")}</tbody></table>`
+    : `<div class="empty">${ACCOUNTS.length ? "No accounts match." : "No accounts yet."}</div>`;
+  document.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", async () => {
+    const a = ACCOUNTS.find((x) => x.id === b.getAttribute("data-remove")); if (!a) return;
+    const who = `${a.name} (${a.role}${a.email ? ", " + a.email : ""})`;
+    if (!confirm(`Permanently remove ${who}?\n\nThis deletes their sign-in, profile, progress and family links. It can't be undone.`)) return;
+    b.disabled = true; b.textContent = "Removing…";
+    const r = await post("/admin/delete-account", { id: a.id });
+    if (r.ok && r.data.ok) {
+      ACCOUNTS = ACCOUNTS.filter((x) => x.id !== a.id); renderAccounts();
+    } else if (r.ok) {
+      b.textContent = "Partly removed";
+      alert(`Most of ${a.name}'s data was removed, but not all:\n` + [r.data.authRemoved ? "" : "Sign-in: " + (r.data.authError || "not removed"), ...(r.data.failed || [])].filter(Boolean).join("\n") + "\n\nClick Remove again to retry, or tell support.");
+      b.disabled = false; b.textContent = "Retry remove";
+    } else { b.disabled = false; b.textContent = "Remove"; alert(r.data.error || "Couldn't remove that account."); }
+  }));
+}
+$("acctFilter").addEventListener("input", renderAccounts);
 
 // Single-series column chart (one hue, no legend; the title names it).
 function renderSignups(days) {
